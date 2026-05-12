@@ -238,9 +238,9 @@ export default function AdminSettings() {
       <Card>
         <CardHeader><h2 className="text-sm font-bold text-bb-white">Chatbot Persona</h2></CardHeader>
         <CardBody className="space-y-4">
-          <Input label="Chatbot Name" value={form.chatbot_name || ''} onChange={set('chatbot_name')} placeholder="ByteBurst Assistant" />
+          <Input label="Chatbot Name" value={form.chatbot_name || ''} onChange={set('chatbot_name')} placeholder="CodeLifeAI Assistant" />
           <Input label="Greeting Message" value={form.chatbot_greeting || ''} onChange={set('chatbot_greeting')}
-            placeholder="Hi! I'm the ByteBurst assistant. Ask me anything!" />
+            placeholder="Hi! I'm the CodeLifeAI assistant. Ask me anything!" />
           <div className="flex justify-end">
             <Button onClick={() => saveMut.mutate(form)} loading={saveMut.isPending}>Save Settings</Button>
           </div>

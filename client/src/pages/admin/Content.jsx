@@ -34,7 +34,7 @@ export default function AdminContent() {
           <Input label="Badge text" value={form.hero_badge || ''} onChange={set('hero_badge')} placeholder="We build what's next" />
           <Input label="Main title (large)" value={form.hero_title || ''} onChange={set('hero_title')} placeholder="We Create" />
           <Input label="Cycling words (comma-separated)" value={form.hero_cycling_words || ''} onChange={set('hero_cycling_words')} placeholder="Software., Products., Experiences." />
-          <Textarea label="Subtitle paragraph" value={form.hero_subtitle || ''} onChange={set('hero_subtitle')} rows={2} placeholder="ByteBurst is a software startup…" />
+          <Textarea label="Subtitle paragraph" value={form.hero_subtitle || ''} onChange={set('hero_subtitle')} rows={2} placeholder="CodeLifeAI is a software startup…" />
           <Textarea label="Marquee items (comma-separated)" value={form.marquee_items || ''} onChange={set('marquee_items')} rows={2} placeholder="Web Development, Mobile Apps, UI/UX Design…" />
         </CardBody>
       </Card>
@@ -43,7 +43,7 @@ export default function AdminContent() {
       <Card>
         <CardHeader><h2 className="text-sm font-bold text-bb-white">Contact & Social</h2></CardHeader>
         <CardBody className="space-y-4">
-          <Input label="Contact email" value={form.contact_email || ''} onChange={set('contact_email')} placeholder="hello@byteburst.io" />
+          <Input label="Contact email" value={form.contact_email || ''} onChange={set('contact_email')} placeholder="hello@codelifeai.com" />
           <Textarea label="Contact section subtitle" value={form.contact_subtitle || ''} onChange={set('contact_subtitle')} rows={2} placeholder="Have a project in mind?…" />
           <div className="grid grid-cols-2 gap-4">
             <Input label="LinkedIn URL" value={form.social_linkedin || ''} onChange={set('social_linkedin')} placeholder="https://linkedin.com/…" />

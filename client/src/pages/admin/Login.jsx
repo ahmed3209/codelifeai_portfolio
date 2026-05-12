@@ -15,7 +15,7 @@ export default function AdminLogin() {
     setLoading(true)
     try {
       const { data } = await adminApi.login(creds)
-      localStorage.setItem('bb_token', data.token)
+      localStorage.setItem('cl_token', data.token)
       setAuth(data.token, data.user)
       navigate('/admin')
     } catch {
@@ -31,7 +31,7 @@ export default function AdminLogin() {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 font-extrabold text-2xl tracking-tight text-bb-white mb-1">
             <span className="w-2 h-2 rounded-full bg-bb-accent" />
-            ByteBurst
+            CodeLifeAI
           </div>
           <p className="text-bb-muted text-sm">Admin Panel</p>
         </div>
@@ -64,7 +64,7 @@ export default function AdminLogin() {
             {loading ? 'Signing in…' : 'Sign In →'}
           </button>
         </form>
-        <p className="text-center text-xs text-bb-muted mt-4">Default: admin / byteburst2025</p>
+        <p className="text-center text-xs text-bb-muted mt-4">Default: admin / codelifeai2025</p>
       </div>
     </div>
   )

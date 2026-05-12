@@ -107,7 +107,7 @@ export default function HeroSection({ content = {} }) {
 
         {/* Subtitle */}
         <motion.p {...FU(0.2)} className="text-bb-muted text-[1.05rem] leading-[1.75] max-w-[560px] mb-10">
-          {content.hero_subtitle || 'ByteBurst is a software startup crafting elegant digital products — from sleek web apps to powerful mobile experiences.'}
+          {content.hero_subtitle || 'CodeLifeAI is a software startup crafting elegant digital products — from sleek web apps to powerful mobile experiences.'}
         </motion.p>
 
         {/* CTAs */}

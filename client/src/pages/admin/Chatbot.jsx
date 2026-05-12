@@ -56,7 +56,7 @@ export default function AdminChatbot() {
           <CardHeader><h2 className="text-sm font-bold text-bb-white">New Knowledge Base Document</h2></CardHeader>
           <CardBody>
             <form onSubmit={e => { e.preventDefault(); addMut.mutate(form) }} className="space-y-4">
-              <Input label="Document Title" value={form.title} onChange={e => setForm(p => ({...p, title: e.target.value}))} required placeholder="e.g. ByteBurst Pricing Guide" />
+              <Input label="Document Title" value={form.title} onChange={e => setForm(p => ({...p, title: e.target.value}))} required placeholder="e.g. CodeLifeAI Pricing Guide" />
               <Textarea label="Content" value={form.content} onChange={e => setForm(p => ({...p, content: e.target.value}))} rows={8} required
                 placeholder="Paste any text here — FAQ answers, service descriptions, company info, process details, pricing, case studies…" />
               <div className="flex justify-end gap-3">

@@ -31,7 +31,7 @@ export default function AdminLayout() {
         <div className="px-6 py-5 border-b border-white/[0.06]">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-bb-accent animate-[blink_2.4s_ease-in-out_infinite]" />
-            <span className="font-extrabold text-lg tracking-tight text-bb-white">ByteBurst</span>
+            <span className="font-extrabold text-lg tracking-tight text-bb-white">CodeLifeAI</span>
           </div>
           <p className="text-[0.7rem] text-bb-muted mt-0.5 tracking-widest uppercase">Admin Panel</p>
         </div>

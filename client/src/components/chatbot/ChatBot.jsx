@@ -26,7 +26,7 @@ export default function ChatBot() {
   const [loading,  setLoading]  = useState(false)
   const [showDot,  setShowDot]  = useState(true)
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: "Hi! 👋 I'm the ByteBurst assistant. Ask me about our services, team, or how we can help build your next product!" }
+    { role: 'assistant', content: "Hi! 👋 I'm the CodeLifeAI assistant. Ask me about our services, team, or how we can help build your next product!" }
   ])
   const endRef     = useRef(null)
   const inputRef   = useRef(null)
@@ -61,7 +61,7 @@ export default function ChatBot() {
     } catch {
       setMessages(prev => [...prev, {
         role: 'assistant',
-        content: "Sorry, I'm having trouble right now. Please email us at hello@byteburst.io!"
+        content: "Sorry, I'm having trouble right now. Please email us at hello@codelifeai.com!"
       }])
     } finally {
       setLoading(false)
@@ -99,7 +99,7 @@ export default function ChatBot() {
                   <Zap size={14} className="text-black" />
                 </div>
                 <div>
-                  <p className="text-[0.85rem] font-bold text-bb-white leading-tight">ByteBurst Assistant</p>
+                  <p className="text-[0.85rem] font-bold text-bb-white leading-tight">CodeLifeAI Assistant</p>
                   <div className="flex items-center gap-1.5 mt-0.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-[pulseGlow_2s_ease-in-out_infinite]" />
                     <span className="text-[0.66rem] text-emerald-400 font-medium">Online · Ask anything</span>

@@ -66,7 +66,7 @@ export default function Navbar() {
             <div className="relative w-8 h-8 rounded-[9px] flex items-center justify-center text-sm font-black text-black"
               style={{ background: 'linear-gradient(135deg, #00d4f5, #7c3aed)' }}>⚡</div>
           </div>
-          <span className="hidden sm:block">ByteBurst</span>
+          <span className="hidden sm:block">CodeLifeAI</span>
         </a>
 
         {/* Desktop links */}

@@ -113,13 +113,13 @@ export function ContactSection({ content = {} }) {
 
             {/* Email link */}
             <a
-              href={`mailto:${content.contact_email || 'hello@byteburst.io'}`}
+              href={`mailto:${content.contact_email || 'hello@codelifeai.com'}`}
               className="group flex items-center gap-3 text-sm text-bb-muted hover:text-bb-white transition-colors no-underline mb-8 w-fit"
             >
               <div className="w-9 h-9 rounded-xl bg-bb-accent/10 border border-bb-accent/18 flex items-center justify-center text-bb-accent group-hover:bg-bb-accent/16 transition-colors flex-shrink-0">
                 <Mail size={14} />
               </div>
-              <span>{content.contact_email || 'hello@byteburst.io'}</span>
+              <span>{content.contact_email || 'hello@codelifeai.com'}</span>
             </a>
 
             {/* Social links */}
@@ -227,7 +227,7 @@ export function Footer({ content = {} }) {
                 className="w-7 h-7 rounded-[8px] flex items-center justify-center text-xs font-black text-black flex-shrink-0"
                 style={{ background: 'linear-gradient(135deg, #00d4f5, #7c3aed)' }}
               >⚡</div>
-              ByteBurst
+              CodeLifeAI
             </div>
             <p className="font-fraunces italic font-light text-[0.9rem] text-white/28 leading-relaxed max-w-[210px] mb-5">
               {content.footer_tagline || 'We build digital products that are fast, beautiful, and built to last.'}
@@ -269,7 +269,7 @@ export function Footer({ content = {} }) {
           <div>
             <h4 className="text-[0.67rem] font-bold tracking-[0.12em] uppercase text-white/28 mb-5">Company</h4>
             <ul className="space-y-2.5 list-none p-0 m-0">
-              {[['About Us', '#founders'], ['Our Process', '#process'], ['Why ByteBurst', '#founders'], ['Careers', '#contact']].map(([l, h]) => (
+              {[['About Us', '#founders'], ['Our Process', '#process'], ['Why CodeLifeAI', '#founders'], ['Careers', '#contact']].map(([l, h]) => (
                 <li key={l}>
                   <a href={h} className="text-[0.84rem] text-bb-muted hover:text-bb-white transition-colors no-underline">{l}</a>
                 </li>
@@ -282,9 +282,9 @@ export function Footer({ content = {} }) {
             <h4 className="text-[0.67rem] font-bold tracking-[0.12em] uppercase text-white/28 mb-5">Contact</h4>
             <ul className="space-y-2.5 list-none p-0 m-0">
               <li>
-                <a href={`mailto:${content.contact_email || 'hello@byteburst.io'}`}
+                <a href={`mailto:${content.contact_email || 'hello@codelifeai.com'}`}
                   className="text-[0.84rem] text-bb-muted hover:text-bb-white transition-colors no-underline">
-                  {content.contact_email || 'hello@byteburst.io'}
+                  {content.contact_email || 'hello@codelifeai.com'}
                 </a>
               </li>
               <li><a href="#contact" className="text-[0.84rem] text-bb-muted hover:text-bb-white transition-colors no-underline">Schedule a Call</a></li>
@@ -295,7 +295,7 @@ export function Footer({ content = {} }) {
 
         {/* Bottom bar */}
         <div className="flex items-center justify-between pt-8 flex-wrap gap-3">
-          <span className="text-[0.77rem] text-bb-muted">© {new Date().getFullYear()} ByteBurst. All rights reserved.</span>
+          <span className="text-[0.77rem] text-bb-muted">© {new Date().getFullYear()} CodeLifeAI. All rights reserved.</span>
           <span className="text-[0.71rem] text-white/20 border border-white/[0.05] px-3 py-1 rounded-full tracking-wider">
             Crafted with precision ✦ Pakistan
           </span>

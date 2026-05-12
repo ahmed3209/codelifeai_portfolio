@@ -71,7 +71,7 @@ export default function CTABanner() {
                 <Zap size={14} />
                 Start Your Project
               </a>
-              <a href="mailto:hello@byteburst.io" className="btn-ghost text-sm gap-1.5">
+              <a href="mailto:hello@codelifeai.com" className="btn-ghost text-sm gap-1.5">
                 Email Us Directly
                 <ArrowUpRight size={14} />
               </a>

@@ -10,7 +10,7 @@ const TESTIMONIALS = [
     avatar:  'AR',
     bg:      'linear-gradient(135deg, #00d4f5, #0099bb)',
     rating:  5,
-    quote:   "ByteBurst delivered our banking dashboard in record time — clean code, beautiful UI, and zero post-launch issues. They didn't just build what we asked; they made it better than we imagined.",
+    quote:   "CodeLifeAI delivered our banking dashboard in record time — clean code, beautiful UI, and zero post-launch issues. They didn't just build what we asked; they made it better than we imagined.",
   },
   {
     id: 2,
@@ -19,7 +19,7 @@ const TESTIMONIALS = [
     avatar:  'SM',
     bg:      'linear-gradient(135deg, #a855f7, #7c3aed)',
     rating:  5,
-    quote:   "Working with ByteBurst felt like having a senior in-house engineering team. Communication was seamless, timelines were respected, and the final product drove a 40% increase in our conversion rate.",
+    quote:   "Working with CodeLifeAI felt like having a senior in-house engineering team. Communication was seamless, timelines were respected, and the final product drove a 40% increase in our conversion rate.",
   },
   {
     id: 3,
@@ -28,7 +28,7 @@ const TESTIMONIALS = [
     avatar:  'IY',
     bg:      'linear-gradient(135deg, #22c55e, #16a34a)',
     rating:  5,
-    quote:   "Our medical app needed to be both beautiful and HIPAA-compliant. ByteBurst nailed it. The Flutter development was exceptional — users literally rate us 4.9 stars on the Play Store.",
+    quote:   "Our medical app needed to be both beautiful and HIPAA-compliant. CodeLifeAI nailed it. The Flutter development was exceptional — users literally rate us 4.9 stars on the Play Store.",
   },
   {
     id: 4,
@@ -37,7 +37,7 @@ const TESTIMONIALS = [
     avatar:  'JT',
     bg:      'linear-gradient(135deg, #f59e0b, #d97706)',
     rating:  5,
-    quote:   "We cut operational costs by 35% after ByteBurst rebuilt our supply chain platform. The Python data pipelines they built process 2 million records daily without a single failure. Remarkable work.",
+    quote:   "We cut operational costs by 35% after CodeLifeAI rebuilt our supply chain platform. The Python data pipelines they built process 2 million records daily without a single failure. Remarkable work.",
   },
 ]
 

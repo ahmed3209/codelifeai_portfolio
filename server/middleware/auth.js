@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken'
 
-const SECRET = process.env.JWT_SECRET || 'byteburst-super-secret-2025'
+const SECRET = process.env.JWT_SECRET || 'codelifeai-super-secret-2025'
 
 export function authMiddleware(req, res, next) {
   const header = req.headers.authorization

@@ -10,7 +10,7 @@ let db
 export function getDb() {
   if (!db) {
     const url = process.env.TURSO_DATABASE_URL
-      || `file:${process.env.DB_PATH || path.join(__dirname, 'byteburst.db')}`
+      || `file:${process.env.DB_PATH || path.join(__dirname, 'codelifeai.db')}`
 
     db = createClient({
       url,
@@ -91,7 +91,7 @@ export async function initDb() {
 }
 
 async function seed(db) {
-  const hash = bcrypt.hashSync('byteburst2025', 10)
+  const hash = bcrypt.hashSync('codelifeai2025', 10)
   await db.execute({
     sql: 'INSERT OR IGNORE INTO admin_users (username, password) VALUES (?, ?)',
     args: ['admin', hash],
@@ -138,11 +138,11 @@ async function seed(db) {
 
   const founders = [
     { name: 'Muhammad Ahmed', role: 'Co-Founder & CEO',
-      bio: "Visionary builder and strategic mind behind ByteBurst. Muhammad drives product direction, client relationships, and the relentless pursuit of clean, purposeful software. He believes technology should solve real problems — not create new ones.",
+      bio: "Visionary builder and strategic mind behind CodeLifeAI. Muhammad drives product direction, client relationships, and the relentless pursuit of clean, purposeful software. He believes technology should solve real problems — not create new ones.",
       initials: 'MA', photo_url: '', avatar_bg: 'linear-gradient(135deg,#7c3aed,#00d4f5)',
       tags: JSON.stringify(['Product Strategy','Full-Stack Dev','Startup Growth','Team Leadership']), sort_order: 1 },
     { name: 'Anas Waheed', role: 'Co-Founder & CTO',
-      bio: 'The technical architect who turns ambitious ideas into production-ready systems. Anas leads engineering at ByteBurst with a passion for scalable architecture, developer experience, and shipping things that just work — elegantly.',
+      bio: 'The technical architect who turns ambitious ideas into production-ready systems. Anas leads engineering at CodeLifeAI with a passion for scalable architecture, developer experience, and shipping things that just work — elegantly.',
       initials: 'AW', photo_url: '', avatar_bg: 'linear-gradient(135deg,#00d4f5,#0891b2)',
       tags: JSON.stringify(['Systems Architecture','Backend Engineering','AI & ML','DevOps']), sort_order: 2 },
   ]
@@ -157,9 +157,9 @@ async function seed(db) {
     hero_badge:           "We build what's next",
     hero_title:           'We Create',
     hero_cycling_words:   'Software., Products., Experiences., The Future., What Matters.',
-    hero_subtitle:        'ByteBurst is a software startup crafting elegant digital products — from sleek web apps to powerful mobile experiences.',
+    hero_subtitle:        'CodeLifeAI is a software startup crafting elegant digital products — from sleek web apps to powerful mobile experiences.',
     marquee_items:        'Web Development, Mobile Apps, UI/UX Design, AI Integration, Cloud & DevOps, Tech Consulting',
-    contact_email:        'hello@byteburst.io',
+    contact_email:        'hello@codelifeai.com',
     contact_subtitle:     "Have a project in mind? We'd love to hear about it. Reach out and let's start a conversation.",
     footer_tagline:       'We build digital products that are fast, beautiful, and built to last.',
     social_linkedin:      '',
@@ -177,8 +177,8 @@ async function seed(db) {
   const settingsDefaults = {
     ollama_url:        process.env.OLLAMA_URL   || 'http://localhost:11434',
     ollama_model:      process.env.OLLAMA_MODEL || 'llama3.2',
-    chatbot_name:      'ByteBurst Assistant',
-    chatbot_greeting:  "Hi! 👋 I'm the ByteBurst assistant. Ask me about our services, team, or how we can help you build your next product!",
+    chatbot_name:      'CodeLifeAI Assistant',
+    chatbot_greeting:  "Hi! 👋 I'm the CodeLifeAI assistant. Ask me about our services, team, or how we can help you build your next product!",
   }
   for (const [k, v] of Object.entries(settingsDefaults)) {
     await db.execute({
@@ -190,8 +190,8 @@ async function seed(db) {
   await db.execute({
     sql: 'INSERT INTO kb_documents (title, content) VALUES (?, ?)',
     args: [
-      'ByteBurst Company Overview',
-      `ByteBurst is a software startup founded by Muhammad Ahmed (CEO) and Anas Waheed (CTO), based in Pakistan.
+      'CodeLifeAI Company Overview',
+      `CodeLifeAI is a software startup founded by Muhammad Ahmed (CEO) and Anas Waheed (CTO), based in Pakistan.
 
 We build elegant digital products including web applications, mobile apps, UI/UX design, AI integrations, cloud infrastructure, and offer technical consulting services.
 
@@ -209,11 +209,11 @@ Our Process:
 3. Build — agile sprints with weekly deliverables
 4. Launch — deployment, monitoring, post-launch support
 
-Contact: hello@byteburst.io
+Contact: hello@codelifeai.com
 We work with startups, founders, and growing businesses worldwide.`,
     ],
   })
 
   console.log('✅ Database seeded with default data')
-  console.log('   Admin login: admin / byteburst2025')
+  console.log('   Admin login: admin / codelifeai2025')
 }

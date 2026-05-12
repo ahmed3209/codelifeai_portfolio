@@ -8,7 +8,7 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=4000
-      - JWT_SECRET=${JWT_SECRET:-byteburst-change-me}
+      - JWT_SECRET=${JWT_SECRET:-codelifeai-change-me}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
     volumes:
       - bb_data:/app/server/db

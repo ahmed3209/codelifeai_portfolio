@@ -67,13 +67,13 @@ router.post('/chat', async (req, res) => {
 
   const ollamaUrl    = settings.ollama_url   || process.env.OLLAMA_URL   || 'http://localhost:11434'
   const model        = settings.ollama_model || process.env.OLLAMA_MODEL || 'llama3.2'
-  const chatbotName  = settings.chatbot_name || 'ByteBurst Assistant'
+  const chatbotName  = settings.chatbot_name || 'CodeLifeAI Assistant'
 
   const contactEmailRes = await db.execute({
     sql: "SELECT value FROM content WHERE key = 'contact_email'",
     args: [],
   })
-  const contactEmail = contactEmailRes.rows[0]?.value || 'hello@byteburst.io'
+  const contactEmail = contactEmailRes.rows[0]?.value || 'hello@codelifeai.com'
 
   const contextDocs = await retrieveContext(db, message)
   const contextText = contextDocs.length > 0
@@ -83,9 +83,9 @@ router.post('/chat', async (req, res) => {
   const servicesRes = await db.execute('SELECT title, short_desc FROM services ORDER BY sort_order')
   const servicesText = servicesRes.rows.map(s => `- ${s.title}: ${s.short_desc}`).join('\n')
 
-  const systemPrompt = `You are ${chatbotName}, the helpful AI assistant on ByteBurst's portfolio website.
+  const systemPrompt = `You are ${chatbotName}, the helpful AI assistant on CodeLifeAI's portfolio website.
 
-ByteBurst is a software startup co-founded by Muhammad Ahmed (CEO) and Anas Waheed (CTO), based in Pakistan.
+CodeLifeAI is a software startup co-founded by Muhammad Ahmed (CEO) and Anas Waheed (CTO), based in Pakistan.
 
 ## Our Services
 ${servicesText}
@@ -99,7 +99,7 @@ ${contextText ? `## Knowledge Base\nUse the information below to answer accurate
 - Be concise, warm, and professional. Max 2–3 short paragraphs.
 - Ground your answers in the knowledge base above.
 - For pricing or project inquiries, direct the user to ${contactEmail}.
-- For off-topic questions, gently redirect to how ByteBurst can help.
+- For off-topic questions, gently redirect to how CodeLifeAI can help.
 - Never invent facts not present in the context above.`
 
   try {
