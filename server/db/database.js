@@ -1,39 +1,30 @@
-import { createClient as createWebClient } from '@libsql/client/web'
+import { createClient } from '@libsql/client/web'
 import bcrypt from 'bcryptjs'
-import path from 'path'
-import { fileURLToPath } from 'url'
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 let db
+let initPromise
 
-export async function getDbAsync() {
-  if (!db) {
-    const url = process.env.TURSO_DATABASE_URL
-      || `file:${process.env.DB_PATH || path.join(__dirname, 'codelifeai.db')}`
-
-    if (url.startsWith('file:')) {
-      // Local dev with on-disk SQLite — pull in the native client lazily.
-      const { createClient } = await import('@libsql/client')
-      db = createClient({ url })
-    } else {
-      // Serverless-safe HTTP-only client for Turso.
-      db = createWebClient({ url, authToken: process.env.TURSO_AUTH_TOKEN })
-    }
-  }
-  return db
-}
-
-// Sync getter — only safe to call AFTER initDb() has run.
 export function getDb() {
   if (!db) {
-    throw new Error('Database not initialized. Call initDb() first.')
+    const url = process.env.TURSO_DATABASE_URL
+    if (!url) throw new Error('TURSO_DATABASE_URL is not set')
+    db = createClient({ url, authToken: process.env.TURSO_AUTH_TOKEN })
   }
   return db
 }
 
-export async function initDb() {
-  const db = await getDbAsync()
+export function initDb() {
+  if (!initPromise) {
+    initPromise = doInit().catch(err => {
+      initPromise = null
+      throw err
+    })
+  }
+  return initPromise
+}
+
+async function doInit() {
+  const db = getDb()
 
   const statements = [
     `CREATE TABLE IF NOT EXISTS services (

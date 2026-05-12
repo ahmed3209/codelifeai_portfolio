@@ -5,7 +5,6 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import { initDb } from './db/database.js'
 
-// Routes
 import publicRoutes  from './routes/public.js'
 import adminRoutes   from './routes/admin.js'
 import chatRoutes    from './routes/chat.js'
@@ -28,27 +27,50 @@ app.use(cors({
 }))
 app.use(express.json({ limit: '10mb' }))
 
+// Health check — does not touch the DB. Useful for confirming the function loads.
+app.get('/health', (req, res) => {
+  res.json({
+    ok: true,
+    vercel: !!process.env.VERCEL,
+    hasTurso: !!process.env.TURSO_DATABASE_URL,
+  })
+})
+
+// Lazy DB init on first /api request
+app.use('/api', async (req, res, next) => {
+  try {
+    await initDb()
+    next()
+  } catch (err) {
+    console.error('initDb failed:', err)
+    res.status(500).json({ error: 'Database init failed', message: err.message })
+  }
+})
+
 // API routes
 app.use('/api', publicRoutes)
 app.use('/api/admin', adminRoutes)
 app.use('/api', chatRoutes)
 
-// Serve built React app in production
-const publicDir = path.join(__dirname, 'public')
-app.use(express.static(publicDir))
-app.get('*', (req, res) => {
-  if (!req.path.startsWith('/api')) {
-    res.sendFile(path.join(publicDir, 'index.html'))
-  }
-})
+// Serve built React app (local Docker compose mode only)
+if (!process.env.VERCEL) {
+  const publicDir = path.join(__dirname, 'public')
+  app.use(express.static(publicDir))
+}
 
-// Boot
-await initDb()
+app.get('*', (req, res) => {
+  if (req.path.startsWith('/api')) {
+    return res.status(404).json({ error: 'Not found' })
+  }
+  if (process.env.VERCEL) {
+    return res.json({ ok: true, service: 'codelifeai-api', note: 'Static client is hosted on Hostinger.' })
+  }
+  res.sendFile(path.join(__dirname, 'public', 'index.html'))
+})
 
 if (!process.env.VERCEL) {
   app.listen(PORT, () => {
     console.log(`\n🚀 CodeLifeAI server running on http://localhost:${PORT}`)
-    console.log(`   Admin panel: http://localhost:${PORT}/admin`)
     console.log(`   API:         http://localhost:${PORT}/api\n`)
   })
 }
