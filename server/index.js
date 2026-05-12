@@ -44,8 +44,13 @@ app.get('*', (req, res) => {
 
 // Boot
 await initDb()
-app.listen(PORT, () => {
-  console.log(`\n🚀 CodeLifeAI server running on http://localhost:${PORT}`)
-  console.log(`   Admin panel: http://localhost:${PORT}/admin`)
-  console.log(`   API:         http://localhost:${PORT}/api\n`)
-})
+
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`\n🚀 CodeLifeAI server running on http://localhost:${PORT}`)
+    console.log(`   Admin panel: http://localhost:${PORT}/admin`)
+    console.log(`   API:         http://localhost:${PORT}/api\n`)
+  })
+}
+
+export default app
