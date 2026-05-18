@@ -1,14 +1,7 @@
 import { motion } from 'framer-motion'
 
-const DEFAULT_STEPS = [
-  { number: '01', title: 'Discovery',  icon: '🔍', desc: 'Deep dive into your goals, users, and constraints. We ask hard questions to define the right problem before writing a single line of code.' },
-  { number: '02', title: 'Design',     icon: '✏️', desc: 'Wireframes, prototypes, and a full design system. We validate ideas visually before committing to production.' },
-  { number: '03', title: 'Build',      icon: '⚙️', desc: 'Agile sprints with real deliverables every week. You see live progress — not just status updates and promises.' },
-  { number: '04', title: 'Launch',     icon: '🚀', desc: 'CI/CD deployment, performance monitoring, and dedicated post-launch support. We stay involved until you\'re fully in flight.' },
-]
-
-export default function ProcessSection({ content = {} }) {
-  const steps = content.process_steps ? JSON.parse(content.process_steps) : DEFAULT_STEPS
+export default function ProcessSection({ steps = [] }) {
+  if (!steps.length) return null
 
   return (
     <section id="process" className="relative z-10 py-32 px-6 lg:px-14 border-y border-white/[0.05]"
@@ -77,7 +70,7 @@ export default function ProcessSection({ content = {} }) {
                   </div>
                 )}
                 <h3 className="text-[0.95rem] font-bold text-bb-white mb-2.5">{step.title}</h3>
-                <p className="text-[0.8rem] text-bb-muted leading-relaxed">{step.desc}</p>
+                <p className="text-[0.8rem] text-bb-muted leading-relaxed">{step.description}</p>
               </motion.div>
             ))}
           </div>

@@ -1,70 +1,19 @@
 import { motion } from 'framer-motion'
 import { ArrowUpRight } from 'lucide-react'
 
-const PROJECTS = [
-  {
-    id: 1,
-    title:    'FinTrack — Banking Dashboard',
-    category: 'Web Application',
-    tags:     ['React', 'Node.js', 'PostgreSQL'],
-    outcome:  '10k+ active users',
-    emoji:    '💳',
-    accent:   '#00d4f5',
-    bg:       'linear-gradient(135deg, rgba(0,212,245,0.1) 0%, rgba(124,58,237,0.06) 100%)',
-  },
-  {
-    id: 2,
-    title:    'ShopEase — E-Commerce Platform',
-    category: 'Full-Stack',
-    tags:     ['Next.js', 'Stripe', 'MongoDB'],
-    outcome:  '$2M+ in transactions',
-    emoji:    '🛍️',
-    accent:   '#a855f7',
-    bg:       'linear-gradient(135deg, rgba(168,85,247,0.1) 0%, rgba(0,212,245,0.05) 100%)',
-  },
-  {
-    id: 3,
-    title:    'MedSync — Health App',
-    category: 'Mobile (Flutter)',
-    tags:     ['Flutter', 'Firebase', 'AI'],
-    outcome:  '4.9★ on Play Store',
-    emoji:    '🏥',
-    accent:   '#22c55e',
-    bg:       'linear-gradient(135deg, rgba(34,197,94,0.1) 0%, rgba(0,212,245,0.04) 100%)',
-  },
-  {
-    id: 4,
-    title:    'LogiFlow — Supply Chain SaaS',
-    category: 'SaaS Platform',
-    tags:     ['React', 'Python', 'AWS'],
-    outcome:  '35% cost reduction',
-    emoji:    '📦',
-    accent:   '#f59e0b',
-    bg:       'linear-gradient(135deg, rgba(245,158,11,0.09) 0%, rgba(124,58,237,0.05) 100%)',
-  },
-  {
-    id: 5,
-    title:    'SocialPulse — Analytics Tool',
-    category: 'AI / Data',
-    tags:     ['Python', 'OpenAI', 'React'],
-    outcome:  '500+ agency clients',
-    emoji:    '📊',
-    accent:   '#f43f5e',
-    bg:       'linear-gradient(135deg, rgba(244,63,94,0.09) 0%, rgba(0,212,245,0.04) 100%)',
-  },
-  {
-    id: 6,
-    title:    'EduPath — LMS Platform',
-    category: 'EdTech',
-    tags:     ['Next.js', 'Node.js', 'Video'],
-    outcome:  '20k+ enrolled students',
-    emoji:    '🎓',
-    accent:   '#38bdf8',
-    bg:       'linear-gradient(135deg, rgba(56,189,248,0.1) 0%, rgba(124,58,237,0.05) 100%)',
-  },
-]
+function parseTags(tags) {
+  if (Array.isArray(tags)) return tags
+  try {
+    const parsed = JSON.parse(tags)
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return typeof tags === 'string' ? tags.split(',').map(s => s.trim()).filter(Boolean) : []
+  }
+}
 
-export default function WorkSection() {
+export default function WorkSection({ projects = [] }) {
+  if (!projects.length) return null
+
   return (
     <section id="work" className="relative z-10 py-32 px-6 lg:px-14">
       <div className="max-w-[1280px] mx-auto">
@@ -91,7 +40,7 @@ export default function WorkSection() {
 
         {/* Project grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {PROJECTS.map((p, i) => (
+          {projects.map((p, i) => (
             <motion.div
               key={p.id}
               initial={{ opacity: 0, y: 28 }}
@@ -123,6 +72,7 @@ export default function WorkSection() {
 }
 
 function ProjectCard({ project: p }) {
+  const tags = parseTags(p.tags)
   return (
     <div className="group card-base p-0 cursor-default overflow-hidden h-full flex flex-col">
       {/* Visual area */}
@@ -168,7 +118,7 @@ function ProjectCard({ project: p }) {
       <div className="p-6 flex-1 flex flex-col">
         <h3 className="text-[0.97rem] font-bold text-bb-white mb-3 leading-snug">{p.title}</h3>
         <div className="flex flex-wrap gap-1.5 mt-auto">
-          {p.tags.map((tag, i) => (
+          {tags.map((tag, i) => (
             <span key={i}
               className="text-[0.69rem] font-semibold px-2.5 py-1 rounded-full border border-white/[0.07] transition-colors"
               style={{ color: 'rgba(255,255,255,0.45)', background: 'rgba(255,255,255,0.03)' }}

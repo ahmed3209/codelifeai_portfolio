@@ -33,17 +33,23 @@ router.use(authMiddleware)
 
 router.get('/stats', async (req, res) => {
   const db = getDb()
-  const [services, founders, kb, contacts] = await Promise.all([
+  const [services, founders, kb, contacts, projects, testimonials, earlyAccess] = await Promise.all([
     db.execute('SELECT COUNT(*) as c FROM services'),
     db.execute('SELECT COUNT(*) as c FROM founders'),
     db.execute('SELECT COUNT(*) as c FROM kb_documents'),
     db.execute('SELECT COUNT(*) as c FROM contacts'),
+    db.execute('SELECT COUNT(*) as c FROM projects'),
+    db.execute('SELECT COUNT(*) as c FROM testimonials'),
+    db.execute('SELECT COUNT(*) as c FROM early_access'),
   ])
   res.json({
-    services: Number(services.rows[0].c),
-    founders: Number(founders.rows[0].c),
-    kb_docs:  Number(kb.rows[0].c),
-    contacts: Number(contacts.rows[0].c),
+    services:     Number(services.rows[0].c),
+    founders:     Number(founders.rows[0].c),
+    kb_docs:      Number(kb.rows[0].c),
+    contacts:     Number(contacts.rows[0].c),
+    projects:     Number(projects.rows[0].c),
+    testimonials: Number(testimonials.rows[0].c),
+    early_access: Number(earlyAccess.rows[0].c),
   })
 })
 
@@ -245,11 +251,145 @@ router.put('/change-password', async (req, res) => {
   res.json({ ok: true })
 })
 
-// ── CONTACTS ─────────────────────────────────────────────────
+// ── CONTACTS / ENQUIRIES ─────────────────────────────────────
 
 router.get('/contacts', async (req, res) => {
   const { rows } = await getDb().execute('SELECT * FROM contacts ORDER BY created_at DESC')
   res.json(rows)
+})
+
+router.delete('/contacts/:id', async (req, res) => {
+  await getDb().execute({
+    sql: 'DELETE FROM contacts WHERE id = ?',
+    args: [req.params.id],
+  })
+  res.json({ ok: true })
+})
+
+// ── EARLY ACCESS (ZYRA AI) ───────────────────────────────────
+
+router.get('/early-access', async (req, res) => {
+  const { rows } = await getDb().execute('SELECT * FROM early_access ORDER BY created_at DESC')
+  res.json(rows)
+})
+
+router.delete('/early-access/:id', async (req, res) => {
+  await getDb().execute({
+    sql: 'DELETE FROM early_access WHERE id = ?',
+    args: [req.params.id],
+  })
+  res.json({ ok: true })
+})
+
+// ── PROJECTS (What We've Built) ──────────────────────────────
+
+router.get('/projects', async (req, res) => {
+  const { rows } = await getDb().execute('SELECT * FROM projects ORDER BY sort_order ASC')
+  res.json(rows)
+})
+
+router.post('/projects', async (req, res) => {
+  const { title, category, tags, outcome, emoji, accent, bg, sort_order } = req.body
+  const db = getDb()
+  const max = await db.execute('SELECT MAX(sort_order) as m FROM projects')
+  const nextOrder = sort_order || (Number(max.rows[0].m) || 0) + 1
+  const ins = await db.execute({
+    sql: 'INSERT INTO projects (title,category,tags,outcome,emoji,accent,bg,sort_order) VALUES (?,?,?,?,?,?,?,?)',
+    args: [title, category || '', tags || '[]', outcome || '', emoji || '🚀', accent || '#00d4f5',
+           bg || 'linear-gradient(135deg, rgba(0,212,245,0.1) 0%, rgba(124,58,237,0.06) 100%)', nextOrder],
+  })
+  const { rows } = await db.execute({ sql: 'SELECT * FROM projects WHERE id = ?', args: [Number(ins.lastInsertRowid)] })
+  res.json(rows[0])
+})
+
+router.put('/projects/:id', async (req, res) => {
+  const { title, category, tags, outcome, emoji, accent, bg, sort_order } = req.body
+  const db = getDb()
+  await db.execute({
+    sql: 'UPDATE projects SET title=?,category=?,tags=?,outcome=?,emoji=?,accent=?,bg=?,sort_order=? WHERE id=?',
+    args: [title, category, tags, outcome, emoji, accent, bg, sort_order, req.params.id],
+  })
+  const { rows } = await db.execute({ sql: 'SELECT * FROM projects WHERE id = ?', args: [req.params.id] })
+  res.json(rows[0])
+})
+
+router.delete('/projects/:id', async (req, res) => {
+  await getDb().execute({ sql: 'DELETE FROM projects WHERE id = ?', args: [req.params.id] })
+  res.json({ ok: true })
+})
+
+// ── TESTIMONIALS ─────────────────────────────────────────────
+
+router.get('/testimonials', async (req, res) => {
+  const { rows } = await getDb().execute('SELECT * FROM testimonials ORDER BY sort_order ASC')
+  res.json(rows)
+})
+
+router.post('/testimonials', async (req, res) => {
+  const { name, role, avatar, bg, rating, quote, sort_order } = req.body
+  const db = getDb()
+  const max = await db.execute('SELECT MAX(sort_order) as m FROM testimonials')
+  const nextOrder = sort_order || (Number(max.rows[0].m) || 0) + 1
+  const ins = await db.execute({
+    sql: 'INSERT INTO testimonials (name,role,avatar,bg,rating,quote,sort_order) VALUES (?,?,?,?,?,?,?)',
+    args: [name, role || '', avatar || (name ? name.slice(0, 2).toUpperCase() : '??'),
+           bg || 'linear-gradient(135deg, #00d4f5, #0099bb)', rating || 5, quote, nextOrder],
+  })
+  const { rows } = await db.execute({ sql: 'SELECT * FROM testimonials WHERE id = ?', args: [Number(ins.lastInsertRowid)] })
+  res.json(rows[0])
+})
+
+router.put('/testimonials/:id', async (req, res) => {
+  const { name, role, avatar, bg, rating, quote, sort_order } = req.body
+  const db = getDb()
+  await db.execute({
+    sql: 'UPDATE testimonials SET name=?,role=?,avatar=?,bg=?,rating=?,quote=?,sort_order=? WHERE id=?',
+    args: [name, role, avatar, bg, rating, quote, sort_order, req.params.id],
+  })
+  const { rows } = await db.execute({ sql: 'SELECT * FROM testimonials WHERE id = ?', args: [req.params.id] })
+  res.json(rows[0])
+})
+
+router.delete('/testimonials/:id', async (req, res) => {
+  await getDb().execute({ sql: 'DELETE FROM testimonials WHERE id = ?', args: [req.params.id] })
+  res.json({ ok: true })
+})
+
+// ── PROCESS STEPS ────────────────────────────────────────────
+
+router.get('/process', async (req, res) => {
+  const { rows } = await getDb().execute('SELECT * FROM process_steps ORDER BY sort_order ASC')
+  res.json(rows)
+})
+
+router.post('/process', async (req, res) => {
+  const { number, title, icon, description, sort_order } = req.body
+  const db = getDb()
+  const max = await db.execute('SELECT MAX(sort_order) as m FROM process_steps')
+  const nextOrder = sort_order || (Number(max.rows[0].m) || 0) + 1
+  const num = number || String(nextOrder).padStart(2, '0')
+  const ins = await db.execute({
+    sql: 'INSERT INTO process_steps (number,title,icon,description,sort_order) VALUES (?,?,?,?,?)',
+    args: [num, title, icon || '', description || '', nextOrder],
+  })
+  const { rows } = await db.execute({ sql: 'SELECT * FROM process_steps WHERE id = ?', args: [Number(ins.lastInsertRowid)] })
+  res.json(rows[0])
+})
+
+router.put('/process/:id', async (req, res) => {
+  const { number, title, icon, description, sort_order } = req.body
+  const db = getDb()
+  await db.execute({
+    sql: 'UPDATE process_steps SET number=?,title=?,icon=?,description=?,sort_order=? WHERE id=?',
+    args: [number, title, icon, description, sort_order, req.params.id],
+  })
+  const { rows } = await db.execute({ sql: 'SELECT * FROM process_steps WHERE id = ?', args: [req.params.id] })
+  res.json(rows[0])
+})
+
+router.delete('/process/:id', async (req, res) => {
+  await getDb().execute({ sql: 'DELETE FROM process_steps WHERE id = ?', args: [req.params.id] })
+  res.json({ ok: true })
 })
 
 export default router

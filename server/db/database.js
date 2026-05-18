@@ -80,6 +80,45 @@ async function doInit() {
       message     TEXT,
       created_at  TEXT DEFAULT (datetime('now'))
     )`,
+    `CREATE TABLE IF NOT EXISTS early_access (
+      id          INTEGER PRIMARY KEY AUTOINCREMENT,
+      name        TEXT NOT NULL,
+      email       TEXT NOT NULL,
+      reason      TEXT,
+      created_at  TEXT DEFAULT (datetime('now'))
+    )`,
+    `CREATE TABLE IF NOT EXISTS projects (
+      id          INTEGER PRIMARY KEY AUTOINCREMENT,
+      title       TEXT NOT NULL,
+      category    TEXT,
+      tags        TEXT DEFAULT '[]',
+      outcome     TEXT,
+      emoji       TEXT DEFAULT '🚀',
+      accent      TEXT DEFAULT '#00d4f5',
+      bg          TEXT,
+      sort_order  INTEGER DEFAULT 0,
+      created_at  TEXT DEFAULT (datetime('now'))
+    )`,
+    `CREATE TABLE IF NOT EXISTS testimonials (
+      id          INTEGER PRIMARY KEY AUTOINCREMENT,
+      name        TEXT NOT NULL,
+      role        TEXT,
+      avatar      TEXT,
+      bg          TEXT DEFAULT 'linear-gradient(135deg, #00d4f5, #0099bb)',
+      rating      INTEGER DEFAULT 5,
+      quote       TEXT NOT NULL,
+      sort_order  INTEGER DEFAULT 0,
+      created_at  TEXT DEFAULT (datetime('now'))
+    )`,
+    `CREATE TABLE IF NOT EXISTS process_steps (
+      id          INTEGER PRIMARY KEY AUTOINCREMENT,
+      number      TEXT,
+      title       TEXT NOT NULL,
+      icon        TEXT,
+      description TEXT,
+      sort_order  INTEGER DEFAULT 0,
+      created_at  TEXT DEFAULT (datetime('now'))
+    )`,
   ]
 
   for (const sql of statements) await db.execute(sql)
@@ -90,6 +129,75 @@ async function doInit() {
   if (rows[0].c === 0) {
     console.log('🌱 Seeding database…')
     await seed(db)
+  }
+
+  // Idempotent backfill — runs every boot so existing (already-seeded)
+  // databases also get the newer tables/keys populated.
+  await ensureExtras(db)
+}
+
+async function ensureExtras(db) {
+  const projects = [
+    { title: 'FinTrack — Banking Dashboard', category: 'Web Application', tags: JSON.stringify(['React','Node.js','PostgreSQL']), outcome: '10k+ active users', emoji: '💳', accent: '#00d4f5', bg: 'linear-gradient(135deg, rgba(0,212,245,0.1) 0%, rgba(124,58,237,0.06) 100%)', sort_order: 1 },
+    { title: 'ShopEase — E-Commerce Platform', category: 'Full-Stack', tags: JSON.stringify(['Next.js','Stripe','MongoDB']), outcome: '$2M+ in transactions', emoji: '🛍️', accent: '#a855f7', bg: 'linear-gradient(135deg, rgba(168,85,247,0.1) 0%, rgba(0,212,245,0.05) 100%)', sort_order: 2 },
+    { title: 'MedSync — Health App', category: 'Mobile (Flutter)', tags: JSON.stringify(['Flutter','Firebase','AI']), outcome: '4.9★ on Play Store', emoji: '🏥', accent: '#22c55e', bg: 'linear-gradient(135deg, rgba(34,197,94,0.1) 0%, rgba(0,212,245,0.04) 100%)', sort_order: 3 },
+    { title: 'LogiFlow — Supply Chain SaaS', category: 'SaaS Platform', tags: JSON.stringify(['React','Python','AWS']), outcome: '35% cost reduction', emoji: '📦', accent: '#f59e0b', bg: 'linear-gradient(135deg, rgba(245,158,11,0.09) 0%, rgba(124,58,237,0.05) 100%)', sort_order: 4 },
+    { title: 'SocialPulse — Analytics Tool', category: 'AI / Data', tags: JSON.stringify(['Python','OpenAI','React']), outcome: '500+ agency clients', emoji: '📊', accent: '#f43f5e', bg: 'linear-gradient(135deg, rgba(244,63,94,0.09) 0%, rgba(0,212,245,0.04) 100%)', sort_order: 5 },
+    { title: 'EduPath — LMS Platform', category: 'EdTech', tags: JSON.stringify(['Next.js','Node.js','Video']), outcome: '20k+ enrolled students', emoji: '🎓', accent: '#38bdf8', bg: 'linear-gradient(135deg, rgba(56,189,248,0.1) 0%, rgba(124,58,237,0.05) 100%)', sort_order: 6 },
+  ]
+  const projCount = await db.execute('SELECT COUNT(*) as c FROM projects')
+  if (projCount.rows[0].c === 0) {
+    for (const p of projects) {
+      await db.execute({
+        sql: 'INSERT INTO projects (title,category,tags,outcome,emoji,accent,bg,sort_order) VALUES (?,?,?,?,?,?,?,?)',
+        args: [p.title, p.category, p.tags, p.outcome, p.emoji, p.accent, p.bg, p.sort_order],
+      })
+    }
+  }
+
+  const testimonials = [
+    { name: 'Ahmed Al-Rashid', role: 'Founder, FinTrack', avatar: 'AR', bg: 'linear-gradient(135deg, #00d4f5, #0099bb)', rating: 5, quote: "CodeLifeAI delivered our banking dashboard in record time — clean code, beautiful UI, and zero post-launch issues. They didn't just build what we asked; they made it better than we imagined.", sort_order: 1 },
+    { name: 'Sarah Mitchell', role: 'CTO, ShopEase Inc.', avatar: 'SM', bg: 'linear-gradient(135deg, #a855f7, #7c3aed)', rating: 5, quote: "Working with CodeLifeAI felt like having a senior in-house engineering team. Communication was seamless, timelines were respected, and the final product drove a 40% increase in our conversion rate.", sort_order: 2 },
+    { name: 'Dr. Iman Yousuf', role: 'CEO, MedSync Health', avatar: 'IY', bg: 'linear-gradient(135deg, #22c55e, #16a34a)', rating: 5, quote: "Our medical app needed to be both beautiful and HIPAA-compliant. CodeLifeAI nailed it. The Flutter development was exceptional — users literally rate us 4.9 stars on the Play Store.", sort_order: 3 },
+    { name: 'James Thornton', role: 'Head of Product, LogiFlow', avatar: 'JT', bg: 'linear-gradient(135deg, #f59e0b, #d97706)', rating: 5, quote: "We cut operational costs by 35% after CodeLifeAI rebuilt our supply chain platform. The Python data pipelines they built process 2 million records daily without a single failure. Remarkable work.", sort_order: 4 },
+  ]
+  const testCount = await db.execute('SELECT COUNT(*) as c FROM testimonials')
+  if (testCount.rows[0].c === 0) {
+    for (const t of testimonials) {
+      await db.execute({
+        sql: 'INSERT INTO testimonials (name,role,avatar,bg,rating,quote,sort_order) VALUES (?,?,?,?,?,?,?)',
+        args: [t.name, t.role, t.avatar, t.bg, t.rating, t.quote, t.sort_order],
+      })
+    }
+  }
+
+  const processSteps = [
+    { number: '01', title: 'Discovery', icon: '🔍', description: 'Deep dive into your goals, users, and constraints. We ask hard questions to define the right problem before writing a single line of code.', sort_order: 1 },
+    { number: '02', title: 'Design', icon: '✏️', description: 'Wireframes, prototypes, and a full design system. We validate ideas visually before committing to production.', sort_order: 2 },
+    { number: '03', title: 'Build', icon: '⚙️', description: 'Agile sprints with real deliverables every week. You see live progress — not just status updates and promises.', sort_order: 3 },
+    { number: '04', title: 'Launch', icon: '🚀', description: 'CI/CD deployment, performance monitoring, and dedicated post-launch support. We stay involved until you are fully in flight.', sort_order: 4 },
+  ]
+  const stepCount = await db.execute('SELECT COUNT(*) as c FROM process_steps')
+  if (stepCount.rows[0].c === 0) {
+    for (const s of processSteps) {
+      await db.execute({
+        sql: 'INSERT INTO process_steps (number,title,icon,description,sort_order) VALUES (?,?,?,?,?)',
+        args: [s.number, s.title, s.icon, s.description, s.sort_order],
+      })
+    }
+  }
+
+  const launchDefaults = {
+    zyra_enabled:   'true',
+    zyra_name:      'ZYRA AI',
+    zyra_tagline:   'One AI for everything. Chat, create, analyze, automate — a single all-in-one assistant that does what ChatGPT and Claude do, together.',
+    zyra_launch_at: '2026-06-17T18:00:00+05:00',
+  }
+  for (const [k, v] of Object.entries(launchDefaults)) {
+    await db.execute({
+      sql: 'INSERT OR IGNORE INTO content (key, value) VALUES (?, ?)',
+      args: [k, v],
+    })
   }
 }
 

@@ -7,15 +7,25 @@ const router = Router()
 router.get('/site-data', async (req, res) => {
   const db = getDb()
 
-  const [services, founders, rawContent] = await Promise.all([
+  const [services, founders, projects, testimonials, process, rawContent] = await Promise.all([
     db.execute('SELECT * FROM services ORDER BY sort_order ASC'),
     db.execute('SELECT * FROM founders ORDER BY sort_order ASC'),
+    db.execute('SELECT * FROM projects ORDER BY sort_order ASC'),
+    db.execute('SELECT * FROM testimonials ORDER BY sort_order ASC'),
+    db.execute('SELECT * FROM process_steps ORDER BY sort_order ASC'),
     db.execute('SELECT key, value FROM content'),
   ])
 
   const content = rawContent.rows.reduce((acc, { key, value }) => ({ ...acc, [key]: value }), {})
 
-  res.json({ services: services.rows, founders: founders.rows, content })
+  res.json({
+    services: services.rows,
+    founders: founders.rows,
+    projects: projects.rows,
+    testimonials: testimonials.rows,
+    process: process.rows,
+    content,
+  })
 })
 
 // GET /api/services
@@ -38,6 +48,23 @@ router.post('/contact', async (req, res) => {
   await getDb().execute({
     sql: 'INSERT INTO contacts (name, email, message) VALUES (?, ?, ?)',
     args: [name, email, message],
+  })
+  res.json({ ok: true })
+})
+
+// POST /api/early-access — ZYRA AI early access requests
+router.post('/early-access', async (req, res) => {
+  const { name, email, reason } = req.body
+  if (!name || !email || !reason) {
+    return res.status(400).json({ error: 'Name, email, and reason are all required' })
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return res.status(400).json({ error: 'Please enter a valid email address' })
+  }
+
+  await getDb().execute({
+    sql: 'INSERT INTO early_access (name, email, reason) VALUES (?, ?, ?)',
+    args: [name.trim(), email.trim(), reason.trim()],
   })
   res.json({ ok: true })
 })

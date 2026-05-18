@@ -2,45 +2,6 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
-const TESTIMONIALS = [
-  {
-    id: 1,
-    name:    'Ahmed Al-Rashid',
-    role:    'Founder, FinTrack',
-    avatar:  'AR',
-    bg:      'linear-gradient(135deg, #00d4f5, #0099bb)',
-    rating:  5,
-    quote:   "CodeLifeAI delivered our banking dashboard in record time — clean code, beautiful UI, and zero post-launch issues. They didn't just build what we asked; they made it better than we imagined.",
-  },
-  {
-    id: 2,
-    name:    'Sarah Mitchell',
-    role:    'CTO, ShopEase Inc.',
-    avatar:  'SM',
-    bg:      'linear-gradient(135deg, #a855f7, #7c3aed)',
-    rating:  5,
-    quote:   "Working with CodeLifeAI felt like having a senior in-house engineering team. Communication was seamless, timelines were respected, and the final product drove a 40% increase in our conversion rate.",
-  },
-  {
-    id: 3,
-    name:    'Dr. Iman Yousuf',
-    role:    'CEO, MedSync Health',
-    avatar:  'IY',
-    bg:      'linear-gradient(135deg, #22c55e, #16a34a)',
-    rating:  5,
-    quote:   "Our medical app needed to be both beautiful and HIPAA-compliant. CodeLifeAI nailed it. The Flutter development was exceptional — users literally rate us 4.9 stars on the Play Store.",
-  },
-  {
-    id: 4,
-    name:    'James Thornton',
-    role:    'Head of Product, LogiFlow',
-    avatar:  'JT',
-    bg:      'linear-gradient(135deg, #f59e0b, #d97706)',
-    rating:  5,
-    quote:   "We cut operational costs by 35% after CodeLifeAI rebuilt our supply chain platform. The Python data pipelines they built process 2 million records daily without a single failure. Remarkable work.",
-  },
-]
-
 function Stars({ count = 5 }) {
   return (
     <div className="flex items-center gap-0.5">
@@ -53,10 +14,10 @@ function Stars({ count = 5 }) {
   )
 }
 
-export default function TestimonialsSection() {
+export default function TestimonialsSection({ testimonials = [] }) {
   const [active, setActive] = useState(0)
   const [dir,    setDir]    = useState(1)
-  const total = TESTIMONIALS.length
+  const total = testimonials.length
 
   function go(next) {
     setDir(next > active ? 1 : -1)
@@ -76,7 +37,9 @@ export default function TestimonialsSection() {
     exit:   (d) => ({ opacity: 0, x: d > 0 ? -60 : 60, transition: { duration: 0.3 } }),
   }
 
-  const t = TESTIMONIALS[active]
+  if (!total) return null
+
+  const t = testimonials[Math.min(active, total - 1)]
 
   return (
     <section className="relative z-10 py-32 px-6 lg:px-14 border-y border-white/[0.05] overflow-hidden"
@@ -106,7 +69,7 @@ export default function TestimonialsSection() {
           <div className="flex items-center justify-center gap-2.5 mt-4">
             <Stars count={5} />
             <span className="text-[0.85rem] font-bold text-amber-400">4.9</span>
-            <span className="text-[0.78rem] text-bb-muted">· {TESTIMONIALS.length} verified reviews</span>
+            <span className="text-[0.78rem] text-bb-muted">· {total} verified review{total !== 1 ? 's' : ''}</span>
           </div>
         </motion.div>
 
@@ -151,7 +114,7 @@ export default function TestimonialsSection() {
           <div className="flex items-center justify-between mt-6">
             {/* Dots */}
             <div className="flex items-center gap-2">
-              {TESTIMONIALS.map((_, i) => (
+              {testimonials.map((_, i) => (
                 <button key={i} onClick={() => go(i)}
                   className={`transition-all duration-300 rounded-full ${i === active ? 'w-6 h-1.5 bg-bb-accent' : 'w-1.5 h-1.5 bg-white/20 hover:bg-white/40'}`}
                 />
@@ -173,7 +136,7 @@ export default function TestimonialsSection() {
 
         {/* Avatars row */}
         <div className="flex items-center justify-center gap-3 mt-10">
-          {TESTIMONIALS.map((testimonial, i) => (
+          {testimonials.map((testimonial, i) => (
             <motion.button
               key={i}
               onClick={() => go(i)}
