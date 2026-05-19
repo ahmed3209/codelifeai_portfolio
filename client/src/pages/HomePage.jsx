@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { publicApi } from '../lib/api'
 import HeroSection          from '../components/sections/HeroSection'
@@ -9,6 +10,8 @@ import TestimonialsSection  from '../components/sections/TestimonialsSection'
 import ProcessSection       from '../components/sections/ProcessSection'
 import CTABanner            from '../components/sections/CTABanner'
 import { ContactSection, Footer } from '../components/sections/ContactFooter'
+
+const ThreeBackground = lazy(() => import('../components/ThreeBackground'))
 
 export default function HomePage() {
   const { data: siteData } = useQuery({
@@ -25,6 +28,11 @@ export default function HomePage() {
 
   return (
     <>
+      {/* Interactive 3D WebGL background (homepage only, lazy-loaded) */}
+      <Suspense fallback={null}>
+        <ThreeBackground />
+      </Suspense>
+
       {/* 00 — Hero */}
       <HeroSection content={content} />
 
