@@ -7,13 +7,14 @@ const router = Router()
 router.get('/site-data', async (req, res) => {
   const db = getDb()
 
-  const [services, founders, projects, testimonials, process, rawContent] = await Promise.all([
+  const [services, founders, projects, testimonials, process, rawContent, activePromo] = await Promise.all([
     db.execute('SELECT * FROM services ORDER BY sort_order ASC'),
-    db.execute('SELECT * FROM founders ORDER BY sort_order ASC'),
+    db.execute('SELECT id, name, role, bio, initials, photo_url, avatar_bg, tags, linkedin_url, sort_order, created_at FROM founders ORDER BY sort_order ASC'),
     db.execute('SELECT * FROM projects ORDER BY sort_order ASC'),
     db.execute('SELECT * FROM testimonials ORDER BY sort_order ASC'),
     db.execute('SELECT * FROM process_steps ORDER BY sort_order ASC'),
     db.execute('SELECT key, value FROM content'),
+    db.execute('SELECT * FROM promos WHERE is_active = 1 LIMIT 1'),
   ])
 
   const content = rawContent.rows.reduce((acc, { key, value }) => ({ ...acc, [key]: value }), {})
@@ -25,7 +26,24 @@ router.get('/site-data', async (req, res) => {
     testimonials: testimonials.rows,
     process: process.rows,
     content,
+    activePromo: activePromo.rows[0] || null,
   })
+})
+
+// GET /api/promos/active — the currently featured promo (or null)
+router.get('/promos/active', async (req, res) => {
+  const { rows } = await getDb().execute('SELECT * FROM promos WHERE is_active = 1 LIMIT 1')
+  res.json(rows[0] || null)
+})
+
+// GET /api/promos/:slug — a specific promo by slug (for direct-linked /launch/:slug)
+router.get('/promos/:slug', async (req, res) => {
+  const { rows } = await getDb().execute({
+    sql: 'SELECT * FROM promos WHERE slug = ? LIMIT 1',
+    args: [req.params.slug],
+  })
+  if (!rows[0]) return res.status(404).json({ error: 'Promo not found' })
+  res.json(rows[0])
 })
 
 // GET /api/services
@@ -36,8 +54,26 @@ router.get('/services', async (req, res) => {
 
 // GET /api/founders
 router.get('/founders', async (req, res) => {
-  const { rows } = await getDb().execute('SELECT * FROM founders ORDER BY sort_order ASC')
+  const { rows } = await getDb().execute('SELECT id, name, role, bio, initials, photo_url, avatar_bg, tags, linkedin_url, sort_order, created_at FROM founders ORDER BY sort_order ASC')
   res.json(rows)
+})
+
+// GET /api/founders/:id/photo — serves the stored photo bytes.
+// `photo_url` on each founder row points at this endpoint when a photo
+// is uploaded (e.g. `/api/founders/3/photo?v=1717... `).
+router.get('/founders/:id/photo', async (req, res) => {
+  const { rows } = await getDb().execute({
+    sql: 'SELECT photo_data, photo_mime FROM founders WHERE id = ?',
+    args: [req.params.id],
+  })
+  const row = rows[0]
+  if (!row || !row.photo_data) return res.status(404).json({ error: 'Photo not found' })
+
+  const buf = Buffer.from(row.photo_data, 'base64')
+  res.setHeader('Content-Type', row.photo_mime || 'image/jpeg')
+  res.setHeader('Cache-Control', 'public, max-age=31536000, immutable')
+  res.setHeader('Content-Length', buf.length)
+  res.end(buf)
 })
 
 // POST /api/contact

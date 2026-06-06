@@ -2,6 +2,22 @@ import axios from 'axios'
 
 const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '')
 
+/**
+ * Resolve a stored URL to one the browser can fetch directly.
+ *
+ * - Already-absolute URLs (http/https/data:) pass through unchanged.
+ * - Server-relative `/api/...` paths get the API base prepended so they
+ *   work when the frontend is on a different origin than the API (prod).
+ *   In dev, API_BASE is empty so the path stays relative and Vite's
+ *   `/api` proxy forwards it to the server.
+ */
+export function resolveApiUrl(url) {
+  if (!url) return ''
+  if (/^(https?:|data:)/i.test(url)) return url
+  if (url.startsWith('/api/')) return `${API_BASE}${url}`
+  return url
+}
+
 const api = axios.create({
   baseURL: `${API_BASE}/api`,
   headers: { 'Content-Type': 'application/json' }
@@ -30,11 +46,13 @@ export default api
 
 // ─── Public API helpers ───────────────────────────────────────
 export const publicApi = {
-  getSiteData:  () => api.get('/site-data'),
-  getServices:  () => api.get('/services'),
-  getFounders:  () => api.get('/founders'),
-  sendMessage:  (data) => api.post('/chat', data),
-  sendContact:  (data) => api.post('/contact', data),
+  getSiteData:    () => api.get('/site-data'),
+  getServices:    () => api.get('/services'),
+  getFounders:    () => api.get('/founders'),
+  getActivePromo: () => api.get('/promos/active'),
+  getPromoBySlug: (slug) => api.get(`/promos/${slug}`),
+  sendMessage:    (data) => api.post('/chat', data),
+  sendContact:    (data) => api.post('/contact', data),
   requestEarlyAccess: (data) => api.post('/early-access', data),
 }
 
@@ -54,6 +72,14 @@ export const adminApi = {
   createFounder: (d) => api.post('/admin/founders', d),
   updateFounder: (id, d) => api.put(`/admin/founders/${id}`, d),
   deleteFounder: (id) => api.delete(`/admin/founders/${id}`),
+  uploadFounderPhoto: (id, file) => {
+    const fd = new FormData()
+    fd.append('photo', file)
+    return api.post(`/admin/founders/${id}/photo`, fd, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+  },
+  deleteFounderPhoto: (id) => api.delete(`/admin/founders/${id}/photo`),
 
   // Site content (hero text, about, etc.)
   getContent:    () => api.get('/admin/content'),
@@ -87,6 +113,13 @@ export const adminApi = {
   createStep:   (d) => api.post('/admin/process', d),
   updateStep:   (id, d) => api.put(`/admin/process/${id}`, d),
   deleteStep:   (id) => api.delete(`/admin/process/${id}`),
+
+  // Promotions / launches
+  getPromos:    () => api.get('/admin/promos'),
+  createPromo:  (d) => api.post('/admin/promos', d),
+  updatePromo:  (id, d) => api.put(`/admin/promos/${id}`, d),
+  deletePromo:  (id) => api.delete(`/admin/promos/${id}`),
+  activatePromo:(id, active = true) => api.put(`/admin/promos/${id}/activate`, { active }),
 
   // Enquiries (contact form submissions)
   getContacts:   () => api.get('/admin/contacts'),

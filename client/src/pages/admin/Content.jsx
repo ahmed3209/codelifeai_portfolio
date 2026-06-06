@@ -43,13 +43,18 @@ export default function AdminContent() {
       <Card>
         <CardHeader><h2 className="text-sm font-bold text-bb-white">Contact & Social</h2></CardHeader>
         <CardBody className="space-y-4">
-          <Input label="Contact email" value={form.contact_email || ''} onChange={set('contact_email')} placeholder="hello@codelifeai.com" />
+          <div className="grid grid-cols-2 gap-4">
+            <Input label="Contact email" value={form.contact_email || ''} onChange={set('contact_email')} placeholder="hello@codelifeai.com" />
+            <Input label="Contact phone" value={form.contact_phone || ''} onChange={set('contact_phone')} placeholder="+92 300 1234567" />
+          </div>
           <Textarea label="Contact section subtitle" value={form.contact_subtitle || ''} onChange={set('contact_subtitle')} rows={2} placeholder="Have a project in mind?…" />
           <div className="grid grid-cols-2 gap-4">
-            <Input label="LinkedIn URL" value={form.social_linkedin || ''} onChange={set('social_linkedin')} placeholder="https://linkedin.com/…" />
-            <Input label="GitHub URL" value={form.social_github || ''} onChange={set('social_github')} placeholder="https://github.com/…" />
-            <Input label="Twitter / X URL" value={form.social_twitter || ''} onChange={set('social_twitter')} placeholder="https://x.com/…" />
-            <Input label="WhatsApp URL" value={form.social_whatsapp || ''} onChange={set('social_whatsapp')} placeholder="https://wa.me/…" />
+            <Input label="LinkedIn URL"     value={form.social_linkedin  || ''} onChange={set('social_linkedin')}  placeholder="https://linkedin.com/company/…" />
+            <Input label="Facebook URL"     value={form.social_facebook  || ''} onChange={set('social_facebook')}  placeholder="https://facebook.com/…" />
+            <Input label="Instagram URL"    value={form.social_instagram || ''} onChange={set('social_instagram')} placeholder="https://instagram.com/…" />
+            <Input label="X / Twitter URL"  value={form.social_twitter   || ''} onChange={set('social_twitter')}   placeholder="https://x.com/…" />
+            <Input label="GitHub URL"       value={form.social_github    || ''} onChange={set('social_github')}    placeholder="https://github.com/…" />
+            <Input label="WhatsApp URL"     value={form.social_whatsapp  || ''} onChange={set('social_whatsapp')}  placeholder="https://wa.me/…" />
           </div>
         </CardBody>
       </Card>

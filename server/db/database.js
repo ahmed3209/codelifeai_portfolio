@@ -40,16 +40,19 @@ async function doInit() {
       updated_at  TEXT DEFAULT (datetime('now'))
     )`,
     `CREATE TABLE IF NOT EXISTS founders (
-      id          INTEGER PRIMARY KEY AUTOINCREMENT,
-      name        TEXT NOT NULL,
-      role        TEXT,
-      bio         TEXT,
-      initials    TEXT,
-      photo_url   TEXT,
-      avatar_bg   TEXT DEFAULT 'linear-gradient(135deg,#7c3aed,#00d4f5)',
-      tags        TEXT DEFAULT '[]',
-      sort_order  INTEGER DEFAULT 0,
-      created_at  TEXT DEFAULT (datetime('now'))
+      id           INTEGER PRIMARY KEY AUTOINCREMENT,
+      name         TEXT NOT NULL,
+      role         TEXT,
+      bio          TEXT,
+      initials     TEXT,
+      photo_url    TEXT,
+      photo_data   TEXT DEFAULT '',
+      photo_mime   TEXT DEFAULT '',
+      avatar_bg    TEXT DEFAULT 'linear-gradient(135deg,#7c3aed,#00d4f5)',
+      tags         TEXT DEFAULT '[]',
+      linkedin_url TEXT DEFAULT '',
+      sort_order   INTEGER DEFAULT 0,
+      created_at   TEXT DEFAULT (datetime('now'))
     )`,
     `CREATE TABLE IF NOT EXISTS content (
       key         TEXT PRIMARY KEY,
@@ -119,6 +122,18 @@ async function doInit() {
       sort_order  INTEGER DEFAULT 0,
       created_at  TEXT DEFAULT (datetime('now'))
     )`,
+    `CREATE TABLE IF NOT EXISTS promos (
+      id          INTEGER PRIMARY KEY AUTOINCREMENT,
+      slug        TEXT UNIQUE NOT NULL,
+      name        TEXT NOT NULL,
+      tagline     TEXT,
+      launch_at   TEXT,
+      cta_label   TEXT DEFAULT 'Request Early Access',
+      is_active   INTEGER DEFAULT 0,
+      sort_order  INTEGER DEFAULT 0,
+      created_at  TEXT DEFAULT (datetime('now')),
+      updated_at  TEXT DEFAULT (datetime('now'))
+    )`,
   ]
 
   for (const sql of statements) await db.execute(sql)
@@ -137,6 +152,21 @@ async function doInit() {
 }
 
 async function ensureExtras(db) {
+  // ── Idempotent schema extensions: ALTER TABLE statements for columns
+  //    added after the initial schema shipped. Wrapped in try/catch because
+  //    SQLite/libSQL don't support `ADD COLUMN IF NOT EXISTS`.
+  const schemaExtensions = [
+    "ALTER TABLE founders ADD COLUMN linkedin_url TEXT DEFAULT ''",
+    "ALTER TABLE founders ADD COLUMN photo_data   TEXT DEFAULT ''",
+    "ALTER TABLE founders ADD COLUMN photo_mime   TEXT DEFAULT ''",
+  ]
+  for (const sql of schemaExtensions) {
+    try { await db.execute(sql) }
+    catch (e) {
+      if (!/duplicate column|already exists/i.test(e.message || '')) throw e
+    }
+  }
+
   const projects = [
     { title: 'FinTrack — Banking Dashboard', category: 'Web Application', tags: JSON.stringify(['React','Node.js','PostgreSQL']), outcome: '10k+ active users', emoji: '💳', accent: '#00d4f5', bg: 'linear-gradient(135deg, rgba(0,212,245,0.1) 0%, rgba(124,58,237,0.06) 100%)', sort_order: 1 },
     { title: 'ShopEase — E-Commerce Platform', category: 'Full-Stack', tags: JSON.stringify(['Next.js','Stripe','MongoDB']), outcome: '$2M+ in transactions', emoji: '🛍️', accent: '#a855f7', bg: 'linear-gradient(135deg, rgba(168,85,247,0.1) 0%, rgba(0,212,245,0.05) 100%)', sort_order: 2 },
@@ -187,17 +217,32 @@ async function ensureExtras(db) {
     }
   }
 
-  const launchDefaults = {
-    zyra_enabled:   'true',
-    zyra_name:      'ZYRA AI',
-    zyra_tagline:   'One AI for everything. Chat, create, analyze, automate — a single all-in-one assistant that does what ChatGPT and Claude do, together.',
-    zyra_launch_at: '2026-06-17T18:00:00+05:00',
-  }
-  for (const [k, v] of Object.entries(launchDefaults)) {
+  // ── Promos: seed a default ZYRA promo on fresh installs, and migrate any
+  //    pre-existing legacy `zyra_*` content keys into the promo row on
+  //    upgrade. Idempotent — only runs while the promos table is empty.
+  const promoCount = await db.execute('SELECT COUNT(*) as c FROM promos')
+  if (Number(promoCount.rows[0].c) === 0) {
+    const legacy = await db.execute(
+      "SELECT key, value FROM content WHERE key IN ('zyra_enabled','zyra_name','zyra_tagline','zyra_launch_at')"
+    )
+    const c = legacy.rows.reduce((acc, { key, value }) => ({ ...acc, [key]: value }), {})
     await db.execute({
-      sql: 'INSERT OR IGNORE INTO content (key, value) VALUES (?, ?)',
-      args: [k, v],
+      sql: `INSERT INTO promos (slug, name, tagline, launch_at, cta_label, is_active, sort_order)
+            VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      args: [
+        'zyra-ai',
+        c.zyra_name || 'ZYRA AI',
+        c.zyra_tagline || 'One AI for everything. Chat, create, analyze, automate — a single all-in-one assistant that does what ChatGPT and Claude do, together.',
+        c.zyra_launch_at || '2026-06-17T18:00:00+05:00',
+        'Request Early Access',
+        c.zyra_enabled === 'false' ? 0 : 1,
+        1,
+      ],
     })
+    // Drop the now-unused legacy content keys (no-op on fresh installs)
+    await db.execute(
+      "DELETE FROM content WHERE key IN ('zyra_enabled','zyra_name','zyra_tagline','zyra_launch_at')"
+    )
   }
 }
 
@@ -271,11 +316,14 @@ async function seed(db) {
     hero_subtitle:        'CodeLifeAI is a software startup crafting elegant digital products — from sleek web apps to powerful mobile experiences.',
     marquee_items:        'Web Development, Mobile Apps, UI/UX Design, AI Integration, Cloud & DevOps, Tech Consulting',
     contact_email:        'hello@codelifeai.com',
+    contact_phone:        '',
     contact_subtitle:     "Have a project in mind? We'd love to hear about it. Reach out and let's start a conversation.",
     footer_tagline:       'We build digital products that are fast, beautiful, and built to last.',
     social_linkedin:      '',
-    social_github:        '',
+    social_facebook:      '',
+    social_instagram:     '',
     social_twitter:       '',
+    social_github:        '',
     social_whatsapp:      '',
   }
   for (const [k, v] of Object.entries(contentDefaults)) {
@@ -289,7 +337,7 @@ async function seed(db) {
     ollama_url:        process.env.OLLAMA_URL   || 'http://localhost:11434',
     ollama_model:      process.env.OLLAMA_MODEL || 'llama3.2',
     chatbot_name:      'CodeLifeAI Assistant',
-    chatbot_greeting:  "Hi! 👋 I'm the CodeLifeAI assistant. Ask me about our services, team, or how we can help you build your next product!",
+    chatbot_greeting:  "Hi! I'm the CodeLifeAI assistant. Ask me about our services, team, or how we can help you build your next product!",
   }
   for (const [k, v] of Object.entries(settingsDefaults)) {
     await db.execute({

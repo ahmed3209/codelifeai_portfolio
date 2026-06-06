@@ -1,5 +1,6 @@
 import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion'
-import { ExternalLink, Github, Linkedin } from 'lucide-react'
+import { ExternalLink, Github, Linkedin, MapPin } from 'lucide-react'
+import { resolveApiUrl } from '../../lib/api'
 
 function useTilt(strength = 9) {
   const rawX  = useMotionValue(0)
@@ -94,7 +95,7 @@ function FounderCard({ founder }) {
             style={{ background: founder.avatar_bg || 'linear-gradient(135deg, #7c3aed, #00d4f5)' }}
           >
             {founder.photo_url
-              ? <img src={founder.photo_url} alt={founder.name} className="w-full h-full object-cover" />
+              ? <img src={resolveApiUrl(founder.photo_url)} alt={founder.name} className="w-full h-full object-cover" />
               : <div className="w-full h-full flex items-center justify-center font-extrabold text-xl text-white">
                   {founder.initials || founder.name.split(' ').map(n => n[0]).join('')}
                 </div>
@@ -107,7 +108,9 @@ function FounderCard({ founder }) {
           <p className="text-[1.08rem] font-extrabold tracking-tight text-bb-white">{founder.name}</p>
           <p className="text-[0.71rem] font-bold tracking-[0.09em] uppercase text-bb-accent mt-0.5">{founder.role}</p>
           {founder.location && (
-            <p className="text-[0.7rem] text-bb-muted mt-0.5">📍 {founder.location}</p>
+            <p className="inline-flex items-center gap-1 text-[0.7rem] text-bb-muted mt-0.5">
+              <MapPin size={10} /> {founder.location}
+            </p>
           )}
         </div>
 

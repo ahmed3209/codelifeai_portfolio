@@ -28,7 +28,9 @@
     background-size: 200px 200px;
   }
 
-  /* Dot grid overlay */
+  /* Static dot grid overlay (home page only — non-home pages get an
+     InteractiveDotGrid canvas that handles its own rendering and sets
+     `body.has-dotgrid` while mounted to suppress this static one). */
   body::after {
     content: '';
     position: fixed; inset: 0; z-index: 0;
@@ -38,6 +40,7 @@
     mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
     -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
   }
+  body.has-dotgrid::after { display: none; }
 
   * { box-sizing: border-box; }
 

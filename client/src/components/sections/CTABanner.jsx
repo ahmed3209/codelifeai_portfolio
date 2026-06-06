@@ -1,11 +1,12 @@
+import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ArrowUpRight, Zap } from 'lucide-react'
+import { ArrowUpRight, Zap, Lock, Target, LifeBuoy } from 'lucide-react'
 
 const TRUST_ITEMS = [
-  { icon: '⚡', text: 'Ship in weeks, not months' },
-  { icon: '🔒', text: 'NDA & IP protection'        },
-  { icon: '🎯', text: 'Fixed-scope pricing'         },
-  { icon: '🔄', text: 'Post-launch support'         },
+  { Icon: Zap,      text: 'Ship in weeks, not months' },
+  { Icon: Lock,     text: 'NDA & IP protection'        },
+  { Icon: Target,   text: 'Fixed-scope pricing'         },
+  { Icon: LifeBuoy, text: 'Post-launch support'         },
 ]
 
 export default function CTABanner() {
@@ -50,7 +51,7 @@ export default function CTABanner() {
 
             {/* Trust items */}
             <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 mb-10">
-              {TRUST_ITEMS.map((item, i) => (
+              {TRUST_ITEMS.map(({ Icon, text }, i) => (
                 <motion.div
                   key={i}
                   initial={{ opacity: 0, y: 10 }}
@@ -59,18 +60,18 @@ export default function CTABanner() {
                   transition={{ delay: 0.1 + i * 0.07 }}
                   className="flex items-center gap-2 text-[0.8rem] text-white/55"
                 >
-                  <span className="text-base">{item.icon}</span>
-                  {item.text}
+                  <Icon size={15} className="text-bb-accent" />
+                  {text}
                 </motion.div>
               ))}
             </div>
 
             {/* CTAs */}
             <div className="flex gap-4 justify-center flex-wrap">
-              <a href="#contact" className="btn-primary text-sm gap-2">
+              <Link to="/contact" className="btn-primary text-sm gap-2">
                 <Zap size={14} />
                 Start Your Project
-              </a>
+              </Link>
               <a href="mailto:hello@codelifeai.com" className="btn-ghost text-sm gap-1.5">
                 Email Us Directly
                 <ArrowUpRight size={14} />

@@ -1,4 +1,48 @@
 import { motion } from 'framer-motion'
+import {
+  Search, Pencil, Settings, Rocket, Target, Lightbulb,
+  ClipboardList, Palette, Wrench, Zap, CheckCircle2,
+} from 'lucide-react'
+
+/**
+ * Maps the emoji values admins commonly enter in the `process_steps.icon`
+ * field to lucide icons. The variation-selector (U+FE0F) is stripped before
+ * lookup so '✏️' and '✏' both match. Unknown values fall back to the raw
+ * string so custom emojis still render.
+ */
+const EMOJI_TO_ICON = {
+  '🔍': Search,
+  '🔎': Search,
+  '✏':  Pencil,
+  '⚙':  Settings,
+  '🚀': Rocket,
+  '🎯': Target,
+  '💡': Lightbulb,
+  '📋': ClipboardList,
+  '🎨': Palette,
+  '🛠': Wrench,
+  '🔧': Wrench,
+  '⚡': Zap,
+  '✅': CheckCircle2,
+}
+
+function StepIcon({ raw }) {
+  const key = String(raw || '').replace(/️/g, '').trim()
+  const Icon = EMOJI_TO_ICON[key]
+
+  if (!Icon) {
+    return (
+      <div className="text-xl mb-2.5 transition-transform duration-300 group-hover:-translate-y-1">
+        {raw}
+      </div>
+    )
+  }
+  return (
+    <div className="mb-2.5 text-bb-muted transition-all duration-300 group-hover:text-bb-accent group-hover:-translate-y-1 group-hover:[filter:drop-shadow(0_0_12px_rgba(0,212,245,0.55))]">
+      <Icon size={28} strokeWidth={1.75} />
+    </div>
+  )
+}
 
 export default function ProcessSection({ steps = [] }) {
   if (!steps.length) return null
@@ -64,11 +108,7 @@ export default function ProcessSection({ steps = [] }) {
                   </span>
                 </motion.div>
 
-                {step.icon && (
-                  <div className="text-xl mb-2.5 transition-transform duration-300 group-hover:-translate-y-1">
-                    {step.icon}
-                  </div>
-                )}
+                {step.icon && <StepIcon raw={step.icon} />}
                 <h3 className="text-[0.95rem] font-bold text-bb-white mb-2.5">{step.title}</h3>
                 <p className="text-[0.8rem] text-bb-muted leading-relaxed">{step.description}</p>
               </motion.div>

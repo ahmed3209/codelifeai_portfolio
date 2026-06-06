@@ -76,7 +76,7 @@ export default function TestimonialsSection({ testimonials = [] }) {
         {/* Testimonial card */}
         <div className="relative max-w-[780px] mx-auto">
           <div className="relative overflow-hidden rounded-2xl border border-white/[0.08] min-h-[260px] flex items-center"
-            style={{ background: 'linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.015) 100%)' }}>
+            style={{ background: 'linear-gradient(145deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.015) 100%)' }}>
             {/* Quote mark */}
             <div className="absolute top-6 left-8 text-[5rem] leading-none font-serif text-white/[0.04] select-none pointer-events-none">
               "

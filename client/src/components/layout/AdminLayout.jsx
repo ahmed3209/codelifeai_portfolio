@@ -14,7 +14,7 @@ const navItems = [
   { to: '/admin/testimonials', label: 'Testimonials', icon: Quote },
   { to: '/admin/process',      label: 'Our Process',  icon: Workflow },
   { to: '/admin/content',      label: 'Content',      icon: FileText },
-  { to: '/admin/zyra',         label: 'ZYRA Launch',  icon: Rocket },
+  { to: '/admin/promotions',   label: 'Promotions',   icon: Rocket },
   { to: '/admin/early-access', label: 'Early Access', icon: Sparkles },
   { to: '/admin/enquiries',    label: 'Enquiries',    icon: Inbox },
   { to: '/admin/chatbot',      label: 'Chatbot KB',   icon: MessageSquare },

@@ -2,10 +2,18 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Sparkles, ArrowRight } from 'lucide-react'
 
-export default function ZyraTeaser({ content = {} }) {
-  if (content.zyra_enabled !== 'true') return null
+/**
+ * Homepage teaser banner for the currently active product launch / promotion.
+ * Pulled from the `promos` table — the row with is_active = 1.
+ * Hidden entirely when there is no active promo.
+ */
+export default function PromoTeaser({ promo }) {
+  if (!promo) return null
 
-  const name = content.zyra_name || 'ZYRA AI'
+  const name    = promo.name || 'Coming Soon'
+  const tagline = promo.tagline || ''
+  const slug    = promo.slug || ''
+  const ctaHref = slug ? `/launch/${slug}` : '/launch'
 
   return (
     <section className="relative z-10 px-6 lg:px-14 py-12">
@@ -30,19 +38,20 @@ export default function ZyraTeaser({ content = {} }) {
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-bb-accent/25 text-[0.66rem] font-bold tracking-[0.2em] uppercase text-bb-accent mb-4"
                 style={{ background: 'rgba(0,212,245,0.06)' }}>
-                <Sparkles size={12} /> New Product · Coming Soon
+                <Sparkles size={12} /> Coming Soon
               </div>
               <h2 className="font-extrabold tracking-tight leading-[1.05] text-bb-white"
                 style={{ fontSize: 'clamp(1.8rem, 4vw, 3rem)' }}>
                 {name} <em className="font-fraunces font-light not-italic text-gradient">is almost here.</em>
               </h2>
-              <p className="text-bb-muted text-sm sm:text-[0.95rem] leading-relaxed max-w-[520px] mt-3">
-                An all-in-one AI assistant — chat, create, analyze, and automate in one place.
-                Everything ChatGPT and Claude do, unified into a single tool.
-              </p>
+              {tagline && (
+                <p className="text-bb-muted text-sm sm:text-[0.95rem] leading-relaxed max-w-[520px] mt-3">
+                  {tagline}
+                </p>
+              )}
             </div>
 
-            <Link to="/launch"
+            <Link to={ctaHref}
               className="btn-primary text-sm sm:text-base px-7 py-3.5 flex-shrink-0 self-start lg:self-center no-underline group">
               See the countdown
               <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />

@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion'
-import { X, ArrowUpRight } from 'lucide-react'
+import { X, ArrowUpRight, Check } from 'lucide-react'
 
 /* ── Spring 3-D tilt ──────────────────────────── */
 function useTilt(strength = 10) {
@@ -178,7 +179,9 @@ function ServiceModal({ svc, onClose }) {
                     initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.045 }}
                     className="flex items-start gap-2.5 bg-white/[0.03] border border-white/[0.05] rounded-xl p-3 hover:border-bb-accent/20 transition-colors">
-                    <div className="w-5 h-5 rounded-full bg-bb-accent/14 flex items-center justify-center text-[0.58rem] text-bb-accent flex-shrink-0 mt-0.5">✓</div>
+                    <div className="w-5 h-5 rounded-full bg-bb-accent/14 flex items-center justify-center text-bb-accent flex-shrink-0 mt-0.5">
+                      <Check size={11} strokeWidth={3} />
+                    </div>
                     <span className="text-[0.82rem] text-white/68 leading-snug">{f}</span>
                   </motion.div>
                 ))}
@@ -203,9 +206,9 @@ function ServiceModal({ svc, onClose }) {
           )}
 
           <div className="flex gap-3 flex-wrap pt-1">
-            <a href="#contact" onClick={onClose} className="btn-primary text-sm py-2.5 px-5 gap-1.5">
+            <Link to="/contact" onClick={onClose} className="btn-primary text-sm py-2.5 px-5 gap-1.5">
               Start a Project <ArrowUpRight size={13} />
-            </a>
+            </Link>
             <button onClick={onClose} className="btn-ghost text-sm py-2.5 px-5">
               Close
             </button>

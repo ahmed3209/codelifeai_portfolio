@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { Zap, Star } from 'lucide-react'
 
 const WORDS = ['Software.', 'Products.', 'Experiences.', 'The Future.', 'What Matters.']
 
 const STATS = [
-  { value: '50+',  label: 'Projects Shipped'    },
-  { value: '100%', label: 'On-time Delivery'     },
-  { value: '5★',   label: 'Client Satisfaction'  },
-  { value: '2x',   label: 'Faster Delivery'      },
+  { value: '50+',  label: 'Projects Shipped'                  },
+  { value: '100%', label: 'On-time Delivery'                  },
+  { value: '5.0',  label: 'Client Satisfaction', showStar: true },
+  { value: '2x',   label: 'Faster Delivery'                   },
 ]
 
 const TECH_STACK = [
@@ -82,7 +84,8 @@ export default function HeroSection({ content = {} }) {
         {/* Section tag */}
         <motion.div {...FU(0)} className="flex items-center gap-3 mb-7">
           <div className="section-label">
-            ⚡ {content.hero_badge || "We build what's next"}
+            <Zap size={11} fill="currentColor" />
+            {content.hero_badge || "We build what's next"}
           </div>
         </motion.div>
 
@@ -112,11 +115,11 @@ export default function HeroSection({ content = {} }) {
 
         {/* CTAs */}
         <motion.div {...FU(0.28)} className="flex gap-4 justify-center flex-wrap mb-16">
-          <a href="#contact" className="btn-primary text-sm">
+          <Link to="/contact" className="btn-primary text-sm">
             Start a Project
             <motion.span animate={{ x: [0, 4, 0] }} transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}>→</motion.span>
-          </a>
-          <a href="#work" className="btn-ghost text-sm">View Our Work</a>
+          </Link>
+          <Link to="/work" className="btn-ghost text-sm">View Our Work</Link>
         </motion.div>
 
         {/* Stats row */}
@@ -129,7 +132,10 @@ export default function HeroSection({ content = {} }) {
         >
           {STATS.map((s, i) => (
             <div key={i} className="flex flex-col items-center justify-center py-5 px-3 border-r border-white/[0.06] last:border-r-0 [&:nth-child(2n)]:border-r-0 sm:[&:nth-child(2n)]:border-r sm:[&:nth-child(n+3)]:border-b-0 border-b border-white/[0.06]">
-              <span className="text-[1.65rem] font-extrabold leading-none text-gradient mb-1">{s.value}</span>
+              <span className="inline-flex items-center gap-1 text-[1.65rem] font-extrabold leading-none text-gradient mb-1">
+                {s.value}
+                {s.showStar && <Star size={18} fill="currentColor" strokeWidth={0} className="text-amber-400" />}
+              </span>
               <span className="text-[0.63rem] font-semibold text-bb-muted uppercase tracking-wider text-center">{s.label}</span>
             </div>
           ))}

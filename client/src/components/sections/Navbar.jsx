@@ -1,19 +1,21 @@
 import { useState, useEffect } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Zap } from 'lucide-react'
 
 const NAV_LINKS = [
-  { href: '#services', label: 'Services' },
-  { href: '#work',     label: 'Work'     },
-  { href: '#founders', label: 'Team'     },
-  { href: '#process',  label: 'Process'  },
-  { href: '#contact',  label: 'Contact'  },
+  { to: '/services', label: 'Services' },
+  { to: '/work',     label: 'Work'     },
+  { to: '/team',     label: 'Team'     },
+  { to: '/process',  label: 'Process'  },
+  { to: '/contact',  label: 'Contact'  },
 ]
 
 export default function Navbar() {
-  const [scrolled,       setScrolled]       = useState(false)
-  const [menuOpen,       setMenuOpen]       = useState(false)
-  const [progress,       setProgress]       = useState(0)
-  const [activeSection,  setActiveSection]  = useState('')
+  const [scrolled, setScrolled] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [progress, setProgress] = useState(0)
+  const { pathname } = useLocation()
 
   useEffect(() => {
     const onScroll = () => {
@@ -25,15 +27,8 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  useEffect(() => {
-    const ids = ['services', 'work', 'founders', 'process', 'contact']
-    const obs = new IntersectionObserver(
-      entries => entries.forEach(e => { if (e.isIntersecting) setActiveSection(e.target.id) }),
-      { threshold: 0.35 }
-    )
-    ids.forEach(id => { const el = document.getElementById(id); if (el) obs.observe(el) })
-    return () => obs.disconnect()
-  }, [])
+  // Close mobile menu on route change
+  useEffect(() => { setMenuOpen(false) }, [pathname])
 
   return (
     <>
@@ -59,24 +54,26 @@ export default function Navbar() {
           ${scrolled ? 'glass border-b border-white/[0.055]' : ''}`}
       >
         {/* Logo */}
-        <a href="#" className="flex items-center gap-2.5 font-extrabold text-[1.1rem] tracking-tight text-bb-white no-underline group">
+        <Link to="/" className="flex items-center gap-2.5 font-extrabold text-[1.1rem] tracking-tight text-bb-white no-underline group">
           <div className="relative w-8 h-8 flex-shrink-0">
             <div className="absolute inset-0 rounded-[9px] opacity-70 blur-[8px] group-hover:blur-[10px] transition-all duration-300"
               style={{ background: 'linear-gradient(135deg, #00d4f5, #7c3aed)' }} />
-            <div className="relative w-8 h-8 rounded-[9px] flex items-center justify-center text-sm font-black text-black"
-              style={{ background: 'linear-gradient(135deg, #00d4f5, #7c3aed)' }}>⚡</div>
+            <div className="relative w-8 h-8 rounded-[9px] flex items-center justify-center text-black"
+              style={{ background: 'linear-gradient(135deg, #00d4f5, #7c3aed)' }}>
+              <Zap size={16} strokeWidth={2.5} fill="currentColor" />
+            </div>
           </div>
           <span className="hidden sm:block">CodeLifeAI</span>
-        </a>
+        </Link>
 
         {/* Desktop links */}
         <ul className="hidden md:flex gap-9 list-none m-0 p-0">
           {NAV_LINKS.map(l => {
-            const isActive = activeSection === l.href.slice(1)
+            const isActive = pathname === l.to
             return (
-              <li key={l.href}>
-                <a
-                  href={l.href}
+              <li key={l.to}>
+                <Link
+                  to={l.to}
                   className={`relative text-[0.75rem] font-semibold uppercase tracking-[0.09em] transition-colors no-underline group/link pb-0.5
                     ${isActive ? 'text-bb-white' : 'text-bb-muted hover:text-bb-white'}`}
                 >
@@ -85,7 +82,7 @@ export default function Navbar() {
                     ${isActive ? 'w-full' : 'w-0 group-hover/link:w-full'}`}
                     style={{ background: 'linear-gradient(90deg, #00d4f5, #7c3aed)' }}
                   />
-                </a>
+                </Link>
               </li>
             )
           })}
@@ -93,10 +90,10 @@ export default function Navbar() {
 
         {/* CTA */}
         <div className="hidden md:flex items-center gap-3">
-          <a href="#contact" className="btn-primary text-[0.82rem] py-2.5 px-5">
+          <Link to="/contact" className="btn-primary text-[0.82rem] py-2.5 px-5">
             Let's Talk
             <span className="inline-block transition-transform group-hover:translate-x-0.5">→</span>
-          </a>
+          </Link>
         </div>
 
         {/* Hamburger */}
@@ -127,28 +124,34 @@ export default function Navbar() {
           >
             <div className="px-6 py-5 flex flex-col gap-0.5">
               {NAV_LINKS.map((l, i) => (
-                <motion.a
-                  key={l.href}
-                  href={l.href}
-                  onClick={() => setMenuOpen(false)}
+                <motion.div
+                  key={l.to}
                   initial={{ opacity: 0, x: -18 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.055, duration: 0.3 }}
-                  className="flex items-center text-sm font-medium text-bb-muted hover:text-bb-white transition-colors no-underline py-3 border-b border-white/[0.04] last:border-0"
                 >
-                  {l.label}
-                </motion.a>
+                  <Link
+                    to={l.to}
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center text-sm font-medium text-bb-muted hover:text-bb-white transition-colors no-underline py-3 border-b border-white/[0.04] last:border-0"
+                  >
+                    {l.label}
+                  </Link>
+                </motion.div>
               ))}
-              <motion.a
-                href="#contact"
-                onClick={() => setMenuOpen(false)}
+              <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: NAV_LINKS.length * 0.055 }}
-                className="btn-primary mt-3 text-sm text-center"
               >
-                Let's Talk
-              </motion.a>
+                <Link
+                  to="/contact"
+                  onClick={() => setMenuOpen(false)}
+                  className="btn-primary mt-3 text-sm text-center w-full"
+                >
+                  Let's Talk
+                </Link>
+              </motion.div>
             </div>
           </motion.div>
         )}

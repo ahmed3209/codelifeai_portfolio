@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom'
+
 import { motion } from 'framer-motion'
 import { ArrowUpRight } from 'lucide-react'
 
@@ -61,10 +63,10 @@ export default function WorkSection({ projects = [] }) {
           transition={{ delay: 0.3, duration: 0.6 }}
           className="flex items-center justify-center mt-12"
         >
-          <a href="#contact" className="btn-ghost text-sm gap-2">
+          <Link to="/contact" className="btn-ghost text-sm gap-2">
             Start your project
             <ArrowUpRight size={15} />
-          </a>
+          </Link>
         </motion.div>
       </div>
     </section>

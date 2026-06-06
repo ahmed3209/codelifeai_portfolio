@@ -1,8 +1,12 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { publicApi } from '../../lib/api'
 import toast from 'react-hot-toast'
-import { Send, Mail, ArrowUpRight } from 'lucide-react'
+import {
+  Send, Mail, ArrowUpRight, Zap, MapPin,
+  Linkedin, Facebook, Instagram, Twitter, Phone,
+} from 'lucide-react'
 
 /* ── Floating label input ─────────────────────── */
 function FloatInput({ label, value, onChange, type = 'text', required, name }) {
@@ -77,11 +81,13 @@ export function ContactSection({ content = {} }) {
   }
 
   const socials = [
-    { label: 'LinkedIn', url: content.social_linkedin },
-    { label: 'GitHub',   url: content.social_github   },
-    { label: 'Twitter',  url: content.social_twitter  },
-    { label: 'WhatsApp', url: content.social_whatsapp },
-  ].filter(s => s.url)
+    { Icon: Linkedin,  href: content.social_linkedin,  label: 'LinkedIn'  },
+    { Icon: Facebook,  href: content.social_facebook,  label: 'Facebook'  },
+    { Icon: Instagram, href: content.social_instagram, label: 'Instagram' },
+    { Icon: Twitter,   href: content.social_twitter,   label: 'X (Twitter)' },
+    { Icon: Mail,      href: content.contact_email ? `mailto:${content.contact_email}` : '', label: 'Email' },
+    { Icon: Phone,     href: content.contact_phone ? `tel:${String(content.contact_phone).replace(/\s+/g, '')}` : '', label: 'Phone' },
+  ].filter(s => s.href)
 
   return (
     <section id="contact" className="relative z-10 py-32 px-6 lg:px-14 overflow-hidden">
@@ -124,19 +130,22 @@ export function ContactSection({ content = {} }) {
 
             {/* Social links */}
             {socials.length > 0 && (
-              <div className="flex gap-2.5 flex-wrap">
-                {socials.map(s => (
-                  <a
-                    key={s.label}
-                    href={s.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group inline-flex items-center gap-1.5 text-[0.75rem] font-medium text-bb-muted border border-white/[0.07] px-4 py-2 rounded-full hover:text-bb-white hover:border-bb-accent/30 hover:bg-bb-accent/5 transition-all no-underline"
-                  >
-                    {s.label}
-                    <ArrowUpRight size={10} className="opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </a>
-                ))}
+              <div className="flex flex-wrap gap-2">
+                {socials.map(({ Icon, href, label }) => {
+                  const isExternal = href.startsWith('http')
+                  return (
+                    <a
+                      key={label}
+                      href={href}
+                      {...(isExternal ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                      aria-label={label}
+                      title={label}
+                      className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-bb-muted hover:text-bb-accent hover:border-bb-accent/30 hover:bg-bb-accent/[0.06] transition-all no-underline"
+                    >
+                      <Icon size={15} />
+                    </a>
+                  )
+                })}
               </div>
             )}
           </motion.div>
@@ -215,8 +224,20 @@ export function ContactSection({ content = {} }) {
 export function Footer({ content = {} }) {
   const services = ['Web Development', 'Mobile Apps', 'UI/UX Design', 'AI Integration', 'Cloud & DevOps']
 
+  const socialIcons = [
+    { Icon: Linkedin,  href: content.social_linkedin,  label: 'LinkedIn'  },
+    { Icon: Facebook,  href: content.social_facebook,  label: 'Facebook'  },
+    { Icon: Instagram, href: content.social_instagram, label: 'Instagram' },
+    { Icon: Twitter,   href: content.social_twitter,   label: 'X (Twitter)' },
+    { Icon: Mail,      href: content.contact_email ? `mailto:${content.contact_email}` : '', label: 'Email' },
+    { Icon: Phone,     href: content.contact_phone ? `tel:${String(content.contact_phone).replace(/\s+/g, '')}` : '', label: 'Phone' },
+  ].filter(s => s.href)
+
   return (
-    <footer className="relative z-10 border-t border-white/[0.05] px-6 lg:px-14 pt-20 pb-10">
+    <footer
+      className="relative z-10 border-t border-white/[0.05] px-6 lg:px-14 pt-20 pb-10"
+      style={{ background: 'rgba(255,255,255,0.05)' }}
+    >
       <div className="max-w-[1200px] mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 pb-16 border-b border-white/[0.05]">
 
@@ -224,30 +245,32 @@ export function Footer({ content = {} }) {
           <div>
             <div className="flex items-center gap-2.5 font-extrabold text-[1.05rem] tracking-tight text-bb-white mb-4">
               <div
-                className="w-7 h-7 rounded-[8px] flex items-center justify-center text-xs font-black text-black flex-shrink-0"
+                className="w-7 h-7 rounded-[8px] flex items-center justify-center text-black flex-shrink-0"
                 style={{ background: 'linear-gradient(135deg, #00d4f5, #7c3aed)' }}
-              >⚡</div>
+              >
+                <Zap size={14} strokeWidth={2.5} fill="currentColor" />
+              </div>
               CodeLifeAI
             </div>
             <p className="font-fraunces italic font-light text-[0.9rem] text-white/28 leading-relaxed max-w-[210px] mb-5">
               {content.footer_tagline || 'We build digital products that are fast, beautiful, and built to last.'}
             </p>
-            <div className="flex gap-2">
-              {[
-                { label: 'in', url: content.social_linkedin },
-                { label: 'gh', url: content.social_github   },
-                { label: '𝕏',  url: content.social_twitter  },
-              ].filter(s => s.url).map(s => (
-                <a
-                  key={s.label}
-                  href={s.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-8 h-8 rounded-lg bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-[0.75rem] font-bold text-bb-muted hover:text-bb-accent hover:border-bb-accent/22 hover:bg-bb-accent/6 transition-all no-underline"
-                >
-                  {s.label}
-                </a>
-              ))}
+            <div className="flex flex-wrap gap-2">
+              {socialIcons.map(({ Icon, href, label }) => {
+                const isExternal = href.startsWith('http')
+                return (
+                  <a
+                    key={label}
+                    href={href}
+                    {...(isExternal ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                    aria-label={label}
+                    title={label}
+                    className="w-9 h-9 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-bb-muted hover:text-bb-accent hover:border-bb-accent/30 hover:bg-bb-accent/[0.06] transition-all no-underline"
+                  >
+                    <Icon size={14} />
+                  </a>
+                )
+              })}
             </div>
           </div>
 
@@ -257,9 +280,9 @@ export function Footer({ content = {} }) {
             <ul className="space-y-2.5 list-none p-0 m-0">
               {services.map(s => (
                 <li key={s}>
-                  <a href="#services" className="text-[0.84rem] text-bb-muted hover:text-bb-white transition-colors no-underline hover:translate-x-0.5 inline-block">
+                  <Link to="/services" className="text-[0.84rem] text-bb-muted hover:text-bb-white transition-colors no-underline hover:translate-x-0.5 inline-block">
                     {s}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -269,9 +292,9 @@ export function Footer({ content = {} }) {
           <div>
             <h4 className="text-[0.67rem] font-bold tracking-[0.12em] uppercase text-white/28 mb-5">Company</h4>
             <ul className="space-y-2.5 list-none p-0 m-0">
-              {[['About Us', '#founders'], ['Our Process', '#process'], ['Why CodeLifeAI', '#founders'], ['Careers', '#contact']].map(([l, h]) => (
+              {[['About Us', '/team'], ['Our Process', '/process'], ['Why CodeLifeAI', '/team'], ['Careers', '/contact']].map(([l, h]) => (
                 <li key={l}>
-                  <a href={h} className="text-[0.84rem] text-bb-muted hover:text-bb-white transition-colors no-underline">{l}</a>
+                  <Link to={h} className="text-[0.84rem] text-bb-muted hover:text-bb-white transition-colors no-underline">{l}</Link>
                 </li>
               ))}
             </ul>
@@ -287,8 +310,8 @@ export function Footer({ content = {} }) {
                   {content.contact_email || 'hello@codelifeai.com'}
                 </a>
               </li>
-              <li><a href="#contact" className="text-[0.84rem] text-bb-muted hover:text-bb-white transition-colors no-underline">Schedule a Call</a></li>
-              <li><a href="#contact" className="text-[0.84rem] text-bb-muted hover:text-bb-white transition-colors no-underline">Project Brief</a></li>
+              <li><Link to="/contact" className="text-[0.84rem] text-bb-muted hover:text-bb-white transition-colors no-underline">Schedule a Call</Link></li>
+              <li><Link to="/contact" className="text-[0.84rem] text-bb-muted hover:text-bb-white transition-colors no-underline">Project Brief</Link></li>
             </ul>
           </div>
         </div>
@@ -296,8 +319,8 @@ export function Footer({ content = {} }) {
         {/* Bottom bar */}
         <div className="flex items-center justify-between pt-8 flex-wrap gap-3">
           <span className="text-[0.77rem] text-bb-muted">© {new Date().getFullYear()} CodeLifeAI. All rights reserved.</span>
-          <span className="text-[0.71rem] text-white/20 border border-white/[0.05] px-3 py-1 rounded-full tracking-wider">
-            Crafted with precision ✦ Pakistan
+          <span className="inline-flex items-center gap-1.5 text-[0.71rem] text-white/20 border border-white/[0.05] px-3 py-1 rounded-full tracking-wider">
+            Crafted with precision · <MapPin size={10} /> Pakistan
           </span>
         </div>
       </div>

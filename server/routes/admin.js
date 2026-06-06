@@ -1,9 +1,22 @@
 import { Router } from 'express'
 import bcrypt from 'bcryptjs'
+import multer from 'multer'
 import { getDb } from '../db/database.js'
 import { authMiddleware, signToken } from '../middleware/auth.js'
 
 const router = Router()
+
+// Multer config for founder photo uploads: in-memory, 1MB max, image MIME only.
+const photoUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 1024 * 1024 }, // 1 MB
+  fileFilter(req, file, cb) {
+    if (!/^image\/(jpe?g|png|webp|gif)$/i.test(file.mimetype)) {
+      return cb(new Error('Only JPEG, PNG, WebP or GIF images are allowed'))
+    }
+    cb(null, true)
+  },
+})
 
 // ── AUTH ──────────────────────────────────────────────────────
 
@@ -115,35 +128,35 @@ router.delete('/services/:id', async (req, res) => {
 // ── FOUNDERS ──────────────────────────────────────────────────
 
 router.get('/founders', async (req, res) => {
-  const { rows } = await getDb().execute('SELECT * FROM founders ORDER BY sort_order ASC')
+  const { rows } = await getDb().execute('SELECT id, name, role, bio, initials, photo_url, avatar_bg, tags, linkedin_url, sort_order, created_at FROM founders ORDER BY sort_order ASC')
   res.json(rows)
 })
 
 router.post('/founders', async (req, res) => {
-  const { name, role, bio, initials, photo_url, avatar_bg, tags, sort_order } = req.body
+  const { name, role, bio, initials, photo_url, avatar_bg, tags, linkedin_url, sort_order } = req.body
   const db = getDb()
   const max = await db.execute('SELECT MAX(sort_order) as m FROM founders')
   const nextOrder = sort_order || (Number(max.rows[0].m) || 0) + 1
   const ins = await db.execute({
-    sql: 'INSERT INTO founders (name,role,bio,initials,photo_url,avatar_bg,tags,sort_order) VALUES (?,?,?,?,?,?,?,?)',
-    args: [name, role, bio, initials, photo_url || '', avatar_bg || 'linear-gradient(135deg,#7c3aed,#00d4f5)', tags || '[]', nextOrder],
+    sql: 'INSERT INTO founders (name,role,bio,initials,photo_url,avatar_bg,tags,linkedin_url,sort_order) VALUES (?,?,?,?,?,?,?,?,?)',
+    args: [name, role, bio, initials, photo_url || '', avatar_bg || 'linear-gradient(135deg,#7c3aed,#00d4f5)', tags || '[]', linkedin_url || '', nextOrder],
   })
   const { rows } = await db.execute({
-    sql: 'SELECT * FROM founders WHERE id = ?',
+    sql: 'SELECT id, name, role, bio, initials, photo_url, avatar_bg, tags, linkedin_url, sort_order, created_at FROM founders WHERE id = ?',
     args: [Number(ins.lastInsertRowid)],
   })
   res.json(rows[0])
 })
 
 router.put('/founders/:id', async (req, res) => {
-  const { name, role, bio, initials, photo_url, avatar_bg, tags, sort_order } = req.body
+  const { name, role, bio, initials, photo_url, avatar_bg, tags, linkedin_url, sort_order } = req.body
   const db = getDb()
   await db.execute({
-    sql: 'UPDATE founders SET name=?,role=?,bio=?,initials=?,photo_url=?,avatar_bg=?,tags=?,sort_order=? WHERE id=?',
-    args: [name, role, bio, initials, photo_url, avatar_bg, tags, sort_order, req.params.id],
+    sql: 'UPDATE founders SET name=?,role=?,bio=?,initials=?,photo_url=?,avatar_bg=?,tags=?,linkedin_url=?,sort_order=? WHERE id=?',
+    args: [name, role, bio, initials, photo_url, avatar_bg, tags, linkedin_url || '', sort_order, req.params.id],
   })
   const { rows } = await db.execute({
-    sql: 'SELECT * FROM founders WHERE id = ?',
+    sql: 'SELECT id, name, role, bio, initials, photo_url, avatar_bg, tags, linkedin_url, sort_order, created_at FROM founders WHERE id = ?',
     args: [req.params.id],
   })
   res.json(rows[0])
@@ -155,6 +168,52 @@ router.delete('/founders/:id', async (req, res) => {
     args: [req.params.id],
   })
   res.json({ ok: true })
+})
+
+// ── FOUNDER PHOTO UPLOAD/DELETE ──────────────────────────────
+// Photo bytes live in `founders.photo_data` (base64 TEXT) + `photo_mime`.
+// The public-facing `photo_url` is rewritten to `/api/founders/:id/photo?v=<ts>`
+// so the existing <img src={founder.photo_url}> works unchanged.
+
+router.post('/founders/:id/photo', photoUpload.single('photo'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No image uploaded' })
+  const db = getDb()
+  const id = req.params.id
+
+  // Ensure the founder exists
+  const check = await db.execute({
+    sql: 'SELECT id FROM founders WHERE id = ?',
+    args: [id],
+  })
+  if (!check.rows[0]) return res.status(404).json({ error: 'Founder not found' })
+
+  const base64 = req.file.buffer.toString('base64')
+  const mime   = req.file.mimetype
+  const publicUrl = `/api/founders/${id}/photo?v=${Date.now()}`
+
+  await db.execute({
+    sql: `UPDATE founders SET photo_data = ?, photo_mime = ?, photo_url = ? WHERE id = ?`,
+    args: [base64, mime, publicUrl, id],
+  })
+
+  res.json({ ok: true, photo_url: publicUrl })
+})
+
+router.delete('/founders/:id/photo', async (req, res) => {
+  await getDb().execute({
+    sql: `UPDATE founders SET photo_data = '', photo_mime = '', photo_url = '' WHERE id = ?`,
+    args: [req.params.id],
+  })
+  res.json({ ok: true })
+})
+
+// Multer / fileFilter error handler — keep the JSON contract for upload errors.
+router.use('/founders/:id/photo', (err, req, res, next) => {
+  if (!err) return next()
+  const msg = err.code === 'LIMIT_FILE_SIZE'
+    ? 'Image is too large (max 1 MB)'
+    : err.message || 'Upload failed'
+  res.status(400).json({ error: msg })
 })
 
 // ── CONTENT ───────────────────────────────────────────────────
@@ -390,6 +449,85 @@ router.put('/process/:id', async (req, res) => {
 router.delete('/process/:id', async (req, res) => {
   await getDb().execute({ sql: 'DELETE FROM process_steps WHERE id = ?', args: [req.params.id] })
   res.json({ ok: true })
+})
+
+// ── PROMOTIONS / LAUNCHES ────────────────────────────────────
+
+function slugify(input) {
+  return String(input || '')
+    .toLowerCase()
+    .normalize('NFKD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 64) || 'promo'
+}
+
+async function ensureUniqueSlug(db, base, ignoreId) {
+  let slug = base
+  let n = 2
+  while (true) {
+    const { rows } = await db.execute({
+      sql: 'SELECT id FROM promos WHERE slug = ?',
+      args: [slug],
+    })
+    if (rows.length === 0 || (ignoreId && Number(rows[0].id) === Number(ignoreId))) return slug
+    slug = `${base}-${n++}`
+  }
+}
+
+router.get('/promos', async (req, res) => {
+  const { rows } = await getDb().execute('SELECT * FROM promos ORDER BY sort_order ASC, id ASC')
+  res.json(rows)
+})
+
+router.post('/promos', async (req, res) => {
+  const { name, tagline, launch_at, cta_label, sort_order, slug } = req.body
+  if (!name) return res.status(400).json({ error: 'name is required' })
+  const db = getDb()
+  const max = await db.execute('SELECT MAX(sort_order) as m FROM promos')
+  const nextOrder = sort_order || (Number(max.rows[0].m) || 0) + 1
+  const uniqueSlug = await ensureUniqueSlug(db, slugify(slug || name))
+  const ins = await db.execute({
+    sql: `INSERT INTO promos (slug, name, tagline, launch_at, cta_label, is_active, sort_order)
+          VALUES (?, ?, ?, ?, ?, 0, ?)`,
+    args: [uniqueSlug, name, tagline || '', launch_at || '', cta_label || 'Request Early Access', nextOrder],
+  })
+  const { rows } = await db.execute({ sql: 'SELECT * FROM promos WHERE id = ?', args: [Number(ins.lastInsertRowid)] })
+  res.json(rows[0])
+})
+
+router.put('/promos/:id', async (req, res) => {
+  const { name, tagline, launch_at, cta_label, sort_order, slug } = req.body
+  const db = getDb()
+  const id = req.params.id
+  const uniqueSlug = await ensureUniqueSlug(db, slugify(slug || name || 'promo'), id)
+  await db.execute({
+    sql: `UPDATE promos SET slug=?, name=?, tagline=?, launch_at=?, cta_label=?, sort_order=?,
+          updated_at=datetime('now') WHERE id=?`,
+    args: [uniqueSlug, name, tagline || '', launch_at || '', cta_label || 'Request Early Access', sort_order || 0, id],
+  })
+  const { rows } = await db.execute({ sql: 'SELECT * FROM promos WHERE id = ?', args: [id] })
+  res.json(rows[0])
+})
+
+router.delete('/promos/:id', async (req, res) => {
+  await getDb().execute({ sql: 'DELETE FROM promos WHERE id = ?', args: [req.params.id] })
+  res.json({ ok: true })
+})
+
+// Set this promo as the single active one (or clear all when active=false)
+router.put('/promos/:id/activate', async (req, res) => {
+  const { active } = req.body
+  const db = getDb()
+  await db.execute('UPDATE promos SET is_active = 0')
+  if (active !== false) {
+    await db.execute({
+      sql: 'UPDATE promos SET is_active = 1 WHERE id = ?',
+      args: [req.params.id],
+    })
+  }
+  const { rows } = await db.execute({ sql: 'SELECT * FROM promos WHERE id = ?', args: [req.params.id] })
+  res.json(rows[0])
 })
 
 export default router

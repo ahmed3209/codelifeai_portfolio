@@ -26,7 +26,7 @@ export default function ChatBot() {
   const [loading,  setLoading]  = useState(false)
   const [showDot,  setShowDot]  = useState(true)
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: "Hi! 👋 I'm the CodeLifeAI assistant. Ask me about our services, team, or how we can help build your next product!" }
+    { role: 'assistant', content: "Hi! I'm the CodeLifeAI assistant. Ask me about our services, team, or how we can help build your next product!" }
   ])
   const endRef     = useRef(null)
   const inputRef   = useRef(null)

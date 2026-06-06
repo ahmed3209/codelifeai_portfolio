@@ -1,15 +1,11 @@
 import { lazy, Suspense } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { publicApi } from '../lib/api'
+import PageMeta             from '../components/PageMeta'
 import HeroSection          from '../components/sections/HeroSection'
-import ZyraTeaser           from '../components/sections/ZyraTeaser'
-import ServicesSection      from '../components/sections/ServicesSection'
-import WorkSection          from '../components/sections/WorkSection'
-import FoundersSection      from '../components/sections/FoundersSection'
+import PromoTeaser          from '../components/sections/PromoTeaser'
 import TestimonialsSection  from '../components/sections/TestimonialsSection'
-import ProcessSection       from '../components/sections/ProcessSection'
 import CTABanner            from '../components/sections/CTABanner'
-import { ContactSection, Footer } from '../components/sections/ContactFooter'
 
 const ThreeBackground = lazy(() => import('../components/ThreeBackground'))
 
@@ -20,48 +16,32 @@ export default function HomePage() {
   })
 
   const content      = siteData?.content      || {}
-  const services     = siteData?.services     || []
-  const founders     = siteData?.founders     || []
-  const projects     = siteData?.projects     || []
   const testimonials = siteData?.testimonials || []
-  const process      = siteData?.process      || []
+  const activePromo  = siteData?.activePromo  || null
 
   return (
     <>
+      <PageMeta
+        description="CodeLifeAI is a software studio crafting elegant digital products — modern web apps, mobile experiences, AI integrations, and cloud infrastructure built by senior engineers."
+        keywords="codelifeai, software studio, software development company, web development, mobile app development, ui ux design, ai integration, cloud devops, react, nextjs, flutter, full stack development"
+      />
+
       {/* Interactive 3D WebGL background (homepage only, lazy-loaded) */}
       <Suspense fallback={null}>
         <ThreeBackground />
       </Suspense>
 
-      {/* 00 — Hero */}
+      {/* Hero */}
       <HeroSection content={content} />
 
-      {/* ZYRA AI teaser */}
-      <ZyraTeaser content={content} />
+      {/* Active promo teaser (hidden when no active promotion) */}
+      <PromoTeaser promo={activePromo} />
 
-      {/* 01 — Services */}
-      <ServicesSection services={services} />
-
-      {/* 02 — Work */}
-      <WorkSection projects={projects} />
-
-      {/* 03 — Team */}
-      <FoundersSection founders={founders} />
-
-      {/* 04 — Testimonials */}
+      {/* Testimonials */}
       <TestimonialsSection testimonials={testimonials} />
-
-      {/* 05 — Process */}
-      <ProcessSection steps={process} />
 
       {/* CTA Banner */}
       <CTABanner />
-
-      {/* 06 — Contact */}
-      <ContactSection content={content} />
-
-      {/* Footer */}
-      <Footer content={content} />
     </>
   )
 }

@@ -1,10 +1,11 @@
 import { useState, useEffect, useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useQuery } from '@tanstack/react-query'
 import { publicApi } from '../lib/api'
-import { Sparkles, ArrowLeft, X, Send, CheckCircle2 } from 'lucide-react'
+import { Sparkles, ArrowLeft, X, Send, CheckCircle2, Rocket } from 'lucide-react'
 import toast from 'react-hot-toast'
+import PageMeta from '../components/PageMeta'
 
 function getRemaining(target) {
   const diff = new Date(target).getTime() - Date.now()
@@ -93,7 +94,7 @@ function EarlyAccessModal({ open, onClose, toolName }) {
                 <X size={14} />
               </button>
               <h2 className="text-[1.25rem] font-extrabold tracking-tight text-bb-white">
-                {done ? "You're on the list 🎉" : `Get early access to ${toolName}`}
+                {done ? "You're on the list" : `Get early access to ${toolName}`}
               </h2>
               <p className="text-bb-muted text-[0.85rem] mt-1 leading-relaxed pr-8">
                 {done
@@ -149,16 +150,49 @@ function EarlyAccessModal({ open, onClose, toolName }) {
   )
 }
 
+function EmptyState({ message }) {
+  return (
+    <div className="relative min-h-screen flex flex-col items-center justify-center px-6 py-20 overflow-hidden bg-bb-black font-jakarta">
+      <PageMeta
+        title={message}
+        description="No upcoming product launches at the moment. Head back to the homepage to see what we're building."
+      />
+      <Link to="/"
+        className="absolute top-6 left-6 flex items-center gap-2 text-[0.8rem] text-bb-muted hover:text-bb-white transition-colors no-underline">
+        <ArrowLeft size={15} /> Back to CodeLifeAI
+      </Link>
+      <div className="text-center max-w-md">
+        <Sparkles size={36} className="text-bb-muted mx-auto mb-5 opacity-50" />
+        <h1 className="text-2xl font-bold text-bb-white tracking-tight mb-2">{message}</h1>
+        <p className="text-bb-muted text-sm leading-relaxed">
+          Check back soon — or head to the homepage to see what we're building.
+        </p>
+        <Link to="/" className="btn-primary text-sm mt-6 inline-flex">Go to homepage</Link>
+      </div>
+    </div>
+  )
+}
+
 export default function LaunchPage() {
-  const { data: siteData } = useQuery({
+  const { slug } = useParams()
+
+  // When :slug is in the URL, fetch that specific promo. Otherwise use the active one from site-data.
+  const slugQuery = useQuery({
+    queryKey: ['promo', slug],
+    queryFn: () => publicApi.getPromoBySlug(slug).then(r => r.data),
+    enabled: !!slug,
+    retry: false,
+  })
+
+  const siteDataQuery = useQuery({
     queryKey: ['site-data'],
     queryFn: () => publicApi.getSiteData().then(r => r.data),
+    enabled: !slug,
   })
-  const content = siteData?.content || {}
 
-  const toolName = content.zyra_name || 'ZYRA AI'
-  const tagline  = content.zyra_tagline || 'One AI for everything. Coming soon.'
-  const launchAt = content.zyra_launch_at || '2026-06-17T18:00:00+05:00'
+  const promo = slug ? slugQuery.data : (siteDataQuery.data?.activePromo || null)
+  const isLoading = slug ? slugQuery.isLoading : siteDataQuery.isLoading
+  const isError = slug ? slugQuery.isError : false
 
   const [now, setNow] = useState(Date.now())
   const [modalOpen, setModalOpen] = useState(false)
@@ -168,6 +202,7 @@ export default function LaunchPage() {
     return () => clearInterval(t)
   }, [])
 
+  const launchAt = promo?.launch_at || ''
   const t = useMemo(() => getRemaining(launchAt), [launchAt, now])
 
   const launchDateLabel = useMemo(() => {
@@ -176,8 +211,30 @@ export default function LaunchPage() {
     return d.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })
   }, [launchAt])
 
+  if (isLoading) {
+    return <div className="min-h-screen bg-bb-black" />
+  }
+  if (isError || (slug && !promo)) {
+    return <EmptyState message="Promotion not found" />
+  }
+  if (!promo) {
+    return <EmptyState message="No active launch right now" />
+  }
+
+  const toolName = promo.name || 'Coming Soon'
+  const tagline  = promo.tagline || ''
+  const ctaLabel = promo.cta_label || 'Request Early Access'
+
+  const metaDescription = tagline
+    || `${toolName} is coming soon. Request early access from CodeLifeAI and be among the first to try it.`
+
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center px-6 py-20 overflow-hidden bg-bb-black font-jakarta">
+      <PageMeta
+        title={`${toolName} — Coming Soon`}
+        description={metaDescription}
+        keywords={`${toolName.toLowerCase()}, ${toolName.toLowerCase()} launch, ${toolName.toLowerCase()} early access, coming soon, product launch, codelifeai`}
+      />
       {/* Ambient orbs */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute rounded-full" style={{
@@ -216,20 +273,22 @@ export default function LaunchPage() {
           {toolName}
         </motion.h1>
 
-        <motion.p
-          initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.14 }}
-          className="text-bb-muted text-[1.02rem] leading-[1.7] max-w-[600px] mt-6 mb-12"
-        >
-          {tagline}
-        </motion.p>
+        {tagline && (
+          <motion.p
+            initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.14 }}
+            className="text-bb-muted text-[1.02rem] leading-[1.7] max-w-[600px] mt-6 mb-12"
+          >
+            {tagline}
+          </motion.p>
+        )}
 
         {t.done ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
-            className="text-2xl font-bold text-gradient mb-10"
+            className="inline-flex items-center gap-3 text-2xl font-bold text-gradient mb-10"
           >
-            🚀 We've launched! Stay tuned for access details.
+            <Rocket size={26} /> We've launched! Stay tuned for access details.
           </motion.div>
         ) : (
           <motion.div
@@ -253,7 +312,7 @@ export default function LaunchPage() {
           className="flex flex-col items-center gap-4"
         >
           <button onClick={() => setModalOpen(true)} className="btn-primary text-base px-8 py-4">
-            <Sparkles size={16} /> Request Early Access
+            <Sparkles size={16} /> {ctaLabel}
           </button>
           {launchDateLabel && (
             <p className="text-[0.78rem] text-bb-muted">
