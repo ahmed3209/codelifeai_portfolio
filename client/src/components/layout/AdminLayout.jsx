@@ -36,7 +36,7 @@ export default function AdminLayout() {
       <aside className="w-60 flex-shrink-0 border-r border-white/[0.06] flex flex-col">
         {/* Logo */}
         <div className="px-6 py-5 border-b border-white/[0.06]">
-          <img src="/logo.svg" alt="CodeLifeAI" className="h-7 w-auto" />
+          <img src="/logo.svg" alt="CodeLifeAI" width="408" height="110" className="h-7 w-auto" />
           <p className="text-[0.7rem] text-bb-muted mt-2 tracking-widest uppercase">Admin Panel</p>
         </div>
 

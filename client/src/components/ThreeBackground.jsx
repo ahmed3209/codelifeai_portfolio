@@ -17,9 +17,17 @@ export default function ThreeBackground() {
   useEffect(() => {
     // Respect reduced-motion: skip the animated scene entirely.
     if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return
+    // Skip on mobile: the 3D is decorative, and mobile LCP suffers badly
+    // from the WebGL setup cost + 120KB chunk download for little benefit.
+    if (window.innerWidth < 768) return
 
     let cleanupFn
-    const timer = setTimeout(() => {
+    // Defer to browser idle so the page reaches FCP/TTI before three.js
+    // starts allocating geometries and running its RAF loop. Falls back
+    // to setTimeout on browsers without requestIdleCallback (Safari).
+    const ric = window.requestIdleCallback || ((cb) => setTimeout(cb, 1500))
+    const cancelRic = window.cancelIdleCallback || clearTimeout
+    const idleHandle = ric(() => {
       const canvas = canvasRef.current
       if (!canvas) return
 
@@ -235,10 +243,10 @@ export default function ThreeBackground() {
         renderer.dispose()
         renderer.forceContextLoss?.()
       }
-    }, 0)
+    }, { timeout: 2500 })
 
     return () => {
-      clearTimeout(timer)
+      cancelRic(idleHandle)
       cleanupFn?.()
     }
   }, [])

@@ -243,7 +243,7 @@ export function Footer({ content = {} }) {
 
           {/* Brand */}
           <div>
-            <img src="/logo.svg" alt="CodeLifeAI" className="h-7 w-auto mb-4" />
+            <img src="/logo.svg" alt="CodeLifeAI" width="408" height="110" className="h-7 w-auto mb-4" />
             <p className="font-fraunces italic font-light text-[0.9rem] text-white/28 leading-relaxed max-w-[210px] mb-5">
               {content.footer_tagline || 'We build digital products that are fast, beautiful, and built to last.'}
             </p>

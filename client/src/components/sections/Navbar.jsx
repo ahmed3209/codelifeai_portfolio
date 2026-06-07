@@ -54,8 +54,8 @@ export default function Navbar() {
       >
         {/* Logo */}
         <Link to="/" className="flex items-center no-underline" aria-label="CodeLifeAI — Home">
-          <img src="/favicon.svg" alt="" className="block sm:hidden h-8 w-auto" />
-          <img src="/logo.svg" alt="CodeLifeAI" className="hidden sm:block h-8 w-auto" />
+          <img src="/favicon.svg" alt="" width="126" height="110" className="block sm:hidden h-8 w-auto" />
+          <img src="/logo.svg" alt="CodeLifeAI" width="408" height="110" className="hidden sm:block h-8 w-auto" />
         </Link>
 
         {/* Desktop links */}
