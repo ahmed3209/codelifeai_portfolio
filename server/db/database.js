@@ -244,6 +244,13 @@ async function ensureExtras(db) {
       "DELETE FROM content WHERE key IN ('zyra_enabled','zyra_name','zyra_tagline','zyra_launch_at')"
     )
   }
+
+  // Chatbot: seed Gemini default on existing DBs (idempotent). API key stays
+  // unset until the admin adds one from the Settings page.
+  await db.execute({
+    sql: 'INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)',
+    args: ['gemini_model', process.env.GEMINI_MODEL || 'gemini-2.0-flash'],
+  })
 }
 
 async function seed(db) {
@@ -334,8 +341,7 @@ async function seed(db) {
   }
 
   const settingsDefaults = {
-    ollama_url:        process.env.OLLAMA_URL   || 'http://localhost:11434',
-    ollama_model:      process.env.OLLAMA_MODEL || 'llama3.2',
+    gemini_model:      process.env.GEMINI_MODEL || 'gemini-2.0-flash',
     chatbot_name:      'CodeLifeAI Assistant',
     chatbot_greeting:  "Hi! I'm the CodeLifeAI assistant. Ask me about our services, team, or how we can help you build your next product!",
   }

@@ -271,13 +271,24 @@ router.post('/kb/rebuild', (req, res) => {
 router.get('/settings', async (req, res) => {
   const { rows } = await getDb().execute('SELECT key, value FROM settings')
   const settings = rows.reduce((acc, { key, value }) => ({ ...acc, [key]: value }), {})
-  if (settings.anthropic_api_key) settings.anthropic_api_key = settings.anthropic_api_key.slice(0, 8) + '…'
+  // Mask sensitive keys — frontend just needs to know they're set.
+  if (settings.anthropic_api_key) settings.anthropic_api_key = settings.anthropic_api_key.slice(0, 6) + '…'
+  if (settings.gemini_api_key)    settings.gemini_api_key    = settings.gemini_api_key.slice(0, 6) + '…'
   res.json(settings)
 })
 
+// Sensitive keys we mask in the GET response. If a save payload echoes the
+// masked value back (e.g. user didn't touch the field), drop it so we don't
+// overwrite the real secret.
+const MASKED_KEYS = new Set(['gemini_api_key', 'anthropic_api_key'])
+
 router.put('/settings', async (req, res) => {
   const db = getDb()
-  const entries = Object.entries(req.body)
+  const entries = Object.entries(req.body).filter(([k, v]) => {
+    if (!MASKED_KEYS.has(k)) return true
+    return typeof v === 'string' && v.length > 0 && !v.includes('…')
+  })
+  if (entries.length === 0) return res.json({ ok: true })
   await db.batch(
     entries.map(([k, v]) => ({
       sql: `INSERT INTO settings (key, value, updated_at) VALUES (?, ?, datetime('now'))
