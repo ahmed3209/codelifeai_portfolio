@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import { publicApi } from '../../lib/api'
 import toast from 'react-hot-toast'
 import {
-  Send, Mail, ArrowUpRight, Zap, MapPin,
+  Send, Mail, ArrowUpRight, MapPin,
   Linkedin, Facebook, Instagram, Twitter, Phone,
 } from 'lucide-react'
 
@@ -243,15 +243,7 @@ export function Footer({ content = {} }) {
 
           {/* Brand */}
           <div>
-            <div className="flex items-center gap-2.5 font-extrabold text-[1.05rem] tracking-tight text-bb-white mb-4">
-              <div
-                className="w-7 h-7 rounded-[8px] flex items-center justify-center text-black flex-shrink-0"
-                style={{ background: 'linear-gradient(135deg, #00d4f5, #7c3aed)' }}
-              >
-                <Zap size={14} strokeWidth={2.5} fill="currentColor" />
-              </div>
-              CodeLifeAI
-            </div>
+            <img src="/logo.svg" alt="CodeLifeAI" className="h-7 w-auto mb-4" />
             <p className="font-fraunces italic font-light text-[0.9rem] text-white/28 leading-relaxed max-w-[210px] mb-5">
               {content.footer_tagline || 'We build digital products that are fast, beautiful, and built to last.'}
             </p>

@@ -9,6 +9,7 @@ server/public/
 build/
 out/
 .next/
+*.zip
 
 # Environment files (commit the .example variants only)
 .env

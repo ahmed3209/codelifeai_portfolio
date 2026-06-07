@@ -28,11 +28,8 @@ export default function AdminLogin() {
   return (
     <div className="min-h-screen bg-bb-black flex items-center justify-center px-4 font-jakarta">
       <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-2 font-extrabold text-2xl tracking-tight text-bb-white mb-1">
-            <span className="w-2 h-2 rounded-full bg-bb-accent" />
-            CodeLifeAI
-          </div>
+        <div className="text-center mb-8 flex flex-col items-center">
+          <img src="/logo.svg" alt="CodeLifeAI" className="h-9 w-auto mb-3" />
           <p className="text-bb-muted text-sm">Admin Panel</p>
         </div>
 

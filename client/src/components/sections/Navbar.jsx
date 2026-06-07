@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Zap } from 'lucide-react'
 
 const NAV_LINKS = [
   { to: '/services', label: 'Services' },
@@ -54,16 +53,9 @@ export default function Navbar() {
           ${scrolled ? 'glass border-b border-white/[0.055]' : ''}`}
       >
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2.5 font-extrabold text-[1.1rem] tracking-tight text-bb-white no-underline group">
-          <div className="relative w-8 h-8 flex-shrink-0">
-            <div className="absolute inset-0 rounded-[9px] opacity-70 blur-[8px] group-hover:blur-[10px] transition-all duration-300"
-              style={{ background: 'linear-gradient(135deg, #00d4f5, #7c3aed)' }} />
-            <div className="relative w-8 h-8 rounded-[9px] flex items-center justify-center text-black"
-              style={{ background: 'linear-gradient(135deg, #00d4f5, #7c3aed)' }}>
-              <Zap size={16} strokeWidth={2.5} fill="currentColor" />
-            </div>
-          </div>
-          <span className="hidden sm:block">CodeLifeAI</span>
+        <Link to="/" className="flex items-center no-underline" aria-label="CodeLifeAI — Home">
+          <img src="/favicon.svg" alt="" className="block sm:hidden h-8 w-auto" />
+          <img src="/logo.svg" alt="CodeLifeAI" className="hidden sm:block h-8 w-auto" />
         </Link>
 
         {/* Desktop links */}
