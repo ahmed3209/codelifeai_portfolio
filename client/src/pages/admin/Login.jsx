@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import { adminApi } from '../../lib/api'
 import { useAuthStore } from '../../store/authStore'
 import toast from 'react-hot-toast'
@@ -7,16 +8,20 @@ import toast from 'react-hot-toast'
 export default function AdminLogin() {
   const [creds, setCreds] = useState({ username: '', password: '' })
   const [loading, setLoading] = useState(false)
-  const { setAuth } = useAuthStore()
+  const { setUser } = useAuthStore()
+  const qc = useQueryClient()
   const navigate = useNavigate()
 
   async function handleSubmit(e) {
     e.preventDefault()
     setLoading(true)
     try {
+      // Server sets the HttpOnly cl_session cookie. We only get back the
+      // user identity for UI caching.
       const { data } = await adminApi.login(creds)
-      localStorage.setItem('cl_token', data.token)
-      setAuth(data.token, data.user)
+      setUser(data.user)
+      // Invalidate any cached 401 from /admin/me before we navigate.
+      qc.invalidateQueries({ queryKey: ['admin-me'] })
       navigate('/admin')
     } catch {
       toast.error('Invalid credentials')

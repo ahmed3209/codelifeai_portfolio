@@ -134,6 +134,21 @@ async function doInit() {
       created_at  TEXT DEFAULT (datetime('now')),
       updated_at  TEXT DEFAULT (datetime('now'))
     )`,
+    // Anonymous visitor session — issued on first /api hit, keyed off the
+    // cl_visitor cookie. Powers chat history persistence + light analytics.
+    `CREATE TABLE IF NOT EXISTS visitor_sessions (
+      id          TEXT PRIMARY KEY,
+      user_agent  TEXT,
+      first_seen  TEXT DEFAULT (datetime('now')),
+      last_seen   TEXT DEFAULT (datetime('now'))
+    )`,
+    `CREATE TABLE IF NOT EXISTS chat_messages (
+      id          INTEGER PRIMARY KEY AUTOINCREMENT,
+      session_id  TEXT NOT NULL,
+      role        TEXT NOT NULL,
+      content     TEXT NOT NULL,
+      created_at  TEXT DEFAULT (datetime('now'))
+    )`,
   ]
 
   for (const sql of statements) await db.execute(sql)
@@ -251,6 +266,17 @@ async function ensureExtras(db) {
     sql: 'INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)',
     args: ['gemini_model', process.env.GEMINI_MODEL || 'gemini-2.0-flash'],
   })
+
+  // Admin session invalidation — bump token_version to log out other devices
+  // (used on password change). ALTER is wrapped because existing DBs may
+  // already have the column from a previous deploy.
+  try {
+    await db.execute('ALTER TABLE admin_users ADD COLUMN token_version INTEGER DEFAULT 1')
+  } catch { /* column already exists */ }
+
+  // Index for the chat-history hot path. CREATE INDEX IF NOT EXISTS is
+  // idempotent, so this is safe to run every boot.
+  await db.execute('CREATE INDEX IF NOT EXISTS idx_chat_messages_session ON chat_messages(session_id, id)')
 }
 
 async function seed(db) {

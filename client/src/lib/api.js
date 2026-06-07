@@ -18,24 +18,25 @@ export function resolveApiUrl(url) {
   return url
 }
 
+// Send cookies on every request so the HttpOnly session cookie reaches the
+// API across origins (Hostinger → Vercel). Requires the server to send
+// Access-Control-Allow-Credentials: true, which is already configured.
 const api = axios.create({
   baseURL: `${API_BASE}/api`,
+  withCredentials: true,
   headers: { 'Content-Type': 'application/json' }
 })
 
-// Attach JWT token to every request
-api.interceptors.request.use(config => {
-  const token = localStorage.getItem('cl_token')
-  if (token) config.headers.Authorization = `Bearer ${token}`
-  return config
-})
+// Clear any legacy token left in localStorage from v2.0.x — auth is now
+// purely cookie-based. Safe to delete on every load.
+try { localStorage.removeItem('cl_token') } catch {}
 
-// Redirect to login on 401
+// Redirect admin pages to login on 401. Public endpoints just surface the
+// error to the caller.
 api.interceptors.response.use(
   res => res,
   err => {
-    if (err.response?.status === 401 && window.location.pathname.startsWith('/admin')) {
-      localStorage.removeItem('cl_token')
+    if (err.response?.status === 401 && window.location.pathname.startsWith('/admin') && window.location.pathname !== '/admin/login') {
       window.location.href = '/admin/login'
     }
     return Promise.reject(err)
@@ -52,13 +53,16 @@ export const publicApi = {
   getActivePromo: () => api.get('/promos/active'),
   getPromoBySlug: (slug) => api.get(`/promos/${slug}`),
   sendMessage:    (data) => api.post('/chat', data),
+  getChatHistory: () => api.get('/chat/history'),
   sendContact:    (data) => api.post('/contact', data),
   requestEarlyAccess: (data) => api.post('/early-access', data),
 }
 
 // ─── Admin API helpers ────────────────────────────────────────
 export const adminApi = {
-  login: (creds) => api.post('/admin/login', creds),
+  login:  (creds) => api.post('/admin/login', creds),
+  logout: ()      => api.post('/admin/logout'),
+  me:     ()      => api.get('/admin/me'),
 
   // Services
   getServices:    () => api.get('/admin/services'),

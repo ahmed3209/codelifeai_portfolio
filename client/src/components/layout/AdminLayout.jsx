@@ -1,4 +1,6 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
+import { adminApi } from '../../lib/api'
 import { useAuthStore } from '../../store/authStore'
 import {
   LayoutDashboard, Layers, Users, FileText,
@@ -22,11 +24,16 @@ const navItems = [
 ]
 
 export default function AdminLayout() {
-  const { logout, user } = useAuthStore()
+  const { clear, user } = useAuthStore()
+  const qc = useQueryClient()
   const navigate = useNavigate()
 
-  function handleLogout() {
-    logout()
+  async function handleLogout() {
+    // Tell the server to clear the HttpOnly cookie. Ignore network errors —
+    // we're logging out either way.
+    try { await adminApi.logout() } catch {}
+    clear()
+    qc.clear()
     navigate('/admin/login')
   }
 

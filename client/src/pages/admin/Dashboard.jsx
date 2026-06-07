@@ -1,19 +1,22 @@
 import { useQuery } from '@tanstack/react-query'
 import { adminApi } from '../../lib/api'
 import Card, { CardBody } from '../../components/ui/Card'
-import { Layers, Users, MessageSquare, Mail, ExternalLink, FolderKanban, Quote, Sparkles } from 'lucide-react'
+import { Layers, Users, MessageSquare, Mail, ExternalLink, FolderKanban, Quote, Sparkles, Eye, Activity, Bot } from 'lucide-react'
 
 export default function AdminDashboard() {
   const { data: stats } = useQuery({ queryKey: ['admin-stats'], queryFn: () => adminApi.getStats().then(r => r.data) })
 
   const tiles = [
-    { label: 'Services',      value: stats?.services     ?? '—', icon: Layers,        color: 'text-bb-accent' },
-    { label: 'Projects',      value: stats?.projects     ?? '—', icon: FolderKanban,  color: 'text-sky-400' },
-    { label: 'Founders',      value: stats?.founders     ?? '—', icon: Users,         color: 'text-purple-400' },
-    { label: 'Testimonials',  value: stats?.testimonials ?? '—', icon: Quote,         color: 'text-pink-400' },
-    { label: 'Early Access',  value: stats?.early_access ?? '—', icon: Sparkles,      color: 'text-bb-accent' },
-    { label: 'KB Documents',  value: stats?.kb_docs      ?? '—', icon: MessageSquare, color: 'text-green-400' },
-    { label: 'Enquiries',     value: stats?.contacts     ?? '—', icon: Mail,          color: 'text-yellow-400' },
+    { label: 'Visitors (total)',  value: stats?.visitors_total     ?? '—', icon: Eye,           color: 'text-emerald-400' },
+    { label: 'Active (24h)',      value: stats?.visitors_24h       ?? '—', icon: Activity,      color: 'text-emerald-400' },
+    { label: 'Chat conversations',value: stats?.chat_conversations ?? '—', icon: Bot,           color: 'text-bb-accent' },
+    { label: 'Enquiries',         value: stats?.contacts           ?? '—', icon: Mail,          color: 'text-yellow-400' },
+    { label: 'Early Access',      value: stats?.early_access       ?? '—', icon: Sparkles,      color: 'text-bb-accent' },
+    { label: 'Services',          value: stats?.services           ?? '—', icon: Layers,        color: 'text-bb-accent' },
+    { label: 'Projects',          value: stats?.projects           ?? '—', icon: FolderKanban,  color: 'text-sky-400' },
+    { label: 'Founders',          value: stats?.founders           ?? '—', icon: Users,         color: 'text-purple-400' },
+    { label: 'Testimonials',      value: stats?.testimonials       ?? '—', icon: Quote,         color: 'text-pink-400' },
+    { label: 'KB Documents',      value: stats?.kb_docs            ?? '—', icon: MessageSquare, color: 'text-green-400' },
   ]
 
   return (

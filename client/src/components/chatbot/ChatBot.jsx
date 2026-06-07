@@ -20,17 +20,30 @@ const MSG_VARIANTS = {
   visible: { opacity: 1, y: 0,  scale: 1, transition: { type: 'spring', damping: 20, stiffness: 300 } },
 }
 
+const GREETING = { role: 'assistant', content: "Hi! I'm the CodeLifeAI assistant. Ask me about our services, team, or how we can help build your next product!" }
+
 export default function ChatBot() {
   const [open,     setOpen]     = useState(false)
   const [input,    setInput]    = useState('')
   const [loading,  setLoading]  = useState(false)
   const [showDot,  setShowDot]  = useState(true)
-  const [messages, setMessages] = useState([
-    { role: 'assistant', content: "Hi! I'm the CodeLifeAI assistant. Ask me about our services, team, or how we can help build your next product!" }
-  ])
-  const endRef     = useRef(null)
-  const inputRef   = useRef(null)
-  const historyRef = useRef([])
+  const [messages, setMessages] = useState([GREETING])
+  const endRef   = useRef(null)
+  const inputRef = useRef(null)
+
+  // Hydrate from server history on mount. Returning visitors see their
+  // previous conversation; new visitors see just the greeting.
+  useEffect(() => {
+    let cancelled = false
+    publicApi.getChatHistory()
+      .then(r => {
+        if (cancelled) return
+        const past = (r.data?.messages || []).filter(m => m.role === 'user' || m.role === 'assistant')
+        if (past.length > 0) setMessages(past)
+      })
+      .catch(() => { /* keep greeting */ })
+    return () => { cancelled = true }
+  }, [])
 
   useEffect(() => {
     if (open) {
@@ -50,14 +63,13 @@ export default function ChatBot() {
 
     const userMsg = { role: 'user', content: text }
     setMessages(prev => [...prev, userMsg])
-    historyRef.current = [...historyRef.current, userMsg]
     setLoading(true)
 
     try {
-      const { data } = await publicApi.sendMessage({ message: text, history: historyRef.current.slice(-10) })
-      const aiMsg = { role: 'assistant', content: data.reply }
-      setMessages(prev => [...prev, aiMsg])
-      historyRef.current = [...historyRef.current, aiMsg]
+      // Server is authoritative for history — it loads our prior turns from
+      // the visitor_sessions cookie. We only send the new message.
+      const { data } = await publicApi.sendMessage({ message: text })
+      setMessages(prev => [...prev, { role: 'assistant', content: data.reply }])
     } catch {
       setMessages(prev => [...prev, {
         role: 'assistant',

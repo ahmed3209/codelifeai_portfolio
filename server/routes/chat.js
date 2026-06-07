@@ -67,19 +67,20 @@ function offlineReply(contactEmail) {
   return `Our AI assistant is offline right now — please reach out directly at ${contactEmail} and we'll get right back to you!`
 }
 
-// Convert the frontend's {role: 'user'|'assistant', content: str} history to
-// Gemini's expected shape: {role: 'user'|'model', parts: [{text: str}]}.
-// The frontend appends the current user message to history before sending,
-// so dedupe to avoid two consecutive user turns.
-function buildContents(history, currentMessage) {
-  const valid = (Array.isArray(history) ? history : [])
-    .slice(-10)
-    .filter(h => h && typeof h.content === 'string' && (h.role === 'user' || h.role === 'assistant'))
+// Load the last N turns of this visitor's chat history from the DB, format
+// for Gemini, and append the new user message. History is server-authoritative
+// — the frontend doesn't need to (and now doesn't) send it.
+async function buildContentsFromHistory(db, sessionId, currentMessage) {
+  let history = []
+  if (sessionId) {
+    const { rows } = await db.execute({
+      sql: 'SELECT role, content FROM chat_messages WHERE session_id = ? ORDER BY id DESC LIMIT 10',
+      args: [sessionId],
+    })
+    history = rows.reverse()
+  }
 
-  const last = valid[valid.length - 1]
-  const includesCurrent = last?.role === 'user' && last.content === currentMessage
-  const merged = includesCurrent ? valid : [...valid, { role: 'user', content: currentMessage }]
-
+  const merged = [...history, { role: 'user', content: currentMessage }]
   const contents = merged.map(h => ({
     role: h.role === 'assistant' ? 'model' : 'user',
     parts: [{ text: h.content }],
@@ -90,6 +91,26 @@ function buildContents(history, currentMessage) {
     contents.shift()
   }
   return contents
+}
+
+// Persist a user→assistant exchange. Fire-and-forget — chat history is
+// advisory, never block returning the reply on this.
+async function persistExchange(db, sessionId, userMessage, assistantReply) {
+  if (!sessionId) return
+  try {
+    await db.batch([
+      {
+        sql: 'INSERT INTO chat_messages (session_id, role, content) VALUES (?, ?, ?)',
+        args: [sessionId, 'user', userMessage],
+      },
+      {
+        sql: 'INSERT INTO chat_messages (session_id, role, content) VALUES (?, ?, ?)',
+        args: [sessionId, 'assistant', assistantReply],
+      },
+    ], 'write')
+  } catch (err) {
+    console.error('chat persist failed', err?.message ?? err)
+  }
 }
 
 function classifyError(err) {
@@ -134,7 +155,8 @@ function classifyError(err) {
 // POST /api/chat — public chatbot endpoint
 router.post('/chat', async (req, res) => {
   const db = getDb()
-  const { message, history = [] } = req.body
+  const { message } = req.body
+  const sessionId = req.visitorSessionId
 
   if (!message?.trim()) return res.status(400).json({ error: 'Message required' })
 
@@ -144,16 +166,20 @@ router.post('/chat', async (req, res) => {
   const model = settings.gemini_model || DEFAULT_MODEL
 
   if (!apiKey) {
-    return res.json({ reply: offlineReply(contactEmail) })
+    const reply = offlineReply(contactEmail)
+    await persistExchange(db, sessionId, message, reply)
+    return res.json({ reply })
   }
 
   let systemInstruction, contents
   try {
     systemInstruction = await buildSystemPrompt(db, settings, contactEmail)
-    contents = buildContents(history, message)
+    contents = await buildContentsFromHistory(db, sessionId, message)
   } catch (err) {
     console.error('chat prompt build error', err)
-    return res.json({ reply: `I'm having trouble right now — please reach us at ${contactEmail}!` })
+    const reply = `I'm having trouble right now — please reach us at ${contactEmail}!`
+    await persistExchange(db, sessionId, message, reply)
+    return res.json({ reply })
   }
 
   try {
@@ -181,6 +207,7 @@ router.post('/chat', async (req, res) => {
       })
     }
 
+    await persistExchange(db, sessionId, message, reply)
     res.json({ reply })
   } catch (err) {
     const kind = classifyError(err)
@@ -214,7 +241,28 @@ router.post('/chat', async (req, res) => {
     // Always 200 — the chatbot UI just renders whatever reply we return.
     // Errors are visible to the admin in Vercel function logs (console.error
     // above). No debug field exposed to public visitors.
+    await persistExchange(db, sessionId, message, reply)
     res.json({ reply })
+  }
+})
+
+// GET /api/chat/history — returns this visitor's chat history. The chatbot
+// hydrates from this on mount so reloading the page doesn't lose context.
+router.get('/chat/history', async (req, res) => {
+  const sessionId = req.visitorSessionId
+  if (!sessionId) return res.json({ messages: [] })
+  try {
+    const { rows } = await getDb().execute({
+      sql: `SELECT role, content, created_at FROM chat_messages
+            WHERE session_id = ?
+            ORDER BY id ASC
+            LIMIT 200`,
+      args: [sessionId],
+    })
+    res.json({ messages: rows })
+  } catch (err) {
+    console.error('chat history load failed', err?.message ?? err)
+    res.json({ messages: [] })
   }
 })
 

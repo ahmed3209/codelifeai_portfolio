@@ -2,7 +2,10 @@ import { Router } from 'express'
 import bcrypt from 'bcryptjs'
 import multer from 'multer'
 import { getDb } from '../db/database.js'
-import { authMiddleware, signToken } from '../middleware/auth.js'
+import { authMiddleware, signToken, ADMIN_COOKIE } from '../middleware/auth.js'
+import { cookieOptions } from '../middleware/session.js'
+
+const SESSION_MS = 7 * 24 * 60 * 60 * 1000 // 7 days, matches JWT expiry
 
 const router = Router()
 
@@ -35,18 +38,32 @@ router.post('/login', async (req, res) => {
     .catch(() => password === user.password)
   if (!valid) return res.status(401).json({ error: 'Invalid credentials' })
 
-  const token = signToken({ id: user.id, username: user.username })
-  res.json({ token, user: { id: user.id, username: user.username } })
+  const tv = Number(user.token_version ?? 1)
+  const token = signToken({ id: user.id, username: user.username, tv })
+  res.cookie(ADMIN_COOKIE, token, cookieOptions(SESSION_MS))
+  res.json({ user: { id: user.id, username: user.username } })
+})
+
+// Logout clears the session cookie. Doesn't require auth — idempotent.
+router.post('/logout', (req, res) => {
+  res.clearCookie(ADMIN_COOKIE, { ...cookieOptions(0), maxAge: 0 })
+  res.json({ ok: true })
 })
 
 // All routes below require auth
 router.use(authMiddleware)
 
+// /admin/me — returns the current admin's identity if the session is valid.
+// The frontend uses this to bootstrap auth state from the cookie on load.
+router.get('/me', (req, res) => {
+  res.json({ user: { id: req.user.id, username: req.user.username } })
+})
+
 // ── DASHBOARD STATS ───────────────────────────────────────────
 
 router.get('/stats', async (req, res) => {
   const db = getDb()
-  const [services, founders, kb, contacts, projects, testimonials, earlyAccess] = await Promise.all([
+  const [services, founders, kb, contacts, projects, testimonials, earlyAccess, visitors, activeToday, chatSessions] = await Promise.all([
     db.execute('SELECT COUNT(*) as c FROM services'),
     db.execute('SELECT COUNT(*) as c FROM founders'),
     db.execute('SELECT COUNT(*) as c FROM kb_documents'),
@@ -54,15 +71,21 @@ router.get('/stats', async (req, res) => {
     db.execute('SELECT COUNT(*) as c FROM projects'),
     db.execute('SELECT COUNT(*) as c FROM testimonials'),
     db.execute('SELECT COUNT(*) as c FROM early_access'),
+    db.execute('SELECT COUNT(*) as c FROM visitor_sessions'),
+    db.execute("SELECT COUNT(*) as c FROM visitor_sessions WHERE last_seen >= datetime('now', '-1 day')"),
+    db.execute('SELECT COUNT(DISTINCT session_id) as c FROM chat_messages'),
   ])
   res.json({
-    services:     Number(services.rows[0].c),
-    founders:     Number(founders.rows[0].c),
-    kb_docs:      Number(kb.rows[0].c),
-    contacts:     Number(contacts.rows[0].c),
-    projects:     Number(projects.rows[0].c),
-    testimonials: Number(testimonials.rows[0].c),
-    early_access: Number(earlyAccess.rows[0].c),
+    services:           Number(services.rows[0].c),
+    founders:           Number(founders.rows[0].c),
+    kb_docs:            Number(kb.rows[0].c),
+    contacts:           Number(contacts.rows[0].c),
+    projects:           Number(projects.rows[0].c),
+    testimonials:       Number(testimonials.rows[0].c),
+    early_access:       Number(earlyAccess.rows[0].c),
+    visitors_total:     Number(visitors.rows[0].c),
+    visitors_24h:       Number(activeToday.rows[0].c),
+    chat_conversations: Number(chatSessions.rows[0].c),
   })
 })
 
@@ -314,10 +337,18 @@ router.put('/change-password', async (req, res) => {
   if (!valid) return res.status(400).json({ error: 'Current password is incorrect' })
 
   const hash = await bcrypt.hash(newPassword, 10)
+  // Bump token_version so other devices/browsers logged in with the old
+  // password get kicked out on their next request.
+  const newTv = Number(user.token_version ?? 1) + 1
   await db.execute({
-    sql: 'UPDATE admin_users SET password = ? WHERE id = ?',
-    args: [hash, req.user.id],
+    sql: 'UPDATE admin_users SET password = ?, token_version = ? WHERE id = ?',
+    args: [hash, newTv, req.user.id],
   })
+
+  // Refresh THIS session's cookie with the new tv so the admin who just
+  // changed their password stays logged in.
+  const fresh = signToken({ id: user.id, username: user.username, tv: newTv })
+  res.cookie(ADMIN_COOKIE, fresh, cookieOptions(SESSION_MS))
   res.json({ ok: true })
 })
 

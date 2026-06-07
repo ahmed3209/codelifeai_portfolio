@@ -1,9 +1,11 @@
 import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
+import cookieParser from 'cookie-parser'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { initDb } from './db/database.js'
+import { ensureVisitorSession } from './middleware/session.js'
 
 import publicRoutes  from './routes/public.js'
 import adminRoutes   from './routes/admin.js'
@@ -25,6 +27,7 @@ app.use(cors({
   },
   credentials: true,
 }))
+app.use(cookieParser())
 app.use(express.json({ limit: '10mb' }))
 
 // Health check — does not touch the DB. Useful for confirming the function loads.
@@ -46,6 +49,10 @@ app.use('/api', async (req, res, next) => {
     res.status(500).json({ error: 'Database init failed', message: err.message })
   }
 })
+
+// Issue/refresh anonymous visitor session cookie on every /api hit. Powers
+// chat history persistence and lightweight analytics.
+app.use('/api', ensureVisitorSession)
 
 // API routes
 app.use('/api', publicRoutes)
