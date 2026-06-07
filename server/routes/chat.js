@@ -56,6 +56,7 @@ ${contactEmail}
 
 ## Style
 - Be concise, warm, and professional. Max 2-3 short paragraphs.
+- **Plain prose only — no markdown.** Never use asterisks (*, **), bullet points, numbered lists, headings (#), or code blocks. Write in natural conversational sentences only. When you need to list things, weave them into a sentence with commas (e.g. "we cover web development, mobile apps, and AI integration") rather than bullets.
 - Ground every claim in the services or knowledge base above.
 - For pricing or scope questions, direct the user to ${contactEmail}.
 - For off-topic questions, gently bring the conversation back to how CodeLifeAI can help.
@@ -211,18 +212,9 @@ router.post('/chat', async (req, res) => {
     }
 
     // Always 200 — the chatbot UI just renders whatever reply we return.
-    // _debug is for surfacing the real error to the admin in DevTools →
-    // Network tab without exposing it in the visible chat message. Remove
-    // this once the integration is stable.
-    res.json({
-      reply,
-      _debug: {
-        kind,
-        status: err?.status,
-        code: err?.code,
-        message: err?.message || err?.error?.message,
-      },
-    })
+    // Errors are visible to the admin in Vercel function logs (console.error
+    // above). No debug field exposed to public visitors.
+    res.json({ reply })
   }
 })
 
