@@ -5,7 +5,7 @@ import { getDb } from '../db/database.js'
 import { authMiddleware, signToken, ADMIN_COOKIE } from '../middleware/auth.js'
 import { cookieOptions } from '../middleware/session.js'
 
-const SESSION_MS = 7 * 24 * 60 * 60 * 1000 // 7 days, matches JWT expiry
+const SESSION_MS = 60 * 60 * 1000 // 1 hour, matches JWT expiry
 
 const router = Router()
 
