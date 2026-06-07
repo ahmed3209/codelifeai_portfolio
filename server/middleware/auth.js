@@ -4,8 +4,10 @@ import { getDb } from '../db/database.js'
 const SECRET = process.env.JWT_SECRET || 'codelifeai-super-secret-2025'
 export const ADMIN_COOKIE = 'cl_session'
 
+// Match the cookie maxAge in routes/admin.js (SESSION_MS = 1 hour) so a
+// stolen cookie value can't be replayed after the user-visible session ends.
 export function signToken(payload) {
-  return jwt.sign(payload, SECRET, { expiresIn: '7d' })
+  return jwt.sign(payload, SECRET, { expiresIn: '1h' })
 }
 
 /**
