@@ -92,13 +92,41 @@ function buildContents(history, currentMessage) {
 }
 
 function classifyError(err) {
-  const status = err?.status ?? err?.code ?? err?.error?.code
-  const message = (err?.message || '').toLowerCase()
+  // Different SDK versions and nested errors put the status code in different places.
+  const status = err?.status
+              ?? err?.code
+              ?? err?.error?.code
+              ?? err?.response?.status
+              ?? err?.cause?.status
 
-  if (status === 400 || message.includes('invalid')) return 'bad_request'
-  if (status === 401 || status === 403 || message.includes('api key') || message.includes('permission')) return 'auth'
-  if (status === 429 || message.includes('quota') || message.includes('rate')) return 'rate_limit'
-  if ((typeof status === 'number' && status >= 500) || message.includes('unavailable')) return 'server'
+  const message = String(err?.message || err?.error?.message || err || '').toLowerCase()
+
+  // Numeric status is the most reliable signal — try it first.
+  if (typeof status === 'number') {
+    if (status === 400) return 'bad_request'
+    if (status === 401 || status === 403) return 'auth'
+    if (status === 404) return 'not_found'
+    if (status === 429) return 'rate_limit'
+    if (status >= 500) return 'server'
+  }
+
+  // Fall back to message inspection — use word boundaries to avoid false
+  // positives like "generateContent" matching the substring "rate".
+  if (/\bapi[_ -]?key\b/.test(message) || /\bpermission[_ -]?denied\b/.test(message) || /\bunauthorized\b/.test(message)) {
+    return 'auth'
+  }
+  if (/\bquota\b/.test(message) || /\brate[ _-]?limit/.test(message) || /\bresource[_ -]?exhausted\b/.test(message)) {
+    return 'rate_limit'
+  }
+  if (/\bnot[ _-]?found\b/.test(message) || /\bdoes not exist\b/.test(message)) {
+    return 'not_found'
+  }
+  if (/\b(unavailable|overloaded|internal[ _-]?error)\b/.test(message)) {
+    return 'server'
+  }
+  if (/\binvalid[ _-]?argument\b/.test(message) || /\bbad[ _-]?request\b/.test(message)) {
+    return 'bad_request'
+  }
   return 'unknown'
 }
 
@@ -155,11 +183,21 @@ router.post('/chat', async (req, res) => {
     res.json({ reply })
   } catch (err) {
     const kind = classifyError(err)
-    console.error('gemini error', kind, err?.status ?? '', err?.message ?? err)
+    // Stringify the full error object so any nested fields land in Vercel logs.
+    console.error('gemini error', kind, JSON.stringify({
+      status: err?.status,
+      code: err?.code,
+      message: err?.message,
+      errorMessage: err?.error?.message,
+      stack: err?.stack?.split('\n').slice(0, 3),
+    }))
 
     let reply
     switch (kind) {
       case 'auth':
+      case 'not_found':
+        // Either the API key was rejected or the configured model doesn't
+        // exist — both require admin attention, so show the offline message.
         reply = offlineReply(contactEmail)
         break
       case 'rate_limit':
@@ -173,7 +211,18 @@ router.post('/chat', async (req, res) => {
     }
 
     // Always 200 — the chatbot UI just renders whatever reply we return.
-    res.json({ reply })
+    // _debug is for surfacing the real error to the admin in DevTools →
+    // Network tab without exposing it in the visible chat message. Remove
+    // this once the integration is stable.
+    res.json({
+      reply,
+      _debug: {
+        kind,
+        status: err?.status,
+        code: err?.code,
+        message: err?.message || err?.error?.message,
+      },
+    })
   }
 })
 
