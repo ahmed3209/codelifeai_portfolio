@@ -14,6 +14,7 @@ export default function ServicesPage() {
   return (
     <div className="pt-20">
       <PageMeta
+        path="/services"
         title="Services"
         description="Full-stack web development, mobile apps, UI/UX design, AI integration, cloud & DevOps, and technical consulting. End-to-end product engineering by senior engineers."
         keywords="software development services, web development, mobile app development, ui ux design services, ai integration, llm integration, cloud architecture, devops, react development, nextjs development, flutter development, technical consulting"

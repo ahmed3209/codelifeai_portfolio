@@ -231,6 +231,7 @@ export default function LaunchPage() {
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center px-6 py-20 overflow-hidden bg-bb-black font-jakarta">
       <PageMeta
+        path={slug ? `/launch/${slug}` : '/launch'}
         title={`${toolName} — Coming Soon`}
         description={metaDescription}
         keywords={`${toolName.toLowerCase()}, ${toolName.toLowerCase()} launch, ${toolName.toLowerCase()} early access, coming soon, product launch, codelifeai`}

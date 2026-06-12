@@ -14,6 +14,7 @@ export default function TeamPage() {
   return (
     <div className="pt-20">
       <PageMeta
+        path="/team"
         title="Team"
         description="Meet the founders and senior engineers behind CodeLifeAI — builders shipping production-grade software across web, mobile, AI, and cloud."
         keywords="codelifeai team, software founders, senior engineers, full stack developers, software architect, cto for hire, engineering team, software development team pakistan"

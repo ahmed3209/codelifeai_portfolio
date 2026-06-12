@@ -22,6 +22,7 @@ export default function HomePage() {
   return (
     <>
       <PageMeta
+        path="/"
         description="CodeLifeAI is a software studio crafting elegant digital products — modern web apps, mobile experiences, AI integrations, and cloud infrastructure built by senior engineers."
         keywords="codelifeai, software studio, software development company, web development, mobile app development, ui ux design, ai integration, cloud devops, react, nextjs, flutter, full stack development"
       />

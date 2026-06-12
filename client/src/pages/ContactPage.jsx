@@ -13,6 +13,7 @@ export default function ContactPage() {
   return (
     <div className="pt-20">
       <PageMeta
+        path="/contact"
         title="Contact"
         description="Get in touch with CodeLifeAI. Tell us about your project and we'll reply within 24 hours with a free consultation and tailored proposal."
         keywords="contact codelifeai, software development inquiry, project consultation, hire developers, get a quote, free consultation, software project enquiry"

@@ -14,6 +14,7 @@ export default function ProcessPage() {
   return (
     <div className="pt-20">
       <PageMeta
+        path="/process"
         title="How We Work"
         description="Our software delivery process — discovery, design, agile build sprints, and post-launch support. A transparent workflow from first call to final launch."
         keywords="software delivery process, agile development, mvp development, product engineering workflow, sprint based delivery, design to code, software development methodology"

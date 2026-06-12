@@ -14,6 +14,7 @@ export default function WorkPage() {
   return (
     <div className="pt-20">
       <PageMeta
+        path="/work"
         title="Our Work"
         description="Selected projects from our software portfolio — fintech dashboards, e-commerce platforms, healthcare mobile apps, SaaS tools, AI analytics, and LMS systems shipped for clients worldwide."
         keywords="software portfolio, case studies, project showcase, fintech app development, e-commerce platform, healthcare app, saas development, lms platform, ai analytics, react projects, flutter apps"

@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Admin panel and auth are private — keep them out of the index.
+Disallow: /admin
+Disallow: /admin/
+
+Sitemap: https://codelifeai.com/sitemap.xml
