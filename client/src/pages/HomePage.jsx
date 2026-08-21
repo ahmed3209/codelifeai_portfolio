@@ -43,8 +43,8 @@ export default function HomePage() {
       {/* Hero */}
       <HeroSection content={content} promo={activePromo} liveProducts={liveProducts} />
 
-      {/* Active promo teaser (hidden when no active promotion) */}
-      <PromoTeaser promo={activePromo} />
+      {/* Active promo teaser / slider */}
+      <PromoTeaser promo={activePromo} promos={siteData?.activePromos || (activePromo ? [activePromo] : [])} />
 
       {/* Testimonials */}
       <TestimonialsSection testimonials={testimonials} />

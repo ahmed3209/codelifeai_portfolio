@@ -557,17 +557,14 @@ router.delete('/promos/:id', async (req, res) => {
   res.json({ ok: true })
 })
 
-// Set this promo as the single active one (or clear all when active=false)
+// Toggle promo active in slider
 router.put('/promos/:id/activate', async (req, res) => {
   const { active } = req.body
   const db = getDb()
-  await db.execute('UPDATE promos SET is_active = 0')
-  if (active !== false) {
-    await db.execute({
-      sql: 'UPDATE promos SET is_active = 1 WHERE id = ?',
-      args: [req.params.id],
-    })
-  }
+  await db.execute({
+    sql: 'UPDATE promos SET is_active = ?, updated_at=datetime("now") WHERE id = ?',
+    args: [active ? 1 : 0, req.params.id],
+  })
   const { rows } = await db.execute({ sql: 'SELECT * FROM promos WHERE id = ?', args: [req.params.id] })
   res.json(rows[0])
 })

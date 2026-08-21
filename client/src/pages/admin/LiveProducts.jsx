@@ -67,8 +67,11 @@ export default function AdminLiveProducts() {
     mutationFn: ({ id, is_active }) => adminApi.toggleLiveProduct(id, is_active),
     onSuccess: (_, vars) => {
       invalidate()
-      toast.success(vars.is_active ? 'Product is now LIVE in slider' : 'Product removed from slider')
+      toast.success(vars.is_active ? 'Product is now LIVE in slider' : 'Product disabled from slider')
     },
+    onError: (err) => {
+      toast.error(err.response?.data?.error || 'Failed to update product status')
+    }
   })
 
   function openCreate() {
@@ -196,7 +199,7 @@ export default function AdminLiveProducts() {
                     <Button
                       variant={isActive ? "ghost" : "outline"}
                       size="sm"
-                      onClick={() => toggleMut.mutate({ id: p.id, is_active: !isActive })}
+                      onClick={() => toggleMut.mutate({ id: p.id, is_active: isActive ? 0 : 1 })}
                       loading={toggleMut.isPending && toggleMut.variables?.id === p.id}
                       title={isActive ? "Hide from slider" : "Show in slider"}
                     >

@@ -123,9 +123,9 @@ export default function AdminPromotions() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-bb-white tracking-tight">Promotions &amp; Live Products</h1>
+          <h1 className="text-2xl font-bold text-bb-white tracking-tight">Promotions &amp; Product Launches</h1>
           <p className="text-bb-muted text-sm mt-1">
-            Manage live products, product launches, and top-right live spotlight banners.
+            Manage product launches and promotional countdowns. All active promotions rotate in the Coming Soon slider on the homepage.
           </p>
         </div>
         <Button onClick={openCreate}><Plus size={16} /> Add Promotion</Button>
@@ -148,9 +148,13 @@ export default function AdminPromotions() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <p className="text-sm font-semibold text-bb-white truncate">{p.name}</p>
-                      {isActive && (
+                      {isActive ? (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-bb-accent/10 border border-bb-accent/25 text-[0.62rem] font-bold uppercase tracking-wider text-bb-accent">
-                          <CheckCircle2 size={10} /> Active
+                          <CheckCircle2 size={10} /> Active in Slider
+                        </span>
+                      ) : (
+                        <span className="text-[0.62rem] font-semibold text-white/40 bg-white/[0.05] border border-white/[0.08] px-2 py-0.5 rounded-full">
+                          Inactive
                         </span>
                       )}
                       {p.badge && (
@@ -164,25 +168,15 @@ export default function AdminPromotions() {
                     </p>
                   </div>
                   <div className="flex gap-2 flex-shrink-0">
-                    {isActive ? (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => activateMut.mutate({ id: p.id, active: false })}
-                        loading={activateMut.isPending && activateMut.variables?.id === p.id}
-                      >
-                        Deactivate
-                      </Button>
-                    ) : (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => activateMut.mutate({ id: p.id, active: true })}
-                        loading={activateMut.isPending && activateMut.variables?.id === p.id}
-                      >
-                        Set Active
-                      </Button>
-                    )}
+                    <Button
+                      variant={isActive ? "ghost" : "outline"}
+                      size="sm"
+                      onClick={() => activateMut.mutate({ id: p.id, active: !isActive })}
+                      loading={activateMut.isPending && activateMut.variables?.id === p.id}
+                      title={isActive ? "Disable from slider" : "Enable in slider"}
+                    >
+                      {isActive ? 'Disable' : 'Enable'}
+                    </Button>
                     <Button variant="ghost" size="sm" onClick={() => openEdit(p)}><Pencil size={14} /></Button>
                     <Button
                       variant="danger"
@@ -202,9 +196,8 @@ export default function AdminPromotions() {
       <Card>
         <CardBody>
           <p className="text-xs text-bb-muted leading-relaxed">
-            <strong className="text-bb-white">How it works:</strong> The active live product appears in the
-            <strong className="text-bb-accent"> Top-Right Live Spotlight Widget</strong> on the homepage and the
-            <code className="text-bb-accent"> /launch</code> countdown page. Adding a <strong className="text-bb-white">Live Website Link (URL)</strong> lets visitors click directly to open your live web app!
+            <strong className="text-bb-white">How it works:</strong> All promotions marked <strong className="text-bb-accent">"Active in Slider"</strong> will automatically rotate in the promotional banner on the homepage every 5.5 seconds.
+            Each promotion also has its own public countdown page at <code className="text-bb-accent">/launch/&lt;slug&gt;</code>.
           </p>
         </CardBody>
       </Card>

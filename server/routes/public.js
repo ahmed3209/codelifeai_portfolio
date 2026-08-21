@@ -7,14 +7,14 @@ const router = Router()
 router.get('/site-data', async (req, res) => {
   const db = getDb()
 
-  const [services, founders, projects, testimonials, process, rawContent, activePromo, liveProducts] = await Promise.all([
+  const [services, founders, projects, testimonials, process, rawContent, activePromos, liveProducts] = await Promise.all([
     db.execute('SELECT * FROM services ORDER BY sort_order ASC'),
     db.execute('SELECT id, name, role, bio, initials, photo_url, avatar_bg, tags, linkedin_url, sort_order, created_at FROM founders ORDER BY sort_order ASC'),
     db.execute('SELECT * FROM projects ORDER BY sort_order ASC'),
     db.execute('SELECT * FROM testimonials ORDER BY sort_order ASC'),
     db.execute('SELECT * FROM process_steps ORDER BY sort_order ASC'),
     db.execute('SELECT key, value FROM content'),
-    db.execute('SELECT * FROM promos WHERE is_active = 1 LIMIT 1'),
+    db.execute('SELECT * FROM promos WHERE is_active = 1 ORDER BY sort_order ASC, id ASC'),
     db.execute('SELECT * FROM live_products WHERE is_active = 1 ORDER BY sort_order ASC, id ASC'),
   ])
 
@@ -27,7 +27,8 @@ router.get('/site-data', async (req, res) => {
     testimonials: testimonials.rows,
     process: process.rows,
     content,
-    activePromo: activePromo.rows[0] || null,
+    activePromo: activePromos.rows[0] || null,
+    activePromos: activePromos.rows || [],
     liveProducts: liveProducts.rows || [],
   })
 })
@@ -38,10 +39,10 @@ router.get('/live-products', async (req, res) => {
   res.json(rows)
 })
 
-// GET /api/promos/active — the currently featured promo (or null)
+// GET /api/promos/active — the currently featured promos
 router.get('/promos/active', async (req, res) => {
-  const { rows } = await getDb().execute('SELECT * FROM promos WHERE is_active = 1 LIMIT 1')
-  res.json(rows[0] || null)
+  const { rows } = await getDb().execute('SELECT * FROM promos WHERE is_active = 1 ORDER BY sort_order ASC, id ASC')
+  res.json(rows)
 })
 
 // GET /api/promos/:slug — a specific promo by slug (for direct-linked /launch/:slug)
