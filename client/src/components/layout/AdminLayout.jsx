@@ -5,22 +5,23 @@ import { useAuthStore } from '../../store/authStore'
 import {
   LayoutDashboard, Layers, Users, FileText,
   MessageSquare, Settings, LogOut, Zap,
-  FolderKanban, Quote, Workflow, Rocket, Sparkles, Inbox
+  FolderKanban, Quote, Workflow, Rocket, Sparkles, Inbox, Radio
 } from 'lucide-react'
 
 const navItems = [
-  { to: '/admin',              label: 'Dashboard',    icon: LayoutDashboard, end: true },
-  { to: '/admin/services',     label: 'Services',     icon: Layers },
-  { to: '/admin/projects',     label: 'Projects',     icon: FolderKanban },
-  { to: '/admin/founders',     label: 'Founders',     icon: Users },
-  { to: '/admin/testimonials', label: 'Testimonials', icon: Quote },
-  { to: '/admin/process',      label: 'Our Process',  icon: Workflow },
-  { to: '/admin/content',      label: 'Content',      icon: FileText },
-  { to: '/admin/promotions',   label: 'Promotions',   icon: Rocket },
-  { to: '/admin/early-access', label: 'Early Access', icon: Sparkles },
-  { to: '/admin/enquiries',    label: 'Enquiries',    icon: Inbox },
-  { to: '/admin/chatbot',      label: 'Chatbot KB',   icon: MessageSquare },
-  { to: '/admin/settings',     label: 'Settings',     icon: Settings },
+  { to: '/admin',               label: 'Dashboard',     icon: LayoutDashboard, end: true },
+  { to: '/admin/live-products', label: 'Live Products', icon: Radio },
+  { to: '/admin/services',      label: 'Services',      icon: Layers },
+  { to: '/admin/projects',      label: 'Projects',      icon: FolderKanban },
+  { to: '/admin/founders',      label: 'Founders',      icon: Users },
+  { to: '/admin/testimonials',  label: 'Testimonials',  icon: Quote },
+  { to: '/admin/process',       label: 'Our Process',   icon: Workflow },
+  { to: '/admin/content',       label: 'Content',       icon: FileText },
+  { to: '/admin/promotions',    label: 'Promotions',    icon: Rocket },
+  { to: '/admin/early-access',  label: 'Early Access',  icon: Sparkles },
+  { to: '/admin/enquiries',     label: 'Enquiries',     icon: Inbox },
+  { to: '/admin/chatbot',       label: 'Chatbot KB',    icon: MessageSquare },
+  { to: '/admin/settings',      label: 'Settings',      icon: Settings },
 ]
 
 export default function AdminLayout() {

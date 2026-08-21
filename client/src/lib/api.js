@@ -47,14 +47,15 @@ export default api
 
 // ─── Public API helpers ───────────────────────────────────────
 export const publicApi = {
-  getSiteData:    () => api.get('/site-data'),
-  getServices:    () => api.get('/services'),
-  getFounders:    () => api.get('/founders'),
-  getActivePromo: () => api.get('/promos/active'),
-  getPromoBySlug: (slug) => api.get(`/promos/${slug}`),
-  sendMessage:    (data) => api.post('/chat', data),
-  getChatHistory: () => api.get('/chat/history'),
-  sendContact:    (data) => api.post('/contact', data),
+  getSiteData:        () => api.get('/site-data'),
+  getLiveProducts:    () => api.get('/live-products'),
+  getServices:        () => api.get('/services'),
+  getFounders:        () => api.get('/founders'),
+  getActivePromo:     () => api.get('/promos/active'),
+  getPromoBySlug:     (slug) => api.get(`/promos/${slug}`),
+  sendMessage:        (data) => api.post('/chat', data),
+  getChatHistory:     () => api.get('/chat/history'),
+  sendContact:        (data) => api.post('/contact', data),
   requestEarlyAccess: (data) => api.post('/early-access', data),
 }
 
@@ -124,6 +125,13 @@ export const adminApi = {
   updatePromo:  (id, d) => api.put(`/admin/promos/${id}`, d),
   deletePromo:  (id) => api.delete(`/admin/promos/${id}`),
   activatePromo:(id, active = true) => api.put(`/admin/promos/${id}/activate`, { active }),
+
+  // Live Products (Top-Right Live Showcase Slider)
+  getLiveProducts:   () => api.get('/admin/live-products'),
+  createLiveProduct: (d) => api.post('/admin/live-products', d),
+  updateLiveProduct: (id, d) => api.put(`/admin/live-products/${id}`, d),
+  deleteLiveProduct: (id) => api.delete(`/admin/live-products/${id}`),
+  toggleLiveProduct: (id, is_active) => api.put(`/admin/live-products/${id}/toggle`, { is_active }),
 
   // Enquiries (contact form submissions)
   getContacts:   () => api.get('/admin/contacts'),

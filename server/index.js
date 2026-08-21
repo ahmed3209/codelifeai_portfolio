@@ -3,6 +3,7 @@ import express from 'express'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import path from 'path'
+import fs from 'fs'
 import { fileURLToPath } from 'url'
 import { initDb } from './db/database.js'
 import { ensureVisitorSession } from './middleware/session.js'
@@ -15,6 +16,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const app = express()
 const PORT = process.env.PORT || 4000
 
+app.set('trust proxy', 1)
+
 const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
   .split(',')
   .map(o => o.trim())
@@ -23,6 +26,10 @@ const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
 app.use(cors({
   origin(origin, cb) {
     if (!origin) return cb(null, true)
+    // If explicitly specified in allowedOrigins or allow dynamically for client domains
+    if (allowedOrigins.includes('*') || allowedOrigins.includes(origin) || process.env.NODE_ENV === 'production' || !!process.env.VERCEL) {
+      return cb(null, true)
+    }
     cb(null, allowedOrigins.includes(origin))
   },
   credentials: true,
@@ -30,12 +37,13 @@ app.use(cors({
 app.use(cookieParser())
 app.use(express.json({ limit: '10mb' }))
 
-// Health check — does not touch the DB. Useful for confirming the function loads.
+// Health check — does not touch the DB. Useful for confirming the service is running.
 app.get('/health', (req, res) => {
   res.json({
     ok: true,
     vercel: !!process.env.VERCEL,
     hasTurso: !!process.env.TURSO_DATABASE_URL,
+    timestamp: new Date().toISOString(),
   })
 })
 
@@ -59,9 +67,9 @@ app.use('/api', publicRoutes)
 app.use('/api/admin', adminRoutes)
 app.use('/api', chatRoutes)
 
-// Serve built React app (local Docker compose mode only)
-if (!process.env.VERCEL) {
-  const publicDir = path.join(__dirname, 'public')
+// Serve built React app if present in public directory
+const publicDir = path.join(__dirname, 'public')
+if (fs.existsSync(publicDir)) {
   app.use(express.static(publicDir))
 }
 
@@ -69,10 +77,16 @@ app.get('*', (req, res) => {
   if (req.path.startsWith('/api')) {
     return res.status(404).json({ error: 'Not found' })
   }
-  if (process.env.VERCEL) {
-    return res.json({ ok: true, service: 'codelifeai-api', note: 'Static client is hosted on Hostinger.' })
+  const indexHtml = path.join(publicDir, 'index.html')
+  if (fs.existsSync(indexHtml)) {
+    return res.sendFile(indexHtml)
   }
-  res.sendFile(path.join(__dirname, 'public', 'index.html'))
+  return res.json({
+    ok: true,
+    service: 'codelifeai-api',
+    status: 'online',
+    message: 'Backend server is running.',
+  })
 })
 
 if (!process.env.VERCEL) {

@@ -11,6 +11,7 @@ import toast from 'react-hot-toast'
 const EMPTY = {
   title: '', category: '', tags: '[]', outcome: '', emoji: '🚀',
   accent: '#00d4f5', bg: 'linear-gradient(135deg, rgba(0,212,245,0.1) 0%, rgba(124,58,237,0.06) 100%)',
+  live_url: '',
   sort_order: 0,
 }
 
@@ -41,12 +42,12 @@ export default function AdminProjects() {
 
   function openCreate() { setForm(EMPTY); setModal('create') }
   function openEdit(p) {
-    setForm({ ...p, tags: typeof p.tags === 'string' ? p.tags : JSON.stringify(p.tags) })
+    setForm({ ...p, tags: typeof p.tags === 'string' ? p.tags : JSON.stringify(p.tags), live_url: p.live_url || '' })
     setEditId(p.id); setModal('edit')
   }
   function handleSubmit(e) {
     e.preventDefault()
-    const payload = { ...form, tags: parseTags(form.tags) }
+    const payload = { ...form, live_url: (form.live_url || '').trim(), tags: parseTags(form.tags) }
     if (modal === 'create') createMut.mutate(payload)
     else updateMut.mutate({ id: editId, d: payload })
   }
@@ -57,8 +58,8 @@ export default function AdminProjects() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-bb-white tracking-tight">Projects</h1>
-          <p className="text-bb-muted text-sm mt-1">Manage the "What We've Built" section.</p>
+          <h1 className="text-2xl font-bold text-bb-white tracking-tight">Projects &amp; Portfolio</h1>
+          <p className="text-bb-muted text-sm mt-1">Manage the "What We've Built" section and add live product links.</p>
         </div>
         <Button onClick={openCreate}><Plus size={16} /> Add Project</Button>
       </div>
@@ -74,7 +75,9 @@ export default function AdminProjects() {
                   style={{ background: p.bg || 'rgba(0,212,245,0.08)' }}>{p.emoji}</div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-bb-white truncate">{p.title}</p>
-                  <p className="text-xs text-bb-muted truncate">{p.category} · {p.outcome}</p>
+                  <p className="text-xs text-bb-muted truncate">
+                    {p.live_url ? `Live: ${p.live_url} · ` : ''}{p.category} · {p.outcome}
+                  </p>
                 </div>
                 <div className="flex gap-2 flex-shrink-0">
                   <Button variant="ghost" size="sm" onClick={() => openEdit(p)}><Pencil size={14} /></Button>
@@ -99,6 +102,7 @@ export default function AdminProjects() {
             <Input label="Category" value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value }))} placeholder="Web Application" />
             <Input label="Outcome / metric" value={form.outcome} onChange={e => setForm(p => ({ ...p, outcome: e.target.value }))} placeholder="10k+ active users" />
           </div>
+          <Input label="Live Demo / Website Link (URL)" value={form.live_url} onChange={e => setForm(p => ({ ...p, live_url: e.target.value }))} placeholder="https://example.com/demo" />
           <Textarea label="Tags (comma-separated or JSON array)" value={form.tags} onChange={e => setForm(p => ({ ...p, tags: e.target.value }))} rows={2} placeholder="React, Node.js, PostgreSQL" />
           <div className="grid grid-cols-2 gap-3">
             <Input label="Accent color (hex)" value={form.accent} onChange={e => setForm(p => ({ ...p, accent: e.target.value }))} placeholder="#00d4f5" />

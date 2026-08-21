@@ -14,6 +14,8 @@ const EMPTY = {
   tagline: '',
   launch_local: '',
   cta_label: 'Request Early Access',
+  live_url: '',
+  badge: 'LIVE NOW',
   sort_order: 0,
 }
 
@@ -90,6 +92,8 @@ export default function AdminPromotions() {
       tagline: p.tagline || '',
       launch_local: isoToLocalInput(p.launch_at),
       cta_label: p.cta_label || 'Request Early Access',
+      live_url: p.live_url || '',
+      badge: p.badge || 'LIVE NOW',
       sort_order: p.sort_order || 0,
     })
     setEditId(p.id)
@@ -105,6 +109,8 @@ export default function AdminPromotions() {
       tagline: form.tagline,
       launch_at: localInputToIso(form.launch_local),
       cta_label: form.cta_label.trim() || 'Request Early Access',
+      live_url: form.live_url.trim(),
+      badge: form.badge.trim() || 'LIVE NOW',
       sort_order: Number(form.sort_order) || 0,
     }
     if (modal === 'create') createMut.mutate(payload)
@@ -117,10 +123,9 @@ export default function AdminPromotions() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-bb-white tracking-tight">Promotions</h1>
+          <h1 className="text-2xl font-bold text-bb-white tracking-tight">Promotions &amp; Live Products</h1>
           <p className="text-bb-muted text-sm mt-1">
-            Product launches and promotional banners. Only one promotion can be active — it powers the homepage
-            teaser and the <code className="text-bb-accent">/launch</code> countdown page.
+            Manage live products, product launches, and top-right live spotlight banners.
           </p>
         </div>
         <Button onClick={openCreate}><Plus size={16} /> Add Promotion</Button>
@@ -148,9 +153,14 @@ export default function AdminPromotions() {
                           <CheckCircle2 size={10} /> Active
                         </span>
                       )}
+                      {p.badge && (
+                        <span className="text-[0.62rem] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+                          {p.badge}
+                        </span>
+                      )}
                     </div>
                     <p className="text-xs text-bb-muted truncate">
-                      /launch/{p.slug} · Launches {formatLaunchLabel(p.launch_at)}
+                      {p.live_url ? `Live Web: ${p.live_url} · ` : ''}/launch/{p.slug} {p.launch_at ? `· Launches ${formatLaunchLabel(p.launch_at)}` : ''}
                     </p>
                   </div>
                   <div className="flex gap-2 flex-shrink-0">
@@ -192,10 +202,9 @@ export default function AdminPromotions() {
       <Card>
         <CardBody>
           <p className="text-xs text-bb-muted leading-relaxed">
-            <strong className="text-bb-white">How it works:</strong> the active promotion's name, tagline and date
-            drive the homepage teaser banner and the public countdown at <code className="text-bb-accent">/launch</code>.
-            Each promotion also gets its own permalink at <code className="text-bb-accent">/launch/&lt;slug&gt;</code>.
-            Early-access requests collected from any promo land in the <strong className="text-bb-white">Early Access</strong> tab.
+            <strong className="text-bb-white">How it works:</strong> The active live product appears in the
+            <strong className="text-bb-accent"> Top-Right Live Spotlight Widget</strong> on the homepage and the
+            <code className="text-bb-accent"> /launch</code> countdown page. Adding a <strong className="text-bb-white">Live Website Link (URL)</strong> lets visitors click directly to open your live web app!
           </p>
         </CardBody>
       </Card>
@@ -203,7 +212,7 @@ export default function AdminPromotions() {
       <Modal
         open={!!modal}
         onClose={() => setModal(null)}
-        title={modal === 'create' ? 'Add Promotion' : 'Edit Promotion'}
+        title={modal === 'create' ? 'Add Live Product / Promotion' : 'Edit Live Product / Promotion'}
         size="lg"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -216,10 +225,25 @@ export default function AdminPromotions() {
               placeholder="ZYRA AI"
             />
             <Input
-              label="Slug (URL — auto if left blank)"
+              label="Slug (URL identifier)"
               value={form.slug}
               onChange={e => setForm(p => ({ ...p, slug: e.target.value }))}
               placeholder="zyra-ai"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <Input
+              label="Live Website Link / URL"
+              value={form.live_url}
+              onChange={e => setForm(p => ({ ...p, live_url: e.target.value }))}
+              placeholder="https://zyra-ai.com (or /launch/zyra-ai)"
+            />
+            <Input
+              label="Status Badge"
+              value={form.badge}
+              onChange={e => setForm(p => ({ ...p, badge: e.target.value }))}
+              placeholder="LIVE NOW (e.g. v2.4, NEW)"
             />
           </div>
 
@@ -227,13 +251,13 @@ export default function AdminPromotions() {
             label="Tagline / description"
             value={form.tagline}
             onChange={e => setForm(p => ({ ...p, tagline: e.target.value }))}
-            rows={3}
+            rows={2}
             placeholder="One AI for everything — chat, create, analyze, automate."
           />
 
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-bb-muted uppercase tracking-widest">
-              Launch date &amp; time
+              Launch date &amp; time (Optional)
             </label>
             <input
               type="datetime-local"
@@ -241,7 +265,7 @@ export default function AdminPromotions() {
               onChange={e => setForm(p => ({ ...p, launch_local: e.target.value }))}
               className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-bb-white outline-none focus:border-bb-accent/40 transition-colors [color-scheme:dark]"
             />
-            <p className="text-[0.7rem] text-bb-muted">Set in your local time. Counts down to this exact moment for every visitor.</p>
+            <p className="text-[0.7rem] text-bb-muted">Set if counting down to a future date, or leave empty if already live.</p>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -249,7 +273,7 @@ export default function AdminPromotions() {
               label="CTA button label"
               value={form.cta_label}
               onChange={e => setForm(p => ({ ...p, cta_label: e.target.value }))}
-              placeholder="Request Early Access"
+              placeholder="Click to Open Product"
             />
             <Input
               label="Sort order"
@@ -262,7 +286,7 @@ export default function AdminPromotions() {
           <div className="flex justify-end gap-3 pt-2">
             <Button type="button" variant="outline" onClick={() => setModal(null)}>Cancel</Button>
             <Button type="submit" loading={busy}>
-              {modal === 'create' ? 'Create Promotion' : 'Save Changes'}
+              {modal === 'create' ? 'Create Product' : 'Save Changes'}
             </Button>
           </div>
         </form>

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Zap, Star } from 'lucide-react'
+import LiveProductWidget from './LiveProductWidget'
 
 const WORDS = ['Software.', 'Products.', 'Experiences.', 'The Future.', 'What Matters.']
 
@@ -29,7 +30,7 @@ const FU = (delay = 0, y = 24) => ({
   transition: { delay, duration: 0.7, ease: [0.16, 1, 0.3, 1] },
 })
 
-export default function HeroSection({ content = {} }) {
+export default function HeroSection({ content = {}, promo = null, liveProducts = [] }) {
   const [wordIndex,   setWordIndex]   = useState(0)
   const [charIndex,   setCharIndex]   = useState(0)
   const [deleting,    setDeleting]    = useState(false)
@@ -61,6 +62,9 @@ export default function HeroSection({ content = {} }) {
 
   return (
     <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-6 pt-32 pb-28 overflow-hidden">
+
+      {/* ── Top-Right Animated "Product is LIVE" Multi-Product Slider ── */}
+      <LiveProductWidget liveProducts={liveProducts} promo={promo} />
 
       {/* ── Ambient orbs ──────────────────────────────────── */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">

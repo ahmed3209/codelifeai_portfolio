@@ -390,25 +390,25 @@ router.get('/projects', async (req, res) => {
 })
 
 router.post('/projects', async (req, res) => {
-  const { title, category, tags, outcome, emoji, accent, bg, sort_order } = req.body
+  const { title, category, tags, outcome, emoji, accent, bg, live_url, sort_order } = req.body
   const db = getDb()
   const max = await db.execute('SELECT MAX(sort_order) as m FROM projects')
   const nextOrder = sort_order || (Number(max.rows[0].m) || 0) + 1
   const ins = await db.execute({
-    sql: 'INSERT INTO projects (title,category,tags,outcome,emoji,accent,bg,sort_order) VALUES (?,?,?,?,?,?,?,?)',
+    sql: 'INSERT INTO projects (title,category,tags,outcome,emoji,accent,bg,live_url,sort_order) VALUES (?,?,?,?,?,?,?,?,?)',
     args: [title, category || '', tags || '[]', outcome || '', emoji || '🚀', accent || '#00d4f5',
-           bg || 'linear-gradient(135deg, rgba(0,212,245,0.1) 0%, rgba(124,58,237,0.06) 100%)', nextOrder],
+           bg || 'linear-gradient(135deg, rgba(0,212,245,0.1) 0%, rgba(124,58,237,0.06) 100%)', live_url || '', nextOrder],
   })
   const { rows } = await db.execute({ sql: 'SELECT * FROM projects WHERE id = ?', args: [Number(ins.lastInsertRowid)] })
   res.json(rows[0])
 })
 
 router.put('/projects/:id', async (req, res) => {
-  const { title, category, tags, outcome, emoji, accent, bg, sort_order } = req.body
+  const { title, category, tags, outcome, emoji, accent, bg, live_url, sort_order } = req.body
   const db = getDb()
   await db.execute({
-    sql: 'UPDATE projects SET title=?,category=?,tags=?,outcome=?,emoji=?,accent=?,bg=?,sort_order=? WHERE id=?',
-    args: [title, category, tags, outcome, emoji, accent, bg, sort_order, req.params.id],
+    sql: 'UPDATE projects SET title=?,category=?,tags=?,outcome=?,emoji=?,accent=?,bg=?,live_url=?,sort_order=? WHERE id=?',
+    args: [title, category, tags, outcome, emoji, accent, bg, live_url || '', sort_order, req.params.id],
   })
   const { rows } = await db.execute({ sql: 'SELECT * FROM projects WHERE id = ?', args: [req.params.id] })
   res.json(rows[0])
@@ -523,30 +523,30 @@ router.get('/promos', async (req, res) => {
 })
 
 router.post('/promos', async (req, res) => {
-  const { name, tagline, launch_at, cta_label, sort_order, slug } = req.body
+  const { name, tagline, launch_at, cta_label, live_url, badge, sort_order, slug } = req.body
   if (!name) return res.status(400).json({ error: 'name is required' })
   const db = getDb()
   const max = await db.execute('SELECT MAX(sort_order) as m FROM promos')
   const nextOrder = sort_order || (Number(max.rows[0].m) || 0) + 1
   const uniqueSlug = await ensureUniqueSlug(db, slugify(slug || name))
   const ins = await db.execute({
-    sql: `INSERT INTO promos (slug, name, tagline, launch_at, cta_label, is_active, sort_order)
-          VALUES (?, ?, ?, ?, ?, 0, ?)`,
-    args: [uniqueSlug, name, tagline || '', launch_at || '', cta_label || 'Request Early Access', nextOrder],
+    sql: `INSERT INTO promos (slug, name, tagline, launch_at, cta_label, live_url, badge, is_active, sort_order)
+          VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?)`,
+    args: [uniqueSlug, name, tagline || '', launch_at || '', cta_label || 'Request Early Access', live_url || '', badge || 'LIVE NOW', nextOrder],
   })
   const { rows } = await db.execute({ sql: 'SELECT * FROM promos WHERE id = ?', args: [Number(ins.lastInsertRowid)] })
   res.json(rows[0])
 })
 
 router.put('/promos/:id', async (req, res) => {
-  const { name, tagline, launch_at, cta_label, sort_order, slug } = req.body
+  const { name, tagline, launch_at, cta_label, live_url, badge, sort_order, slug } = req.body
   const db = getDb()
   const id = req.params.id
   const uniqueSlug = await ensureUniqueSlug(db, slugify(slug || name || 'promo'), id)
   await db.execute({
-    sql: `UPDATE promos SET slug=?, name=?, tagline=?, launch_at=?, cta_label=?, sort_order=?,
+    sql: `UPDATE promos SET slug=?, name=?, tagline=?, launch_at=?, cta_label=?, live_url=?, badge=?, sort_order=?,
           updated_at=datetime('now') WHERE id=?`,
-    args: [uniqueSlug, name, tagline || '', launch_at || '', cta_label || 'Request Early Access', sort_order || 0, id],
+    args: [uniqueSlug, name, tagline || '', launch_at || '', cta_label || 'Request Early Access', live_url || '', badge || 'LIVE NOW', sort_order || 0, id],
   })
   const { rows } = await db.execute({ sql: 'SELECT * FROM promos WHERE id = ?', args: [id] })
   res.json(rows[0])
@@ -569,6 +569,57 @@ router.put('/promos/:id/activate', async (req, res) => {
     })
   }
   const { rows } = await db.execute({ sql: 'SELECT * FROM promos WHERE id = ?', args: [req.params.id] })
+  res.json(rows[0])
+})
+
+// ── LIVE PRODUCTS (Top-Right Live Showcase Slider) ───────────
+
+router.get('/live-products', async (req, res) => {
+  const { rows } = await getDb().execute('SELECT * FROM live_products ORDER BY sort_order ASC, id ASC')
+  res.json(rows)
+})
+
+router.post('/live-products', async (req, res) => {
+  const { name, tagline, url, icon, badge, cta_label, is_active, sort_order } = req.body
+  if (!name || !url) return res.status(400).json({ error: 'Name and live website URL are required' })
+  const db = getDb()
+  const max = await db.execute('SELECT MAX(sort_order) as m FROM live_products')
+  const nextOrder = sort_order || (Number(max.rows[0].m) || 0) + 1
+  const ins = await db.execute({
+    sql: `INSERT INTO live_products (name, tagline, url, icon, badge, cta_label, is_active, sort_order)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    args: [name, tagline || '', url, icon || '✨', badge || 'LIVE NOW', cta_label || 'Open Live Website', is_active !== 0 ? 1 : 0, nextOrder],
+  })
+  const { rows } = await db.execute({ sql: 'SELECT * FROM live_products WHERE id = ?', args: [Number(ins.lastInsertRowid)] })
+  res.json(rows[0])
+})
+
+router.put('/live-products/:id', async (req, res) => {
+  const { name, tagline, url, icon, badge, cta_label, is_active, sort_order } = req.body
+  if (!name || !url) return res.status(400).json({ error: 'Name and live website URL are required' })
+  const db = getDb()
+  await db.execute({
+    sql: `UPDATE live_products SET name=?, tagline=?, url=?, icon=?, badge=?, cta_label=?, is_active=?, sort_order=?,
+          updated_at=datetime('now') WHERE id=?`,
+    args: [name, tagline || '', url, icon || '✨', badge || 'LIVE NOW', cta_label || 'Open Live Website', is_active !== 0 ? 1 : 0, sort_order || 0, req.params.id],
+  })
+  const { rows } = await db.execute({ sql: 'SELECT * FROM live_products WHERE id = ?', args: [req.params.id] })
+  res.json(rows[0])
+})
+
+router.delete('/live-products/:id', async (req, res) => {
+  await getDb().execute({ sql: 'DELETE FROM live_products WHERE id = ?', args: [req.params.id] })
+  res.json({ ok: true })
+})
+
+router.put('/live-products/:id/toggle', async (req, res) => {
+  const { is_active } = req.body
+  const db = getDb()
+  await db.execute({
+    sql: 'UPDATE live_products SET is_active = ?, updated_at=datetime("now") WHERE id = ?',
+    args: [is_active ? 1 : 0, req.params.id],
+  })
+  const { rows } = await db.execute({ sql: 'SELECT * FROM live_products WHERE id = ?', args: [req.params.id] })
   res.json(rows[0])
 })
 

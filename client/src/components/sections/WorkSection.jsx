@@ -75,8 +75,16 @@ export default function WorkSection({ projects = [] }) {
 
 function ProjectCard({ project: p }) {
   const tags = parseTags(p.tags)
+  const isExternal = p.live_url && p.live_url.startsWith('http')
+  const href = p.live_url || '/contact'
+
+  const CardWrapper = isExternal ? 'a' : Link
+  const linkProps = isExternal
+    ? { href, target: '_blank', rel: 'noopener noreferrer' }
+    : { to: href }
+
   return (
-    <div className="group card-base p-0 cursor-default overflow-hidden h-full flex flex-col">
+    <CardWrapper {...linkProps} className="group card-base p-0 cursor-pointer overflow-hidden h-full flex flex-col no-underline">
       {/* Visual area */}
       <div
         className="relative h-48 flex items-center justify-center overflow-hidden"
@@ -102,14 +110,15 @@ function ProjectCard({ project: p }) {
           style={{ background: 'rgba(0,0,0,0.45)', color: p.accent }}>
           {p.outcome}
         </div>
-        {/* Category badge */}
-        <div className="absolute top-3 left-3 text-[0.67rem] font-semibold text-white/50 bg-black/40 border border-white/[0.08] px-2.5 py-1 rounded-full">
+        {/* Category badge with Live indicator */}
+        <div className="absolute top-3 left-3 text-[0.67rem] font-semibold text-white/70 bg-black/50 border border-white/[0.08] px-2.5 py-1 rounded-full flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#10b981]" />
           {p.category}
         </div>
-        {/* Arrow */}
-        <div className="absolute top-3 right-3 w-7 h-7 rounded-full border border-white/[0.1] bg-black/40 flex items-center justify-center
-          opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition-all duration-300">
-          <ArrowUpRight size={12} className="text-white/70" />
+        {/* Live Demo interactive badge on hover */}
+        <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full border border-[#00d4f5]/30 bg-[#00d4f5]/20 text-[#00d4f5] text-[0.68rem] font-bold flex items-center gap-1 opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition-all duration-300 shadow-lg backdrop-blur-md">
+          <span>{p.live_url ? 'Open Demo' : 'Live Project'}</span>
+          <ArrowUpRight size={12} />
         </div>
         {/* Hover gradient sweep */}
         <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-400"
@@ -118,7 +127,10 @@ function ProjectCard({ project: p }) {
 
       {/* Content */}
       <div className="p-6 flex-1 flex flex-col">
-        <h3 className="text-[0.97rem] font-bold text-bb-white mb-3 leading-snug">{p.title}</h3>
+        <h3 className="text-[0.97rem] font-bold text-bb-white mb-3 leading-snug group-hover:text-[#00d4f5] transition-colors flex items-center justify-between">
+          <span>{p.title}</span>
+          <ArrowUpRight size={14} className="opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition-all text-[#00d4f5]" />
+        </h3>
         <div className="flex flex-wrap gap-1.5 mt-auto">
           {tags.map((tag, i) => (
             <span key={i}
@@ -134,6 +146,6 @@ function ProjectCard({ project: p }) {
       {/* Bottom accent bar */}
       <div className="h-[2px] w-0 group-hover:w-full transition-all duration-500 origin-left"
         style={{ background: `linear-gradient(90deg, ${p.accent}, transparent)` }} />
-    </div>
+    </CardWrapper>
   )
 }

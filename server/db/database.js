@@ -1,14 +1,18 @@
-import { createClient } from '@libsql/client/web'
+import { createClient } from '@libsql/client'
 import bcrypt from 'bcryptjs'
+import path from 'path'
+import { fileURLToPath } from 'url'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 let db
 let initPromise
 
 export function getDb() {
   if (!db) {
-    const url = process.env.TURSO_DATABASE_URL
-    if (!url) throw new Error('TURSO_DATABASE_URL is not set')
-    db = createClient({ url, authToken: process.env.TURSO_AUTH_TOKEN })
+    const url = process.env.TURSO_DATABASE_URL || `file:${path.join(__dirname, 'codelifeai.db').replace(/\\/g, '/')}`
+    const authToken = process.env.TURSO_AUTH_TOKEN
+    db = createClient({ url, authToken })
   }
   return db
 }
@@ -99,6 +103,7 @@ async function doInit() {
       emoji       TEXT DEFAULT '🚀',
       accent      TEXT DEFAULT '#00d4f5',
       bg          TEXT,
+      live_url    TEXT DEFAULT '',
       sort_order  INTEGER DEFAULT 0,
       created_at  TEXT DEFAULT (datetime('now'))
     )`,
@@ -129,7 +134,22 @@ async function doInit() {
       tagline     TEXT,
       launch_at   TEXT,
       cta_label   TEXT DEFAULT 'Request Early Access',
+      live_url    TEXT DEFAULT '',
+      badge       TEXT DEFAULT 'LIVE NOW',
       is_active   INTEGER DEFAULT 0,
+      sort_order  INTEGER DEFAULT 0,
+      created_at  TEXT DEFAULT (datetime('now')),
+      updated_at  TEXT DEFAULT (datetime('now'))
+    )`,
+    `CREATE TABLE IF NOT EXISTS live_products (
+      id          INTEGER PRIMARY KEY AUTOINCREMENT,
+      name        TEXT NOT NULL,
+      tagline     TEXT,
+      url         TEXT NOT NULL,
+      icon        TEXT DEFAULT '✨',
+      badge       TEXT DEFAULT 'LIVE NOW',
+      cta_label   TEXT DEFAULT 'Open Live Website',
+      is_active   INTEGER DEFAULT 1,
       sort_order  INTEGER DEFAULT 0,
       created_at  TEXT DEFAULT (datetime('now')),
       updated_at  TEXT DEFAULT (datetime('now'))
@@ -174,6 +194,9 @@ async function ensureExtras(db) {
     "ALTER TABLE founders ADD COLUMN linkedin_url TEXT DEFAULT ''",
     "ALTER TABLE founders ADD COLUMN photo_data   TEXT DEFAULT ''",
     "ALTER TABLE founders ADD COLUMN photo_mime   TEXT DEFAULT ''",
+    "ALTER TABLE promos ADD COLUMN live_url TEXT DEFAULT ''",
+    "ALTER TABLE promos ADD COLUMN badge    TEXT DEFAULT 'LIVE NOW'",
+    "ALTER TABLE projects ADD COLUMN live_url TEXT DEFAULT ''",
   ]
   for (const sql of schemaExtensions) {
     try { await db.execute(sql) }
@@ -273,6 +296,50 @@ async function ensureExtras(db) {
   try {
     await db.execute('ALTER TABLE admin_users ADD COLUMN token_version INTEGER DEFAULT 1')
   } catch { /* column already exists */ }
+
+  // Live Products: seed default products if empty
+  const liveCount = await db.execute('SELECT COUNT(*) as c FROM live_products')
+  if (Number(liveCount.rows[0].c) === 0) {
+    const defaultLive = [
+      {
+        name: 'Screen Snap',
+        tagline: 'Instant screen recording, smart annotations & AI capture workflow.',
+        url: 'https://screensnap.app',
+        icon: '📸',
+        badge: 'LIVE NOW',
+        cta_label: 'Open Live Website',
+        is_active: 1,
+        sort_order: 1
+      },
+      {
+        name: 'ZYRA AI',
+        tagline: 'One AI for everything — chat, create, analyze & automate workflows.',
+        url: 'https://zyra-ai.com',
+        icon: '⚡',
+        badge: 'v2.4 LIVE',
+        cta_label: 'Open Live Website',
+        is_active: 1,
+        sort_order: 2
+      },
+      {
+        name: 'Alarmify',
+        tagline: 'AI sleep partner and smart wake-up alarm system.',
+        url: 'https://alarmify.app',
+        icon: '⏰',
+        badge: 'WEB APP',
+        cta_label: 'Open Live Website',
+        is_active: 1,
+        sort_order: 3
+      }
+    ]
+    for (const p of defaultLive) {
+      await db.execute({
+        sql: `INSERT INTO live_products (name, tagline, url, icon, badge, cta_label, is_active, sort_order)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        args: [p.name, p.tagline, p.url, p.icon, p.badge, p.cta_label, p.is_active, p.sort_order]
+      })
+    }
+  }
 
   // Index for the chat-history hot path. CREATE INDEX IF NOT EXISTS is
   // idempotent, so this is safe to run every boot.

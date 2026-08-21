@@ -26,6 +26,7 @@ const AdminProcess        = lazy(() => import('./pages/admin/Process'))
 const AdminEnquiries      = lazy(() => import('./pages/admin/Enquiries'))
 const AdminEarlyAccess    = lazy(() => import('./pages/admin/EarlyAccess'))
 const AdminPromotions     = lazy(() => import('./pages/admin/Promotions'))
+const AdminLiveProducts   = lazy(() => import('./pages/admin/LiveProducts'))
 
 export default function App() {
   return (
@@ -53,6 +54,7 @@ export default function App() {
           {/* Admin panel (protected) */}
           <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
             <Route index element={<AdminDashboard />} />
+            <Route path="live-products" element={<AdminLiveProducts />} />
             <Route path="services" element={<AdminServices />} />
             <Route path="projects" element={<AdminProjects />} />
             <Route path="founders" element={<AdminFounders />} />

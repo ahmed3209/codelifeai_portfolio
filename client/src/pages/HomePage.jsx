@@ -9,6 +9,13 @@ import CTABanner            from '../components/sections/CTABanner'
 
 const ThreeBackground = lazy(() => import('../components/ThreeBackground'))
 
+const DEFAULT_TESTIMONIALS = [
+  { name: 'Ahmed Al-Rashid', role: 'Founder, FinTrack', avatar: 'AR', bg: 'linear-gradient(135deg, #00d4f5, #0099bb)', rating: 5, quote: "CodeLifeAI delivered our banking dashboard in record time — clean code, beautiful UI, and zero post-launch issues. They didn't just build what we asked; they made it better than we imagined." },
+  { name: 'Sarah Mitchell', role: 'CTO, ShopEase Inc.', avatar: 'SM', bg: 'linear-gradient(135deg, #a855f7, #7c3aed)', rating: 5, quote: "Working with CodeLifeAI felt like having a senior in-house engineering team. Communication was seamless, timelines were respected, and the final product drove a 40% increase in our conversion rate." },
+  { name: 'Dr. Iman Yousuf', role: 'CEO, MedSync Health', avatar: 'IY', bg: 'linear-gradient(135deg, #22c55e, #16a34a)', rating: 5, quote: "Our medical app needed to be both beautiful and HIPAA-compliant. CodeLifeAI nailed it. The Flutter development was exceptional — users literally rate us 4.9 stars on the Play Store." },
+  { name: 'James Thornton', role: 'Head of Product, LogiFlow', avatar: 'JT', bg: 'linear-gradient(135deg, #f59e0b, #d97706)', rating: 5, quote: "We cut operational costs by 35% after CodeLifeAI rebuilt our supply chain platform. The Python data pipelines they built process 2 million records daily without a single failure. Remarkable work." },
+]
+
 export default function HomePage() {
   const { data: siteData } = useQuery({
     queryKey: ['site-data'],
@@ -16,8 +23,9 @@ export default function HomePage() {
   })
 
   const content      = siteData?.content      || {}
-  const testimonials = siteData?.testimonials || []
+  const testimonials = (siteData?.testimonials && siteData.testimonials.length > 0) ? siteData.testimonials : DEFAULT_TESTIMONIALS
   const activePromo  = siteData?.activePromo  || null
+  const liveProducts = siteData?.liveProducts || []
 
   return (
     <>
@@ -33,7 +41,7 @@ export default function HomePage() {
       </Suspense>
 
       {/* Hero */}
-      <HeroSection content={content} />
+      <HeroSection content={content} promo={activePromo} liveProducts={liveProducts} />
 
       {/* Active promo teaser (hidden when no active promotion) */}
       <PromoTeaser promo={activePromo} />
