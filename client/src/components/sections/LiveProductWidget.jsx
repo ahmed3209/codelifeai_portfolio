@@ -8,7 +8,7 @@ const DEFAULT_PRODUCTS = [
     id: 1,
     name: 'Screen Snap',
     tagline: 'Instant screen recording, smart annotations & AI capture workflow.',
-    url: 'https://screensnap.app',
+    url: 'https://screensnap.codelifeai.com/',
     icon: '📸',
     badge: 'LIVE NOW',
     cta_label: 'Open Live Website',
@@ -56,20 +56,22 @@ function normalizeUrl(url) {
  * - Direct external click to open live website in a new tab
  */
 export default function LiveProductWidget({ liveProducts = [], promo = null }) {
-  // Use active products from DB, or fallback to promo, or default products
-  const activeList = Array.isArray(liveProducts) && liveProducts.length > 0
-    ? liveProducts.filter(p => p.is_active === 1 || p.is_active === true)
-    : (promo ? [{
-        id: promo.id || 'promo',
-        name: promo.name || 'Screen Snap',
-        tagline: promo.tagline || 'Experience our latest live production release built for modern workflows.',
-        url: promo.live_url || `/launch/${promo.slug || ''}`,
-        icon: '✨',
-        badge: promo.badge || 'LIVE NOW',
-        cta_label: promo.cta_label || 'Open Live Website',
-      }] : DEFAULT_PRODUCTS)
-
-  const products = activeList.length > 0 ? activeList : DEFAULT_PRODUCTS
+  // Use active products from DB, or fallback to default products
+  const dbActive = Array.isArray(liveProducts) ? liveProducts.filter(p => p.is_active === 1 || p.is_active === true) : []
+  
+  const products = dbActive.length > 0
+    ? dbActive
+    : (promo && promo.live_url
+        ? [{
+            id: promo.id || 'promo',
+            name: promo.name || 'Screen Snap',
+            tagline: promo.tagline || 'Instant screen recording, smart annotations & AI capture workflow.',
+            url: promo.live_url,
+            icon: '📸',
+            badge: promo.badge || 'LIVE NOW',
+            cta_label: promo.cta_label || 'Open Live Website',
+          }, ...DEFAULT_PRODUCTS.slice(1)]
+        : DEFAULT_PRODUCTS)
 
   const [currentIndex, setCurrentIndex] = useState(0)
   const [direction, setDirection] = useState(1) // 1: next, -1: prev
