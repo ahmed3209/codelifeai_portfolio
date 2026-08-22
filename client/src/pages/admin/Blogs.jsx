@@ -5,6 +5,7 @@ import Card, { CardBody } from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Modal from '../../components/ui/Modal'
 import { Input, Textarea } from '../../components/ui/Input'
+import ImageUploadInput from '../../components/ui/ImageUploadInput'
 import {
   Plus, Pencil, Trash2, BookOpen, ExternalLink,
   Eye, CheckCircle2, Clock, Sparkles, Image as ImageIcon,
@@ -394,11 +395,11 @@ export default function AdminBlogs() {
             />
           </div>
 
-          <Input
-            label="Cover Image URL (Optional)"
+          <ImageUploadInput
+            label="Cover Image (Optional)"
             value={form.cover_image}
-            onChange={e => setForm(p => ({ ...p, cover_image: e.target.value }))}
-            placeholder="https://images.unsplash.com/... or leave blank"
+            onChange={(url) => setForm(p => ({ ...p, cover_image: url }))}
+            helperText="Upload a cover photo from your computer or paste an online URL."
           />
 
           <Textarea

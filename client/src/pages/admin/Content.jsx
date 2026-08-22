@@ -4,6 +4,7 @@ import { adminApi } from '../../lib/api'
 import Card, { CardHeader, CardBody } from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import { Input, Textarea } from '../../components/ui/Input'
+import ImageUploadInput from '../../components/ui/ImageUploadInput'
 import { LayoutGrid, Eye, Check, Sparkles, SlidersHorizontal, Image as ImageIcon, Globe, Shield } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -74,35 +75,19 @@ export default function AdminContent() {
           </p>
         </CardHeader>
         <CardBody className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Input
-              label="Site Logo URL (Navbar & Footer)"
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <ImageUploadInput
+              label="Site Logo (Navbar & Footer)"
               value={form.site_logo_url || ''}
-              onChange={set('site_logo_url')}
-              placeholder="/logo.svg or https://.../logo.png"
+              onChange={(url) => setForm(p => ({ ...p, site_logo_url: url }))}
+              helperText="Upload your custom company logo (PNG, SVG, WebP) or paste an image URL."
             />
-            <Input
-              label="Site Favicon URL"
+            <ImageUploadInput
+              label="Site Favicon (Browser Tab & Googlebot)"
               value={form.site_favicon_url || ''}
-              onChange={set('site_favicon_url')}
-              placeholder="/favicon.ico or https://.../icon.png"
+              onChange={(url) => setForm(p => ({ ...p, site_favicon_url: url }))}
+              helperText="Upload a square icon (PNG, ICO, SVG) or paste an image URL."
             />
-          </div>
-
-          {/* Logo Live Preview */}
-          <div className="p-4 rounded-2xl bg-black/40 border border-white/[0.08] flex items-center justify-between flex-wrap gap-4">
-            <div>
-              <p className="text-xs font-bold text-slate-300">Active Logo Preview:</p>
-              <p className="text-[0.7rem] text-slate-400">Rendered on dark navigation headers</p>
-            </div>
-            <div className="h-10 px-4 rounded-xl bg-[#06060f] border border-white/10 flex items-center justify-center">
-              <img
-                src={form.site_logo_url || '/logo.svg'}
-                alt="Logo Preview"
-                className="h-6 w-auto object-contain"
-                onError={(e) => { e.target.src = '/logo.svg' }}
-              />
-            </div>
           </div>
         </CardBody>
       </Card>

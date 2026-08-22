@@ -18,7 +18,7 @@ const EMPTY = {
   tags: '[]',
   linkedin_url: '',
   show_on_home: 1,
-  sort_order: 0,
+  sort_order: 1,
 }
 
 export default function AdminFounders() {
@@ -71,7 +71,10 @@ export default function AdminFounders() {
   }
 
   function openCreate() {
-    setForm(EMPTY)
+    setForm({
+      ...EMPTY,
+      sort_order: founders.length + 1,
+    })
     setEditId(null)
     resetPhotoState()
     setModal('create')
@@ -81,7 +84,8 @@ export default function AdminFounders() {
     setForm({
       ...f,
       tags: typeof f.tags === 'string' ? f.tags : JSON.stringify(f.tags || []),
-      show_on_home: f.show_on_home !== 0 ? 1 : 0
+      show_on_home: f.show_on_home !== 0 ? 1 : 0,
+      sort_order: f.sort_order || 0,
     })
     setEditId(f.id)
     resetPhotoState()
@@ -121,6 +125,7 @@ export default function AdminFounders() {
     const payload = {
       ...form,
       show_on_home: form.show_on_home ? 1 : 0,
+      sort_order: Number(form.sort_order) || 0,
       tags: (() => {
         try { return JSON.stringify(JSON.parse(form.tags)) }
         catch { return JSON.stringify(form.tags.split(',').map(t => t.trim()).filter(Boolean)) }
@@ -162,7 +167,7 @@ export default function AdminFounders() {
         <div>
           <h1 className="text-2xl font-bold text-bb-white tracking-tight">Leadership &amp; Team</h1>
           <p className="text-bb-muted text-sm mt-1">
-            Manage founders and engineers. Control who appears on the Homepage vs full Team page.
+            Manage founders and engineers. Control who appears on the Homepage vs full Team page, and set display sort order.
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -195,6 +200,9 @@ export default function AdminFounders() {
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap mb-1">
+                    <span className="px-1.5 py-0.5 rounded bg-white/[0.06] border border-white/[0.1] text-[0.62rem] font-mono font-bold text-[#00d4f5]">
+                      #{f.sort_order || 1}
+                    </span>
                     <p className="text-sm font-bold text-bb-white">{f.name}</p>
                     <button
                       type="button"
@@ -330,8 +338,9 @@ export default function AdminFounders() {
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Input label="LinkedIn URL (optional)" value={form.linkedin_url} onChange={e => setForm(p => ({...p, linkedin_url: e.target.value}))} placeholder="https://linkedin.com/in/username" />
+            <Input label="Sort Order" type="number" value={form.sort_order} onChange={e => setForm(p => ({...p, sort_order: Number(e.target.value)}))} placeholder="1" />
             <Input label="Avatar Gradient CSS (optional)" value={form.avatar_bg} onChange={e => setForm(p => ({...p, avatar_bg: e.target.value}))} placeholder="linear-gradient(135deg,#7c3aed,#00d4f5)" />
           </div>
 

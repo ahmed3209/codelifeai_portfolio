@@ -5,6 +5,8 @@ import Card, { CardBody } from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Modal from '../../components/ui/Modal'
 import { Input, Textarea } from '../../components/ui/Input'
+import ImageUploadInput from '../../components/ui/ImageUploadInput'
+import IconPicker from '../../components/ui/IconPicker'
 import { Pencil, Trash2, Plus, GripVertical, Home, Check, Image as ImageIcon } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -168,10 +170,20 @@ export default function AdminServices() {
 
       <Modal open={!!modal} onClose={() => setModal(null)} title={modal === 'create' ? 'Add Service' : 'Edit Service'} size="lg">
         <form onSubmit={handleSubmit} className="space-y-4 max-h-[78vh] overflow-y-auto pr-1">
-          <div className="grid grid-cols-5 gap-3">
-            <Input label="Icon (emoji)" value={form.icon} onChange={e => setForm(p => ({...p, icon: e.target.value}))} className="col-span-1 text-2xl text-center" />
-            <div className="col-span-4">
-              <Input label="Title" value={form.title} onChange={e => setForm(p => ({...p, title: e.target.value}))} required placeholder="e.g. Web Application Development" />
+          <div className="grid grid-cols-1 sm:grid-cols-[160px_1fr] gap-4 items-start">
+            <IconPicker
+              label="Service Icon"
+              value={form.icon}
+              onChange={(ic) => setForm(p => ({ ...p, icon: ic }))}
+            />
+            <div className="space-y-1">
+              <Input
+                label="Service Title"
+                value={form.title}
+                onChange={e => setForm(p => ({ ...p, title: e.target.value }))}
+                required
+                placeholder="e.g. Web Application Development"
+              />
             </div>
           </div>
 
@@ -200,18 +212,12 @@ export default function AdminServices() {
             </button>
           </div>
 
-          <Input
-            label="Service Mockup / Banner Image URL"
+          <ImageUploadInput
+            label="Service Mockup / Visual Image"
             value={form.image_url}
-            onChange={e => setForm(p => ({ ...p, image_url: e.target.value }))}
-            placeholder="https://images.unsplash.com/... or leave blank for default graphic"
+            onChange={(url) => setForm(p => ({ ...p, image_url: url }))}
+            helperText="Browse an image from your computer or paste an online URL."
           />
-
-          {form.image_url && (
-            <div className="h-28 rounded-xl bg-black/40 border border-white/10 overflow-hidden">
-              <img src={form.image_url} alt="Preview" className="w-full h-full object-cover" />
-            </div>
-          )}
 
           <Textarea label="Short Description (card preview)" value={form.short_desc} onChange={e => setForm(p => ({...p, short_desc: e.target.value}))} rows={2} required placeholder="Brief description shown on the service card…" />
           <Textarea label="Long Description (popup detail)" value={form.long_desc} onChange={e => setForm(p => ({...p, long_desc: e.target.value}))} rows={3} placeholder="Detailed description shown in the modal popup…" />

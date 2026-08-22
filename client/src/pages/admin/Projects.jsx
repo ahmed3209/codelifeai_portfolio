@@ -5,6 +5,8 @@ import Card, { CardBody } from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Modal from '../../components/ui/Modal'
 import { Input, Textarea } from '../../components/ui/Input'
+import ImageUploadInput from '../../components/ui/ImageUploadInput'
+import IconPicker from '../../components/ui/IconPicker'
 import { Pencil, Trash2, Plus, ExternalLink, Image as ImageIcon, Sparkles, FolderKanban } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -289,14 +291,13 @@ export default function AdminProjects() {
         size="lg"
       >
         <form onSubmit={handleSubmit} className="space-y-4 max-h-[78vh] overflow-y-auto pr-1">
-          <div className="grid grid-cols-5 gap-3">
-            <Input
-              label="Emoji"
+          <div className="grid grid-cols-1 sm:grid-cols-[160px_1fr] gap-4 items-start">
+            <IconPicker
+              label="Project Icon"
               value={form.emoji}
-              onChange={e => setForm(p => ({ ...p, emoji: e.target.value }))}
-              className="col-span-1 text-2xl text-center"
+              onChange={(ic) => setForm(p => ({ ...p, emoji: ic }))}
             />
-            <div className="col-span-4">
+            <div className="space-y-1">
               <Input
                 label="Project Title"
                 value={form.title}
@@ -333,18 +334,12 @@ export default function AdminProjects() {
             />
           </div>
 
-          <Input
-            label="Project Screenshot / Mockup Image URL"
+          <ImageUploadInput
+            label="Project Screenshot / Mockup Image"
             value={form.image_url}
-            onChange={e => setForm(p => ({ ...p, image_url: e.target.value }))}
-            placeholder="https://images.unsplash.com/... or leave blank for emoji card"
+            onChange={(url) => setForm(p => ({ ...p, image_url: url }))}
+            helperText="Browse a screenshot from your computer or paste an online URL."
           />
-
-          {form.image_url && (
-            <div className="h-28 rounded-xl bg-black/40 border border-white/10 overflow-hidden">
-              <img src={form.image_url} alt="Preview" className="w-full h-full object-cover" />
-            </div>
-          )}
 
           <Input
             label="Live Website / Demo URL"

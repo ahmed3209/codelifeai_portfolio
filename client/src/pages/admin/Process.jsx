@@ -5,6 +5,7 @@ import Card, { CardBody } from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Modal from '../../components/ui/Modal'
 import { Input, Textarea } from '../../components/ui/Input'
+import IconPicker from '../../components/ui/IconPicker'
 import { Pencil, Trash2, Plus, Clock, CheckCircle2, MessageSquare, Wrench } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -182,10 +183,14 @@ export default function AdminProcess() {
 
       <Modal open={!!modal} onClose={() => setModal(null)} title={modal === 'create' ? 'Add Process Stage' : 'Edit Process Stage'} size="lg">
         <form onSubmit={handleSubmit} className="space-y-4 max-h-[78vh] overflow-y-auto pr-1">
-          <div className="grid grid-cols-4 gap-3">
-            <Input label="Number" value={form.number} onChange={e => setForm(p => ({ ...p, number: e.target.value }))} placeholder="01" required />
+          <div className="grid grid-cols-1 sm:grid-cols-[140px_1fr_1fr_100px] gap-3 items-start">
+            <IconPicker
+              label="Stage Icon"
+              value={form.icon}
+              onChange={(ic) => setForm(p => ({ ...p, icon: ic }))}
+            />
+            <Input label="Phase Number" value={form.number} onChange={e => setForm(p => ({ ...p, number: e.target.value }))} placeholder="01" required />
             <Input label="Timeline Badge" value={form.timeline} onChange={e => setForm(p => ({ ...p, timeline: e.target.value }))} placeholder="e.g. Week 1–2" required />
-            <Input label="Icon (emoji)" value={form.icon} onChange={e => setForm(p => ({ ...p, icon: e.target.value }))} className="text-xl text-center" placeholder="🔍" />
             <Input label="Sort Order" type="number" value={form.sort_order} onChange={e => setForm(p => ({ ...p, sort_order: Number(e.target.value) }))} />
           </div>
 
