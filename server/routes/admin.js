@@ -581,14 +581,18 @@ router.delete('/promos/:id', async (req, res) => {
 
 // Toggle promo active in slider
 router.put('/promos/:id/activate', async (req, res) => {
-  const { active } = req.body
-  const db = getDb()
-  await db.execute({
-    sql: 'UPDATE promos SET is_active = ?, updated_at=datetime("now") WHERE id = ?',
-    args: [active ? 1 : 0, req.params.id],
-  })
-  const { rows } = await db.execute({ sql: 'SELECT * FROM promos WHERE id = ?', args: [req.params.id] })
-  res.json(rows[0])
+  try {
+    const { active } = req.body
+    const db = getDb()
+    await db.execute({
+      sql: "UPDATE promos SET is_active = ?, updated_at = datetime('now') WHERE id = ?",
+      args: [active ? 1 : 0, req.params.id],
+    })
+    const { rows } = await db.execute({ sql: 'SELECT * FROM promos WHERE id = ?', args: [req.params.id] })
+    res.json(rows[0])
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
 })
 
 // ── LIVE PRODUCTS (Top-Right Live Showcase Slider) ───────────
@@ -599,47 +603,63 @@ router.get('/live-products', async (req, res) => {
 })
 
 router.post('/live-products', async (req, res) => {
-  const { name, tagline, url, icon, badge, cta_label, is_active, sort_order } = req.body
-  if (!name || !url) return res.status(400).json({ error: 'Name and live website URL are required' })
-  const db = getDb()
-  const max = await db.execute('SELECT MAX(sort_order) as m FROM live_products')
-  const nextOrder = sort_order || (Number(max.rows[0].m) || 0) + 1
-  const ins = await db.execute({
-    sql: `INSERT INTO live_products (name, tagline, url, icon, badge, cta_label, is_active, sort_order)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-    args: [name, tagline || '', url, icon || '✨', badge || 'LIVE NOW', cta_label || 'Open Live Website', is_active !== 0 ? 1 : 0, nextOrder],
-  })
-  const { rows } = await db.execute({ sql: 'SELECT * FROM live_products WHERE id = ?', args: [Number(ins.lastInsertRowid)] })
-  res.json(rows[0])
+  try {
+    const { name, tagline, url, icon, badge, cta_label, is_active, sort_order } = req.body
+    if (!name || !url) return res.status(400).json({ error: 'Name and live website URL are required' })
+    const db = getDb()
+    const max = await db.execute('SELECT MAX(sort_order) as m FROM live_products')
+    const nextOrder = sort_order || (Number(max.rows[0].m) || 0) + 1
+    const ins = await db.execute({
+      sql: `INSERT INTO live_products (name, tagline, url, icon, badge, cta_label, is_active, sort_order)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      args: [name, tagline || '', url, icon || '✨', badge || 'LIVE NOW', cta_label || 'Open Live Website', is_active !== 0 ? 1 : 0, nextOrder],
+    })
+    const { rows } = await db.execute({ sql: 'SELECT * FROM live_products WHERE id = ?', args: [Number(ins.lastInsertRowid)] })
+    res.json(rows[0])
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
 })
 
 router.put('/live-products/:id', async (req, res) => {
-  const { name, tagline, url, icon, badge, cta_label, is_active, sort_order } = req.body
-  if (!name || !url) return res.status(400).json({ error: 'Name and live website URL are required' })
-  const db = getDb()
-  await db.execute({
-    sql: `UPDATE live_products SET name=?, tagline=?, url=?, icon=?, badge=?, cta_label=?, is_active=?, sort_order=?,
-          updated_at=datetime('now') WHERE id=?`,
-    args: [name, tagline || '', url, icon || '✨', badge || 'LIVE NOW', cta_label || 'Open Live Website', is_active !== 0 ? 1 : 0, sort_order || 0, req.params.id],
-  })
-  const { rows } = await db.execute({ sql: 'SELECT * FROM live_products WHERE id = ?', args: [req.params.id] })
-  res.json(rows[0])
+  try {
+    const { name, tagline, url, icon, badge, cta_label, is_active, sort_order } = req.body
+    if (!name || !url) return res.status(400).json({ error: 'Name and live website URL are required' })
+    const db = getDb()
+    await db.execute({
+      sql: `UPDATE live_products SET name=?, tagline=?, url=?, icon=?, badge=?, cta_label=?, is_active=?, sort_order=?,
+            updated_at=datetime('now') WHERE id=?`,
+      args: [name, tagline || '', url, icon || '✨', badge || 'LIVE NOW', cta_label || 'Open Live Website', is_active !== 0 ? 1 : 0, sort_order || 0, req.params.id],
+    })
+    const { rows } = await db.execute({ sql: 'SELECT * FROM live_products WHERE id = ?', args: [req.params.id] })
+    res.json(rows[0])
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
 })
 
 router.delete('/live-products/:id', async (req, res) => {
-  await getDb().execute({ sql: 'DELETE FROM live_products WHERE id = ?', args: [req.params.id] })
-  res.json({ ok: true })
+  try {
+    await getDb().execute({ sql: 'DELETE FROM live_products WHERE id = ?', args: [req.params.id] })
+    res.json({ ok: true })
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
 })
 
 router.put('/live-products/:id/toggle', async (req, res) => {
-  const { is_active } = req.body
-  const db = getDb()
-  await db.execute({
-    sql: 'UPDATE live_products SET is_active = ?, updated_at=datetime("now") WHERE id = ?',
-    args: [is_active ? 1 : 0, req.params.id],
-  })
-  const { rows } = await db.execute({ sql: 'SELECT * FROM live_products WHERE id = ?', args: [req.params.id] })
-  res.json(rows[0])
+  try {
+    const { is_active } = req.body
+    const db = getDb()
+    await db.execute({
+      sql: "UPDATE live_products SET is_active = ?, updated_at = datetime('now') WHERE id = ?",
+      args: [is_active ? 1 : 0, req.params.id],
+    })
+    const { rows } = await db.execute({ sql: 'SELECT * FROM live_products WHERE id = ?', args: [req.params.id] })
+    res.json(rows[0])
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
 })
 
 export default router
