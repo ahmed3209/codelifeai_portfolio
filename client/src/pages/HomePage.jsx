@@ -13,6 +13,115 @@ import CTABanner            from '../components/sections/CTABanner'
 
 const ThreeBackground = lazy(() => import('../components/ThreeBackground'))
 
+const DEFAULT_SERVICES = [
+  {
+    id: 1,
+    icon: '⚡',
+    title: 'Web Application Development',
+    short_desc: 'High-performance React, Next.js, and Node.js applications built for scale and sub-second page loads.',
+    features: JSON.stringify(['Custom Next.js & React Frontends', 'Scalable Node/FastAPI Microservices', 'Real-time WebSocket Architectures', 'Edge Caching & Performance']),
+    stack: JSON.stringify(['React', 'Next.js', 'Node.js', 'PostgreSQL', 'TailwindCSS']),
+    show_on_home: 1,
+    sort_order: 1,
+  },
+  {
+    id: 2,
+    icon: '📱',
+    title: 'Mobile App Engineering',
+    short_desc: 'Cross-platform iOS and Android applications with Flutter delivering fluid 120 FPS native performance.',
+    features: JSON.stringify(['Native 120 FPS Fluid Animations', 'Offline-first SQLite & Sync', 'Encrypted Biometric Auth', 'App Store & Play Store CI/CD']),
+    stack: JSON.stringify(['Flutter', 'Dart', 'Firebase', 'SQLite', 'WebRTC']),
+    show_on_home: 1,
+    sort_order: 2,
+  },
+  {
+    id: 3,
+    icon: '🧠',
+    title: 'Custom AI Agents & Automation',
+    short_desc: 'Autonomous multi-agent workflows, fine-tuned LLMs, and Retrieval-Augmented Generation (RAG) pipelines.',
+    features: JSON.stringify(['Autonomous Task Execution', 'Context-Aware RAG Search', 'Multi-Model Routing (GPT/Claude/Gemini)', 'Document Intelligence & OCR']),
+    stack: JSON.stringify(['Python', 'LangChain', 'OpenAI', 'Gemini 2.0', 'Pinecone']),
+    show_on_home: 1,
+    sort_order: 3,
+  },
+  {
+    id: 4,
+    icon: '☁️',
+    title: 'Cloud Architecture & DevOps',
+    short_desc: 'Zero-downtime Kubernetes deployments, automated CI/CD pipelines, and high-availability cloud setups.',
+    features: JSON.stringify(['Zero-Downtime Deployment Pipelines', 'Kubernetes & Docker Containerization', 'AWS & GCP Infrastructure as Code', 'Prometheus & Grafana Monitoring']),
+    stack: JSON.stringify(['Kubernetes', 'Docker', 'AWS', 'Terraform', 'GitHub Actions']),
+    show_on_home: 1,
+    sort_order: 4,
+  },
+]
+
+const DEFAULT_FOUNDERS = [
+  {
+    id: 1,
+    name: 'Muhammad Ahmed',
+    role: 'Co-Founder & CEO',
+    bio: 'Passionate software architect and product strategist with deep expertise in scalable full-stack web platforms and engineering leadership.',
+    initials: 'MA',
+    photo_url: '',
+    avatar_bg: 'linear-gradient(135deg,#00d4f5,#0072b1)',
+    tags: JSON.stringify(['Product Architecture', 'Full-Stack Systems', 'Cloud Scale']),
+    show_on_home: 1,
+    sort_order: 1,
+  },
+  {
+    id: 2,
+    name: 'Anas Waheed',
+    role: 'Co-Founder & CTO',
+    bio: 'Systems engineer and AI specialist driving core technology, distributed backend architectures, and machine learning integrations.',
+    initials: 'AW',
+    photo_url: '',
+    avatar_bg: 'linear-gradient(135deg,#7c3aed,#00d4f5)',
+    tags: JSON.stringify(['AI Engineering', 'Distributed Backend', 'High-Performance Mobile']),
+    show_on_home: 1,
+    sort_order: 2,
+  },
+]
+
+const DEFAULT_BLOGS = [
+  {
+    id: 1,
+    title: 'Building Production-Grade Autonomous AI Agents with LangChain & Claude',
+    slug: 'building-production-ai-agents-langchain-claude',
+    excerpt: 'A comprehensive engineering guide on designing multi-step autonomous AI workflows with self-correcting validation and vector search.',
+    category: 'AI & Machine Learning',
+    author_name: 'Anas Waheed',
+    author_role: 'Co-Founder & CTO',
+    read_time: '6 min read',
+    cover_image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200&auto=format&fit=crop',
+    published_at: '2026-08-20',
+  },
+  {
+    id: 2,
+    title: 'Modular Monolith vs Microservices: Engineering for Scale Without Complexity',
+    slug: 'modular-monolith-vs-microservices-guide',
+    excerpt: 'Why high-growth startups should start with cleanly decoupled modular monoliths before splitting into microservice clusters.',
+    category: 'Architecture',
+    author_name: 'Muhammad Ahmed',
+    author_role: 'Co-Founder & CEO',
+    read_time: '5 min read',
+    cover_image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1200&auto=format&fit=crop',
+    published_at: '2026-08-18',
+  },
+  {
+    id: 3,
+    title: 'Achieving 120 FPS in Flutter 3: Advanced Rendering & Memory Management',
+    slug: 'flutter-3-performance-120fps-rendering-guide',
+    excerpt: 'Proven techniques for profiling widget rebuilds, isolate offloading, and shader pre-compilation on iOS and Android.',
+    category: 'Mobile Engineering',
+    author_name: 'CodeLifeAI Mobile Lab',
+    author_role: 'Senior Engineering Team',
+    read_time: '7 min read',
+    cover_image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1200&auto=format&fit=crop',
+    published_at: '2026-08-15',
+  },
+]
+
 const DEFAULT_TESTIMONIALS = [
   { name: 'Ahmed Al-Rashid', role: 'Founder, FinTrack', avatar: 'AR', bg: 'linear-gradient(135deg, #00d4f5, #0099bb)', rating: 5, quote: "CodeLifeAI delivered our banking dashboard in record time — clean code, beautiful UI, and zero post-launch issues. They didn't just build what we asked; they made it better than we imagined." },
   { name: 'Sarah Mitchell', role: 'CTO, ShopEase Inc.', avatar: 'SM', bg: 'linear-gradient(135deg, #a855f7, #7c3aed)', rating: 5, quote: "Working with CodeLifeAI felt like having a senior in-house engineering team. Communication was seamless, timelines were respected, and the final product drove a 40% increase in our conversion rate." },
@@ -20,21 +129,48 @@ const DEFAULT_TESTIMONIALS = [
   { name: 'James Thornton', role: 'Head of Product, LogiFlow', avatar: 'JT', bg: 'linear-gradient(135deg, #f59e0b, #d97706)', rating: 5, quote: "We cut operational costs by 35% after CodeLifeAI rebuilt our supply chain platform. The Python data pipelines they built process 2 million records daily without a single failure. Remarkable work." },
 ]
 
+const DEFAULT_CONTENT = {
+  hero_badge: "We build what's next",
+  hero_title: 'We Create',
+  hero_cycling_words: 'Software., Products., Experiences., AI Systems.',
+  hero_subtitle: 'CodeLifeAI is a high-velocity software engineering studio crafting next-generation web applications, mobile products, and custom AI agents for ambitious teams worldwide.',
+  section_trust_marquee: '1',
+  section_services: '1',
+  section_promo_teaser: '1',
+  section_blog_preview: '1',
+  section_testimonials: '1',
+  section_founders: '1',
+  section_cta_banner: '1',
+}
+
+const DEFAULT_SITE_DATA = {
+  services: DEFAULT_SERVICES,
+  founders: DEFAULT_FOUNDERS,
+  blogs: DEFAULT_BLOGS,
+  testimonials: DEFAULT_TESTIMONIALS,
+  content: DEFAULT_CONTENT,
+  activePromo: null,
+  activePromos: [],
+  liveProducts: [],
+}
+
 export default function HomePage() {
   const { data: siteData } = useQuery({
     queryKey: ['site-data'],
     queryFn:  () => publicApi.getSiteData().then(r => r.data),
+    staleTime: 1000 * 60 * 5, // 5 min client cache
+    placeholderData: (prev) => prev || DEFAULT_SITE_DATA,
   })
 
-  const content      = siteData?.content      || {}
-  const services     = siteData?.services     || []
-  const founders     = siteData?.founders     || []
-  const blogs        = siteData?.blogs        || []
-  const testimonials = (siteData?.testimonials && siteData.testimonials.length > 0) ? siteData.testimonials : DEFAULT_TESTIMONIALS
-  const activePromo  = siteData?.activePromo  || null
+  const content      = siteData?.content && Object.keys(siteData.content).length > 0 ? siteData.content : DEFAULT_CONTENT
+  const services     = siteData?.services && siteData.services.length > 0 ? siteData.services : DEFAULT_SERVICES
+  const founders     = siteData?.founders && siteData.founders.length > 0 ? siteData.founders : DEFAULT_FOUNDERS
+  const blogs        = siteData?.blogs && siteData.blogs.length > 0 ? siteData.blogs : DEFAULT_BLOGS
+  const testimonials = siteData?.testimonials && siteData.testimonials.length > 0 ? siteData.testimonials : DEFAULT_TESTIMONIALS
+  const activePromo  = siteData?.activePromo || null
   const liveProducts = siteData?.liveProducts || []
 
-  // Granular section visibility toggles controlled from Admin Panel
+  // Section visibility toggles
   const showMarquee      = content.section_trust_marquee !== '0'
   const showServices     = content.section_services !== '0' && services.length > 0
   const showPromo        = content.section_promo_teaser !== '0' && (activePromo || (siteData?.activePromos && siteData.activePromos.length > 0))

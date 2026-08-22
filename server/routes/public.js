@@ -3,8 +3,23 @@ import { getDb } from '../db/database.js'
 
 const router = Router()
 
+let siteDataCache = null
+let siteDataCacheTime = 0
+const SITE_DATA_TTL_MS = 60 * 1000 // 60 seconds in-memory cache
+
+export function clearSiteDataCache() {
+  siteDataCache = null
+  siteDataCacheTime = 0
+}
+
 // GET /api/site-data — everything the homepage needs in one request
 router.get('/site-data', async (req, res) => {
+  const now = Date.now()
+  if (siteDataCache && (now - siteDataCacheTime < SITE_DATA_TTL_MS)) {
+    res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300')
+    return res.json(siteDataCache)
+  }
+
   const db = getDb()
 
   const [services, founders, projects, testimonials, process, rawContent, activePromos, liveProducts, faqs, blogs] = await Promise.all([
@@ -22,7 +37,7 @@ router.get('/site-data', async (req, res) => {
 
   const content = rawContent.rows.reduce((acc, { key, value }) => ({ ...acc, [key]: value }), {})
 
-  res.json({
+  siteDataCache = {
     services: services.rows,
     founders: founders.rows,
     projects: projects.rows,
@@ -34,7 +49,11 @@ router.get('/site-data', async (req, res) => {
     liveProducts: liveProducts.rows || [],
     faqs: faqs.rows || [],
     blogs: blogs.rows || [],
-  })
+  }
+  siteDataCacheTime = now
+
+  res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300')
+  res.json(siteDataCache)
 })
 
 // GET /api/blogs — public published articles list
