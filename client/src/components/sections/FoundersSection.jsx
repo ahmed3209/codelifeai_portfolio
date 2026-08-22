@@ -22,7 +22,7 @@ export default function FoundersSection({ founders = [] }) {
   return (
     <section
       id="founders"
-      className="relative z-10 py-32 px-6 lg:px-14 overflow-hidden"
+      className="relative z-10 py-20 sm:py-32 px-4 sm:px-6 lg:px-14 overflow-hidden"
       style={{ background: 'linear-gradient(180deg, transparent, rgba(124,58,237,0.03), transparent)' }}
     >
       {/* Bg radial */}
@@ -38,7 +38,7 @@ export default function FoundersSection({ founders = [] }) {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.15 }}
           transition={{ duration: 0.72, ease: [0.16, 1, 0.3, 1] }}
-          className="text-center mb-16"
+          className="text-center mb-10 sm:mb-16"
         >
           <p className="section-number mb-1 block">03 / Team</p>
           <div className="section-label inline-flex">The People</div>
@@ -78,7 +78,7 @@ function FounderCard({ founder }) {
       onMouseMove={onMouseMove}
       onMouseLeave={onMouseLeave}
       style={{ rotateX: rotX, rotateY: rotY, scale, transformStyle: 'preserve-3d', perspective: 1000 }}
-      className="group card-base p-8"
+      className="group card-base p-6 sm:p-8"
     >
       {/* Top bar */}
       <div className="absolute top-0 left-0 right-0 h-[2px] scale-x-0 group-hover:scale-x-100 transition-transform duration-400 origin-left"

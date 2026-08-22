@@ -42,7 +42,7 @@ export default function TestimonialsSection({ testimonials = [] }) {
   const t = testimonials[Math.min(active, total - 1)]
 
   return (
-    <section className="relative z-10 py-32 px-6 lg:px-14 border-y border-white/[0.05] overflow-hidden"
+    <section className="relative z-10 py-20 sm:py-32 px-4 sm:px-6 lg:px-14 border-y border-white/[0.05] overflow-hidden"
       style={{ background: 'rgba(255,255,255,0.006)' }}>
       {/* Background radial */}
       <div className="absolute inset-0 pointer-events-none">
@@ -57,7 +57,7 @@ export default function TestimonialsSection({ testimonials = [] }) {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.2 }}
           transition={{ duration: 0.7 }}
-          className="text-center mb-14"
+          className="text-center mb-10 sm:mb-14"
         >
           <p className="section-number mb-1 text-center block">04 / Testimonials</p>
           <div className="section-label inline-flex">Client Stories</div>
@@ -75,10 +75,10 @@ export default function TestimonialsSection({ testimonials = [] }) {
 
         {/* Testimonial card */}
         <div className="relative max-w-[780px] mx-auto">
-          <div className="relative overflow-hidden rounded-2xl border border-white/[0.08] min-h-[260px] flex items-center"
+          <div className="relative overflow-hidden rounded-2xl border border-white/[0.08] min-h-[240px] sm:min-h-[260px] flex items-center"
             style={{ background: 'linear-gradient(145deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.015) 100%)' }}>
             {/* Quote mark */}
-            <div className="absolute top-6 left-8 text-[5rem] leading-none font-serif text-white/[0.04] select-none pointer-events-none">
+            <div className="absolute top-4 left-5 sm:top-6 sm:left-8 text-[4rem] sm:text-[5rem] leading-none font-serif text-white/[0.04] select-none pointer-events-none">
               "
             </div>
 
@@ -90,7 +90,7 @@ export default function TestimonialsSection({ testimonials = [] }) {
                 initial="enter"
                 animate="center"
                 exit="exit"
-                className="w-full px-10 py-10"
+                className="w-full px-6 py-7 sm:px-10 sm:py-10"
               >
                 <Stars count={t.rating} />
                 <blockquote className="text-[1.02rem] text-white/82 leading-[1.78] my-5 font-light">

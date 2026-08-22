@@ -81,7 +81,7 @@ export default function PromoTeaser({ promo = null, promos = [] }) {
 
   return (
     <section
-      className="relative z-10 px-6 lg:px-14 py-12"
+      className="relative z-10 px-4 sm:px-6 lg:px-14 py-8 sm:py-12"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
@@ -91,7 +91,7 @@ export default function PromoTeaser({ promo = null, promos = [] }) {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="relative rounded-3xl border border-white/[0.09] overflow-hidden px-8 py-10 sm:px-12 sm:py-12 shadow-2xl"
+          className="relative rounded-3xl border border-white/[0.09] overflow-hidden px-6 py-8 sm:px-12 sm:py-12 shadow-2xl"
           style={{ background: 'linear-gradient(135deg, rgba(0,212,245,0.09) 0%, rgba(6,6,15,0.7) 45%, rgba(124,58,237,0.1) 100%)' }}
         >
           {/* Ambient glow accents */}

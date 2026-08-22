@@ -162,6 +162,15 @@ async function doInit() {
       first_seen  TEXT DEFAULT (datetime('now')),
       last_seen   TEXT DEFAULT (datetime('now'))
     )`,
+    // Real-time visitor pageviews for accurate traffic and analytics
+    `CREATE TABLE IF NOT EXISTS visitor_pageviews (
+      id          INTEGER PRIMARY KEY AUTOINCREMENT,
+      session_id  TEXT NOT NULL,
+      path        TEXT NOT NULL,
+      referrer    TEXT DEFAULT '',
+      user_agent  TEXT,
+      created_at  TEXT DEFAULT (datetime('now'))
+    )`,
     `CREATE TABLE IF NOT EXISTS chat_messages (
       id          INTEGER PRIMARY KEY AUTOINCREMENT,
       session_id  TEXT NOT NULL,
@@ -341,9 +350,12 @@ async function ensureExtras(db) {
     }
   }
 
-  // Index for the chat-history hot path. CREATE INDEX IF NOT EXISTS is
+  // Indexes for analytics and hot paths. CREATE INDEX IF NOT EXISTS is
   // idempotent, so this is safe to run every boot.
   await db.execute('CREATE INDEX IF NOT EXISTS idx_chat_messages_session ON chat_messages(session_id, id)')
+  await db.execute('CREATE INDEX IF NOT EXISTS idx_pageviews_created ON visitor_pageviews(created_at)')
+  await db.execute('CREATE INDEX IF NOT EXISTS idx_pageviews_path ON visitor_pageviews(path)')
+  await db.execute('CREATE INDEX IF NOT EXISTS idx_visitor_sessions_last_seen ON visitor_sessions(last_seen)')
 }
 
 async function seed(db) {

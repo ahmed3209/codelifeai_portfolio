@@ -85,7 +85,7 @@ export default function ChatBot() {
   }
 
   return (
-    <div className="fixed bottom-7 right-7 z-[1000] flex flex-col items-end gap-3">
+    <div className="fixed bottom-4 right-4 sm:bottom-7 sm:right-7 z-[1000] flex flex-col items-end gap-3 max-w-[calc(100vw-2rem)]">
       {/* Chat panel */}
       <AnimatePresence>
         {open && (
@@ -95,8 +95,8 @@ export default function ChatBot() {
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="w-[360px] flex flex-col rounded-2xl border border-white/[0.1] overflow-hidden shadow-[0_24px_60px_rgba(0,0,0,0.55)]"
-            style={{ height: 500, background: '#0b0b1d' }}
+            className="w-[calc(100vw-2rem)] sm:w-[360px] max-w-[360px] flex flex-col rounded-2xl border border-white/[0.1] overflow-hidden shadow-[0_24px_60px_rgba(0,0,0,0.55)]"
+            style={{ height: 'min(500px, 75vh)', background: '#0b0b1d' }}
           >
             {/* Header */}
             <div

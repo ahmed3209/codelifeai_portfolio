@@ -111,7 +111,36 @@ router.post('/early-access', async (req, res) => {
     sql: 'INSERT INTO early_access (name, email, reason) VALUES (?, ?, ?)',
     args: [name.trim(), email.trim(), reason.trim()],
   })
-  res.json({ ok: true })
+// POST /api/track-view — records a real-time pageview
+router.post('/track-view', async (req, res) => {
+  try {
+    const db = getDb()
+    const sid = req.visitorSessionId || 'anon'
+    const path = String(req.body?.path || '/').slice(0, 500)
+    const referrer = String(req.body?.referrer || '').slice(0, 500)
+    const ua = (req.headers['user-agent'] || '').slice(0, 255)
+
+    await db.execute({
+      sql: `INSERT INTO visitor_pageviews (session_id, path, referrer, user_agent, created_at)
+            VALUES (?, ?, ?, ?, datetime('now'))`,
+      args: [sid, path, referrer, ua],
+    })
+
+    // Also bump last_seen on visitor_sessions
+    if (sid && sid !== 'anon') {
+      await db.execute({
+        sql: `INSERT INTO visitor_sessions (id, user_agent, first_seen, last_seen)
+              VALUES (?, ?, datetime('now'), datetime('now'))
+              ON CONFLICT(id) DO UPDATE SET last_seen = datetime('now')`,
+        args: [sid, ua],
+      })
+    }
+
+    res.json({ ok: true })
+  } catch (err) {
+    // Non-blocking response
+    res.status(200).json({ ok: false, error: err.message })
+  }
 })
 
 export default router

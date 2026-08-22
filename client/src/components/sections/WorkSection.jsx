@@ -17,7 +17,7 @@ export default function WorkSection({ projects = [] }) {
   if (!projects.length) return null
 
   return (
-    <section id="work" className="relative z-10 py-32 px-6 lg:px-14">
+    <section id="work" className="relative z-10 py-20 sm:py-32 px-4 sm:px-6 lg:px-14">
       <div className="max-w-[1280px] mx-auto">
 
         {/* Header */}
@@ -26,7 +26,7 @@ export default function WorkSection({ projects = [] }) {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.15 }}
           transition={{ duration: 0.72, ease: [0.16, 1, 0.3, 1] }}
-          className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-14"
+          className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10 sm:mb-14"
         >
           <div>
             <p className="section-number mb-1">02 / Work</p>

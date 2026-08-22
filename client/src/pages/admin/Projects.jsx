@@ -5,7 +5,7 @@ import Card, { CardBody } from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Modal from '../../components/ui/Modal'
 import { Input, Textarea } from '../../components/ui/Input'
-import { Pencil, Trash2, Plus } from 'lucide-react'
+import { Pencil, Trash2, Plus, ExternalLink } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 const EMPTY = {
@@ -79,9 +79,20 @@ export default function AdminProjects() {
                     {p.live_url ? `Live: ${p.live_url} · ` : ''}{p.category} · {p.outcome}
                   </p>
                 </div>
-                <div className="flex gap-2 flex-shrink-0">
-                  <Button variant="ghost" size="sm" onClick={() => openEdit(p)}><Pencil size={14} /></Button>
-                  <Button variant="danger" size="sm" onClick={() => { if (confirm('Delete this project?')) deleteMut.mutate(p.id) }}><Trash2 size={14} /></Button>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  {p.live_url && (
+                    <a
+                      href={p.live_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 rounded-lg bg-white/[0.04] text-[#00d4f5] hover:bg-[#00d4f5]/15 transition-colors"
+                      title="Open Live Demo Website"
+                    >
+                      <ExternalLink size={14} />
+                    </a>
+                  )}
+                  <Button variant="ghost" size="sm" onClick={() => openEdit(p)} title="Edit Project"><Pencil size={14} /></Button>
+                  <Button variant="danger" size="sm" onClick={() => { if (confirm('Delete this project?')) deleteMut.mutate(p.id) }} title="Delete Project"><Trash2 size={14} /></Button>
                 </div>
               </div>
             ))}

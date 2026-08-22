@@ -48,7 +48,7 @@ export default function ProcessSection({ steps = [] }) {
   if (!steps.length) return null
 
   return (
-    <section id="process" className="relative z-10 py-32 px-6 lg:px-14 border-y border-white/[0.05]"
+    <section id="process" className="relative z-10 py-20 sm:py-32 px-4 sm:px-6 lg:px-14 border-y border-white/[0.05]"
       style={{ background: 'rgba(255,255,255,0.006)' }}>
       <div className="max-w-[1100px] mx-auto">
 
@@ -58,7 +58,7 @@ export default function ProcessSection({ steps = [] }) {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.15 }}
           transition={{ duration: 0.72, ease: [0.16, 1, 0.3, 1] }}
-          className="text-center mb-20"
+          className="text-center mb-12 sm:mb-20"
         >
           <p className="section-number mb-1 block">05 / Process</p>
           <div className="section-label inline-flex">How We Work</div>

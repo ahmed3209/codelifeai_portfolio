@@ -90,13 +90,13 @@ export function ContactSection({ content = {} }) {
   ].filter(s => s.href)
 
   return (
-    <section id="contact" className="relative z-10 py-32 px-6 lg:px-14 overflow-hidden">
+    <section id="contact" className="relative z-10 py-20 sm:py-32 px-4 sm:px-6 lg:px-14 overflow-hidden">
       {/* Background glow */}
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[900px] h-[500px] pointer-events-none"
         style={{ background: 'radial-gradient(ellipse at 50% 100%, rgba(0,212,245,0.045) 0%, transparent 60%)' }} />
 
       <div className="max-w-[1100px] mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.1fr] gap-16 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.1fr] gap-10 sm:gap-16 items-start">
 
           {/* ── Left — copy ───────────────────────── */}
           <motion.div
@@ -157,17 +157,9 @@ export function ContactSection({ content = {} }) {
             viewport={{ once: true, amount: 0.2 }}
             transition={{ delay: 0.12, duration: 0.72, ease: [0.16, 1, 0.3, 1] }}
           >
-            <div
-              className="relative border border-white/[0.08] rounded-2xl p-8 overflow-hidden"
-              style={{ background: 'linear-gradient(145deg, rgba(0,212,245,0.03) 0%, rgba(255,255,255,0.018) 100%)' }}
-            >
-              {/* Corner glow */}
-              <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full pointer-events-none"
-                style={{ background: 'radial-gradient(circle, rgba(0,212,245,0.08) 0%, transparent 65%)' }} />
-
-              <h3 className="text-[1.05rem] font-bold text-bb-white mb-6 relative">Send us a message</h3>
-
-              <form onSubmit={handleSubmit} className="space-y-4 relative">
+            <div className="card-base p-6 sm:p-8">
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-bb-accent mb-6">Send a Message</p>
+              <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FloatInput
                     label="Your name"
@@ -235,11 +227,11 @@ export function Footer({ content = {} }) {
 
   return (
     <footer
-      className="relative z-10 border-t border-white/[0.05] px-6 lg:px-14 pt-20 pb-10"
+      className="relative z-10 border-t border-white/[0.05] px-4 sm:px-6 lg:px-14 pt-14 sm:pt-20 pb-8 sm:pb-10"
       style={{ background: 'rgba(255,255,255,0.05)' }}
     >
       <div className="max-w-[1200px] mx-auto">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 pb-16 border-b border-white/[0.05]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12 pb-10 sm:pb-16 border-b border-white/[0.05]">
 
           {/* Brand */}
           <div>

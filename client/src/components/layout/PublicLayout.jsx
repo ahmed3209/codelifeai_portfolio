@@ -10,9 +10,10 @@ import InteractiveDotGrid from '../InteractiveDotGrid'
 export default function PublicLayout() {
   const { pathname } = useLocation()
 
-  // Scroll to top on route change
+  // Scroll to top and track pageview on route change
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' })
+    publicApi.trackView({ path: pathname, referrer: document.referrer || '' }).catch(() => {})
   }, [pathname])
 
   const { data: siteData } = useQuery({

@@ -24,7 +24,7 @@ function FlipUnit({ value, label }) {
   return (
     <div className="flex flex-col items-center">
       <div
-        className="relative w-[72px] sm:w-[104px] h-[84px] sm:h-[116px] rounded-2xl border border-white/[0.09] flex items-center justify-center overflow-hidden"
+        className="relative w-[62px] min-[380px]:w-[74px] sm:w-[104px] h-[74px] min-[380px]:h-[88px] sm:h-[116px] rounded-2xl border border-white/[0.09] flex items-center justify-center overflow-hidden"
         style={{ background: 'linear-gradient(160deg, rgba(0,212,245,0.07) 0%, rgba(124,58,237,0.05) 100%)' }}
       >
         <div className="absolute top-1/2 left-0 right-0 h-px bg-black/40" />
@@ -35,13 +35,13 @@ function FlipUnit({ value, label }) {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 18, opacity: 0 }}
             transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-            className="text-[2.4rem] sm:text-[3.4rem] font-extrabold text-bb-white tabular-nums tracking-tight"
+            className="text-[2rem] min-[380px]:text-[2.4rem] sm:text-[3.4rem] font-extrabold text-bb-white tabular-nums tracking-tight"
           >
             {padded}
           </motion.span>
         </AnimatePresence>
       </div>
-      <span className="mt-3 text-[0.62rem] sm:text-[0.7rem] font-bold tracking-[0.22em] uppercase text-bb-muted">
+      <span className="mt-2.5 sm:mt-3 text-[0.58rem] sm:text-[0.7rem] font-bold tracking-[0.2em] uppercase text-bb-muted">
         {label}
       </span>
     </div>
@@ -199,8 +199,9 @@ export default function LaunchPage() {
 
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 1000)
+    publicApi.trackView({ path: window.location.pathname, referrer: document.referrer || '' }).catch(() => {})
     return () => clearInterval(t)
-  }, [])
+  }, [slug])
 
   const launchAt = promo?.launch_at || ''
   const t = useMemo(() => getRemaining(launchAt), [launchAt, now])
@@ -295,14 +296,14 @@ export default function LaunchPage() {
           <motion.div
             initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.22 }}
-            className="flex items-start gap-3 sm:gap-5 mb-12"
+            className="flex items-start gap-2 min-[380px]:gap-3 sm:gap-5 mb-12"
           >
             <FlipUnit value={t.d} label="Days" />
-            <span className="text-[2.4rem] sm:text-[3.4rem] font-bold text-white/15 leading-[84px] sm:leading-[116px]">:</span>
+            <span className="text-[1.8rem] min-[380px]:text-[2.4rem] sm:text-[3.4rem] font-bold text-white/15 leading-[74px] min-[380px]:leading-[88px] sm:leading-[116px]">:</span>
             <FlipUnit value={t.h} label="Hours" />
-            <span className="text-[2.4rem] sm:text-[3.4rem] font-bold text-white/15 leading-[84px] sm:leading-[116px]">:</span>
+            <span className="text-[1.8rem] min-[380px]:text-[2.4rem] sm:text-[3.4rem] font-bold text-white/15 leading-[74px] min-[380px]:leading-[88px] sm:leading-[116px]">:</span>
             <FlipUnit value={t.m} label="Minutes" />
-            <span className="text-[2.4rem] sm:text-[3.4rem] font-bold text-white/15 leading-[84px] sm:leading-[116px]">:</span>
+            <span className="text-[1.8rem] min-[380px]:text-[2.4rem] sm:text-[3.4rem] font-bold text-white/15 leading-[74px] min-[380px]:leading-[88px] sm:leading-[116px]">:</span>
             <FlipUnit value={t.s} label="Seconds" />
           </motion.div>
         )}

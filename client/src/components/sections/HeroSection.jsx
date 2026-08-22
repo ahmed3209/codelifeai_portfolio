@@ -61,7 +61,7 @@ export default function HeroSection({ content = {}, promo = null, liveProducts =
   const marqueeDouble = [...marqueeItems, ...marqueeItems]
 
   return (
-    <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-6 pt-32 pb-28 overflow-hidden">
+    <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-4 sm:px-6 pt-24 sm:pt-32 pb-20 sm:pb-28 overflow-hidden">
 
       {/* ── Top-Right Animated "Product is LIVE" Multi-Product Slider ── */}
       <LiveProductWidget liveProducts={liveProducts} promo={promo} />
@@ -86,7 +86,7 @@ export default function HeroSection({ content = {}, promo = null, liveProducts =
       <div className="relative z-10 flex flex-col items-center w-full max-w-[980px] mx-auto">
 
         {/* Section tag */}
-        <motion.div {...FU(0)} className="flex items-center gap-3 mb-7">
+        <motion.div {...FU(0)} className="flex items-center gap-3 mb-5 sm:mb-7">
           <div className="section-label">
             <Zap size={11} fill="currentColor" />
             {content.hero_badge || "We build what's next"}
@@ -96,8 +96,8 @@ export default function HeroSection({ content = {}, promo = null, liveProducts =
         {/* Big headline */}
         <motion.h1
           {...FU(0.06)}
-          className="font-extrabold tracking-[-0.045em] leading-[0.88] mb-2 text-bb-white"
-          style={{ fontSize: 'clamp(2.9rem, 9.5vw, 9rem)' }}
+          className="font-extrabold tracking-[-0.045em] leading-[0.92] sm:leading-[0.88] mb-2 text-bb-white"
+          style={{ fontSize: 'clamp(2.4rem, 8.5vw, 8rem)' }}
         >
           {content.hero_title || 'We Create'}
         </motion.h1>
@@ -105,15 +105,15 @@ export default function HeroSection({ content = {}, promo = null, liveProducts =
         {/* Animated typewriter word */}
         <motion.div
           {...FU(0.12)}
-          className="font-fraunces italic font-light leading-[0.9] tracking-[-0.03em] mb-8 min-h-[1.05em]"
-          style={{ fontSize: 'clamp(2.9rem, 9.5vw, 9rem)' }}
+          className="font-fraunces italic font-light leading-[0.95] sm:leading-[0.9] tracking-[-0.03em] mb-6 sm:mb-8 min-h-[1.1em]"
+          style={{ fontSize: 'clamp(2.4rem, 8.5vw, 8rem)' }}
         >
           <span className="text-gradient">{displayText}</span>
           <span className="inline-block w-[3px] h-[0.82em] bg-bb-accent ml-2 align-middle rounded-sm cursor-blink" />
         </motion.div>
 
         {/* Subtitle */}
-        <motion.p {...FU(0.2)} className="text-bb-muted text-[1.05rem] leading-[1.75] max-w-[560px] mb-10">
+        <motion.p {...FU(0.2)} className="text-bb-muted text-[0.95rem] sm:text-[1.05rem] leading-[1.75] max-w-[560px] mb-8 sm:mb-10 px-2">
           {content.hero_subtitle || 'CodeLifeAI is a software startup crafting elegant digital products — from sleek web apps to powerful mobile experiences.'}
         </motion.p>
 

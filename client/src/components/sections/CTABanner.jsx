@@ -11,14 +11,14 @@ const TRUST_ITEMS = [
 
 export default function CTABanner() {
   return (
-    <section className="relative z-10 py-28 px-6 lg:px-14 overflow-hidden">
+    <section className="relative z-10 py-16 sm:py-28 px-4 sm:px-6 lg:px-14 overflow-hidden">
       <div className="max-w-[1100px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 32 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.25 }}
           transition={{ duration: 0.78, ease: [0.16, 1, 0.3, 1] }}
-          className="relative rounded-3xl overflow-hidden border border-white/[0.09] px-10 py-16 text-center"
+          className="relative rounded-3xl overflow-hidden border border-white/[0.09] px-6 py-12 sm:px-10 sm:py-16 text-center"
           style={{
             background: 'linear-gradient(145deg, rgba(0,212,245,0.07) 0%, rgba(6,6,15,1) 40%, rgba(124,58,237,0.08) 100%)',
           }}

@@ -59,11 +59,17 @@ router.get('/me', (req, res) => {
   res.json({ user: { id: req.user.id, username: req.user.username } })
 })
 
-// ── DASHBOARD STATS ───────────────────────────────────────────
+// ── DASHBOARD STATS (Real-Time) ───────────────────────────────
 
 router.get('/stats', async (req, res) => {
   const db = getDb()
-  const [services, founders, kb, contacts, projects, testimonials, earlyAccess, visitors, activeToday, chatSessions] = await Promise.all([
+  const [
+    services, founders, kb, contacts, projects,
+    testimonials, earlyAccess, promos, liveProducts,
+    visitorsTotal, visitors24h, visitorsLive,
+    pageviewsTotal, pageviews24h,
+    chatSessions, recentActivity, topPages
+  ] = await Promise.all([
     db.execute('SELECT COUNT(*) as c FROM services'),
     db.execute('SELECT COUNT(*) as c FROM founders'),
     db.execute('SELECT COUNT(*) as c FROM kb_documents'),
@@ -71,21 +77,37 @@ router.get('/stats', async (req, res) => {
     db.execute('SELECT COUNT(*) as c FROM projects'),
     db.execute('SELECT COUNT(*) as c FROM testimonials'),
     db.execute('SELECT COUNT(*) as c FROM early_access'),
+    db.execute('SELECT COUNT(*) as c FROM promos'),
+    db.execute('SELECT COUNT(*) as c FROM live_products'),
     db.execute('SELECT COUNT(*) as c FROM visitor_sessions'),
     db.execute("SELECT COUNT(*) as c FROM visitor_sessions WHERE last_seen >= datetime('now', '-1 day')"),
+    db.execute("SELECT COUNT(*) as c FROM visitor_sessions WHERE last_seen >= datetime('now', '-5 minutes')"),
+    db.execute('SELECT COUNT(*) as c FROM visitor_pageviews'),
+    db.execute("SELECT COUNT(*) as c FROM visitor_pageviews WHERE created_at >= datetime('now', '-1 day')"),
     db.execute('SELECT COUNT(DISTINCT session_id) as c FROM chat_messages'),
+    db.execute('SELECT id, session_id, path, referrer, user_agent, created_at FROM visitor_pageviews ORDER BY id DESC LIMIT 10'),
+    db.execute('SELECT path, COUNT(*) as count FROM visitor_pageviews GROUP BY path ORDER BY count DESC LIMIT 6'),
   ])
+
   res.json({
-    services:           Number(services.rows[0].c),
-    founders:           Number(founders.rows[0].c),
-    kb_docs:            Number(kb.rows[0].c),
-    contacts:           Number(contacts.rows[0].c),
-    projects:           Number(projects.rows[0].c),
-    testimonials:       Number(testimonials.rows[0].c),
-    early_access:       Number(earlyAccess.rows[0].c),
-    visitors_total:     Number(visitors.rows[0].c),
-    visitors_24h:       Number(activeToday.rows[0].c),
-    chat_conversations: Number(chatSessions.rows[0].c),
+    services:           Number(services.rows[0]?.c || 0),
+    founders:           Number(founders.rows[0]?.c || 0),
+    kb_docs:            Number(kb.rows[0]?.c || 0),
+    contacts:           Number(contacts.rows[0]?.c || 0),
+    projects:           Number(projects.rows[0]?.c || 0),
+    testimonials:       Number(testimonials.rows[0]?.c || 0),
+    early_access:       Number(earlyAccess.rows[0]?.c || 0),
+    promos:             Number(promos.rows[0]?.c || 0),
+    live_products:      Number(liveProducts.rows[0]?.c || 0),
+    visitors_total:     Number(visitorsTotal.rows[0]?.c || 0),
+    visitors_24h:       Number(visitors24h.rows[0]?.c || 0),
+    visitors_live:      Number(visitorsLive.rows[0]?.c || 0),
+    pageviews_total:    Number(pageviewsTotal.rows[0]?.c || 0),
+    pageviews_24h:      Number(pageviews24h.rows[0]?.c || 0),
+    chat_conversations: Number(chatSessions.rows[0]?.c || 0),
+    recent_activity:    recentActivity.rows || [],
+    top_pages:          topPages.rows || [],
+    timestamp:          new Date().toISOString(),
   })
 })
 

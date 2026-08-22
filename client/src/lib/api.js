@@ -57,6 +57,7 @@ export const publicApi = {
   getChatHistory:     () => api.get('/chat/history'),
   sendContact:        (data) => api.post('/contact', data),
   requestEarlyAccess: (data) => api.post('/early-access', data),
+  trackView:          (data) => api.post('/track-view', data),
 }
 
 // ─── Admin API helpers ────────────────────────────────────────

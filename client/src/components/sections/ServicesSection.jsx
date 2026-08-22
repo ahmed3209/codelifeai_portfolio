@@ -27,7 +27,7 @@ export default function ServicesSection({ services = [] }) {
   const [active, setActive] = useState(null)
 
   return (
-    <section id="services" className="relative z-10 py-32 px-6 lg:px-14">
+    <section id="services" className="relative z-10 py-20 sm:py-32 px-4 sm:px-6 lg:px-14">
       <div className="max-w-[1280px] mx-auto">
 
         {/* Header */}
@@ -36,7 +36,7 @@ export default function ServicesSection({ services = [] }) {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.15 }}
           transition={{ duration: 0.72, ease: [0.16, 1, 0.3, 1] }}
-          className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-14"
+          className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10 sm:mb-14"
         >
           <div>
             <p className="section-number mb-1">01 / Services</p>
@@ -147,29 +147,29 @@ function ServiceModal({ svc, onClose }) {
         style={{ background: '#0b0b1d' }}
       >
         {/* Header */}
-        <div className="px-8 pt-8 pb-6 border-b border-white/[0.06] relative flex-shrink-0"
+        <div className="px-5 pt-6 pb-5 sm:px-8 sm:pt-8 sm:pb-6 border-b border-white/[0.06] relative flex-shrink-0"
           style={{ background: 'linear-gradient(145deg, rgba(0,212,245,0.06) 0%, rgba(124,58,237,0.04) 100%)' }}>
           <div className="absolute top-0 right-0 w-80 h-80 rounded-full pointer-events-none"
             style={{ background: 'radial-gradient(circle, rgba(0,212,245,0.07) 0%, transparent 60%)', transform: 'translate(30%,-30%)' }} />
 
-          <div className="flex items-start gap-4 relative">
-            <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl border border-bb-accent/18 flex-shrink-0"
+          <div className="flex items-start gap-3 sm:gap-4 relative pr-6">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center text-xl sm:text-2xl border border-bb-accent/18 flex-shrink-0"
               style={{ background: 'linear-gradient(135deg, rgba(0,212,245,0.14), rgba(124,58,237,0.1))' }}>
               {svc.icon}
             </div>
-            <div className="flex-1 min-w-0 pt-1">
-              <h2 className="text-[1.3rem] font-extrabold tracking-tight text-bb-white mb-1">{svc.title}</h2>
-              <p className="text-bb-muted text-sm leading-relaxed">{svc.long_desc || svc.short_desc}</p>
+            <div className="flex-1 min-w-0 pt-0.5 sm:pt-1">
+              <h2 className="text-[1.15rem] sm:text-[1.3rem] font-extrabold tracking-tight text-bb-white mb-1">{svc.title}</h2>
+              <p className="text-bb-muted text-xs sm:text-sm leading-relaxed">{svc.long_desc || svc.short_desc}</p>
             </div>
           </div>
           <button onClick={onClose}
-            className="absolute top-5 right-5 w-8 h-8 rounded-xl bg-white/[0.05] border border-white/[0.07] flex items-center justify-center text-bb-muted hover:text-bb-white hover:bg-white/[0.1] transition-all">
+            className="absolute top-4 right-4 sm:top-5 sm:right-5 w-8 h-8 rounded-xl bg-white/[0.05] border border-white/[0.07] flex items-center justify-center text-bb-muted hover:text-bb-white hover:bg-white/[0.1] transition-all">
             <X size={14} />
           </button>
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto p-8 scrollbar-thin space-y-6">
+        <div className="flex-1 overflow-y-auto p-5 sm:p-8 scrollbar-thin space-y-6">
           {features.length > 0 && (
             <div>
               <p className="text-[0.67rem] font-bold tracking-[0.13em] uppercase text-bb-accent mb-3">What's Included</p>
