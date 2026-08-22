@@ -2,12 +2,11 @@ import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 
 /**
- * Ultra-Smooth, High-Performance Futuristic 3D WebGL Background:
- * - Next-gen Obsidian & Neon Cybernetic Core (Glossy Icosahedron + Precision Wireframe)
- * - Dual Gimbal Orbital Rings with Neon Pulse Beacons
- * - Lightweight Quantum Particle Constellation (Zero runtime garbage collection)
- * - Auto-Pauses on Tab Hidden & Off-screen Scroll for 120 FPS buttery smooth performance
- * - Soft Vignette Mask ensuring 100% text readability and high contrast
+ * High-Impact, Vibrant 3D WebGL Cyber-Core Background:
+ * - Glowing Futuristic Polyhedron with neon vertex highlights & inner energy core
+ * - Dual rotating orbital gimbal rings with pulsing signal nodes
+ * - Smooth interactive cursor parallax physics & 60/120 FPS performance auto-pause
+ * - High-contrast backdrop ensuring 100% crisp typography readability
  */
 export default function ThreeBackground() {
   const containerRef = useRef(null)
@@ -25,8 +24,8 @@ export default function ThreeBackground() {
     const disposables = []
     const track = (obj) => { disposables.push(obj); return obj }
 
-    // ── 1. High-Efficiency Renderer ────────────────────────────────
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.5)
+    // ── 1. High-Efficiency WebGL Renderer ──────────────────────────
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.75)
     const renderer = new THREE.WebGLRenderer({
       canvas,
       antialias: true,
@@ -42,14 +41,14 @@ export default function ThreeBackground() {
     // ── 2. Scene & Camera ──────────────────────────────────────────
     const scene = new THREE.Scene()
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100)
-    camera.position.set(0, 0, 6.8)
+    camera.position.set(0, 0, 6.5)
 
     const clock = new THREE.Clock()
     const targetMouse = { x: 0, y: 0 }
     const curMouse = { x: 0, y: 0 }
     let scrollOffset = 0
 
-    // ── 3. Optimized Event Handlers ────────────────────────────────
+    // ── 3. Smooth Event Listeners ──────────────────────────────────
     const onMouseMove = (e) => {
       targetMouse.x = (e.clientX / window.innerWidth) * 2 - 1
       targetMouse.y = -(e.clientY / window.innerHeight) * 2 + 1
@@ -57,7 +56,6 @@ export default function ThreeBackground() {
 
     const onScroll = () => {
       scrollOffset = window.scrollY
-      // If scrolled down more than 1.5 screens, pause WebGL to keep site 100% smooth
       if (scrollOffset > window.innerHeight * 1.5) {
         isRenderingActive = false
       } else if (!document.hidden) {
@@ -80,88 +78,100 @@ export default function ThreeBackground() {
     document.addEventListener('visibilitychange', onVisibilityChange)
     window.addEventListener('resize', onResize)
 
-    // ── 4. Main Hero Cybernetic Core ──────────────────────────────
+    // ── 4. Main 3D Cybernetic Core Group ───────────────────────────
     const mainGroup = new THREE.Group()
     scene.add(mainGroup)
 
-    // A. Obsidian Core
-    const coreGeo = track(new THREE.IcosahedronGeometry(1.2, 1))
+    // A. Inner Glowing Energy Crystal (Glossy Dark Obsidian with Neon Facets)
+    const coreGeo = track(new THREE.IcosahedronGeometry(1.25, 0))
     const coreMat = track(new THREE.MeshStandardMaterial({
-      color: 0x030b17,
-      emissive: 0x011324,
-      roughness: 0.2,
-      metalness: 0.9,
+      color: 0x051329,
+      emissive: 0x02254d,
+      roughness: 0.15,
+      metalness: 0.95,
       transparent: true,
-      opacity: 0.85,
+      opacity: 0.92,
+      wireframe: false,
     }))
     const coreMesh = new THREE.Mesh(coreGeo, coreMat)
     mainGroup.add(coreMesh)
 
-    // B. Cyan Holographic Outer Shell
-    const shellGeo = track(new THREE.IcosahedronGeometry(1.42, 1))
-    const shellMat = track(new THREE.MeshBasicMaterial({
+    // B. Vibrant Holographic Outer Wireframe Shell
+    const wireGeo = track(new THREE.IcosahedronGeometry(1.35, 1))
+    const wireMat = track(new THREE.MeshBasicMaterial({
       color: 0x00d4f5,
       wireframe: true,
       transparent: true,
-      opacity: 0.18,
+      opacity: 0.35,
     }))
-    const shellMesh = new THREE.Mesh(shellGeo, shellMat)
-    mainGroup.add(shellMesh)
+    const wireMesh = new THREE.Mesh(wireGeo, wireMat)
+    mainGroup.add(wireMesh)
 
-    // C. Dual Gimbal Orbital Rings
-    const ring1Geo = track(new THREE.TorusGeometry(2.05, 0.014, 16, 72))
+    // C. Glowing Vertices (Point Nodes on Core)
+    const nodeGeo = track(new THREE.SphereGeometry(0.045, 8, 8))
+    const nodeMat = track(new THREE.MeshBasicMaterial({ color: 0x00d4f5 }))
+    const positions = wireGeo.attributes.position.array
+    const nodeCount = Math.min(positions.length / 3, 24)
+    for (let i = 0; i < nodeCount; i++) {
+      const node = new THREE.Mesh(nodeGeo, nodeMat)
+      node.position.set(positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2])
+      mainGroup.add(node)
+    }
+
+    // D. Dual Gimbal Orbital Quantum Rings
+    const ring1Geo = track(new THREE.TorusGeometry(2.1, 0.016, 16, 80))
     const ring1Mat = track(new THREE.MeshBasicMaterial({
       color: 0x00d4f5,
       transparent: true,
-      opacity: 0.35,
+      opacity: 0.45,
     }))
     const ring1 = new THREE.Mesh(ring1Geo, ring1Mat)
-    ring1.rotation.x = Math.PI / 3.2
-    ring1.rotation.y = Math.PI / 6
+    ring1.rotation.x = Math.PI / 3.4
+    ring1.rotation.y = Math.PI / 5
     mainGroup.add(ring1)
 
-    const ring2Geo = track(new THREE.TorusGeometry(2.35, 0.012, 16, 72))
+    const ring2Geo = track(new THREE.TorusGeometry(2.45, 0.014, 16, 80))
     const ring2Mat = track(new THREE.MeshBasicMaterial({
-      color: 0x7c3aed,
+      color: 0xa855f7,
       transparent: true,
-      opacity: 0.28,
+      opacity: 0.38,
     }))
     const ring2 = new THREE.Mesh(ring2Geo, ring2Mat)
-    ring2.rotation.x = -Math.PI / 2.8
-    ring2.rotation.y = -Math.PI / 8
+    ring2.rotation.x = -Math.PI / 2.6
+    ring2.rotation.y = -Math.PI / 7
     mainGroup.add(ring2)
 
-    // D. 4 Orbiting Signal Beacons
-    const beaconGeo = track(new THREE.OctahedronGeometry(0.08, 0))
+    // E. Orbiting Signal Beacons (Cyan & Violet)
+    const beaconGeo = track(new THREE.OctahedronGeometry(0.09, 0))
     const beaconMatCyan = track(new THREE.MeshBasicMaterial({ color: 0x00d4f5 }))
-    const beaconMatPurple = track(new THREE.MeshBasicMaterial({ color: 0x38bdf8 }))
+    const beaconMatViolet = track(new THREE.MeshBasicMaterial({ color: 0xc084fc }))
 
     const beacons = []
     for (let i = 0; i < 4; i++) {
-      const bMesh = new THREE.Mesh(beaconGeo, i % 2 === 0 ? beaconMatCyan : beaconMatPurple)
-      const radius = 2.05 + (i % 2) * 0.3
-      const speed = 0.35 + i * 0.1
+      const bMesh = new THREE.Mesh(beaconGeo, i % 2 === 0 ? beaconMatCyan : beaconMatViolet)
+      const radius = 2.1 + (i % 2) * 0.35
+      const speed = 0.4 + i * 0.12
       const initialAngle = (i / 4) * Math.PI * 2
       mainGroup.add(bMesh)
       beacons.push({ mesh: bMesh, radius, speed, angle: initialAngle })
     }
 
-    // ── 5. Starfield & Micro-Constellation ─────────────────────────
-    const PARTICLE_COUNT = 140
+    // ── 5. Starfield & Micro-Constellations ─────────────────────────
+    const PARTICLE_COUNT = 150
     const partPositions = new Float32Array(PARTICLE_COUNT * 3)
     const partColors = new Float32Array(PARTICLE_COUNT * 3)
 
     const colorCyan = new THREE.Color(0x00d4f5)
-    const colorPurple = new THREE.Color(0x7c3aed)
-    const colorMuted = new THREE.Color(0x334155)
+    const colorViolet = new THREE.Color(0xa855f7)
+    const colorWhite = new THREE.Color(0xffffff)
 
     for (let i = 0; i < PARTICLE_COUNT; i++) {
-      partPositions[i * 3 + 0] = (Math.random() - 0.5) * 14
-      partPositions[i * 3 + 1] = (Math.random() - 0.5) * 10
-      partPositions[i * 3 + 2] = -2.5 + Math.random() * 5
+      partPositions[i * 3 + 0] = (Math.random() - 0.5) * 15
+      partPositions[i * 3 + 1] = (Math.random() - 0.5) * 11
+      partPositions[i * 3 + 2] = -3 + Math.random() * 6
 
       const rnd = Math.random()
-      const c = rnd < 0.4 ? colorCyan : (rnd < 0.7 ? colorPurple : colorMuted)
+      const c = rnd < 0.45 ? colorCyan : (rnd < 0.75 ? colorViolet : colorWhite)
       partColors[i * 3 + 0] = c.r
       partColors[i * 3 + 1] = c.g
       partColors[i * 3 + 2] = c.b
@@ -172,28 +182,28 @@ export default function ThreeBackground() {
     partGeo.setAttribute('color', new THREE.BufferAttribute(partColors, 3))
 
     const partMat = track(new THREE.PointsMaterial({
-      size: 0.038,
+      size: 0.042,
       vertexColors: true,
       transparent: true,
-      opacity: 0.45,
+      opacity: 0.55,
       sizeAttenuation: true,
     }))
     const particleField = new THREE.Points(partGeo, partMat)
     scene.add(particleField)
 
-    // ── 6. Lighting ────────────────────────────────────────────────
-    const ambLight = track(new THREE.AmbientLight(0x040d1a, 2.5))
+    // ── 6. Dynamic Scene Lighting ──────────────────────────────────
+    const ambLight = track(new THREE.AmbientLight(0x06152d, 3.2))
     scene.add(ambLight)
 
-    const keyLight = track(new THREE.PointLight(0x00d4f5, 4.0, 16))
-    keyLight.position.set(4, 3, 4)
+    const keyLight = track(new THREE.PointLight(0x00d4f5, 5.5, 18))
+    keyLight.position.set(4, 3, 4.5)
     scene.add(keyLight)
 
-    const fillLight = track(new THREE.PointLight(0x7c3aed, 3.0, 16))
-    fillLight.position.set(-4, -3, 3)
+    const fillLight = track(new THREE.PointLight(0xa855f7, 4.2, 18))
+    fillLight.position.set(-4, -3, 3.5)
     scene.add(fillLight)
 
-    // ── 7. Buttery 60/120 FPS Animation Loop ──────────────────────
+    // ── 7. High-Performance Render Loop ────────────────────────────
     function animate() {
       animId = requestAnimationFrame(animate)
 
@@ -201,39 +211,39 @@ export default function ThreeBackground() {
 
       const t = clock.getElapsedTime()
 
-      // Smooth mouse lerp
-      curMouse.x += (targetMouse.x - curMouse.x) * 0.04
-      curMouse.y += (targetMouse.y - curMouse.y) * 0.04
+      // Smooth cursor parallax lerp
+      curMouse.x += (targetMouse.x - curMouse.x) * 0.045
+      curMouse.y += (targetMouse.y - curMouse.y) * 0.045
 
-      // Polyhedron rotation
-      coreMesh.rotation.x = t * 0.12
-      coreMesh.rotation.y = t * 0.18
-      shellMesh.rotation.x = -t * 0.09
-      shellMesh.rotation.y = -t * 0.14
+      // Core & wireframe rotation
+      coreMesh.rotation.x = t * 0.14
+      coreMesh.rotation.y = t * 0.2
+      wireMesh.rotation.x = -t * 0.1
+      wireMesh.rotation.y = -t * 0.15
 
-      // Gimbal rotation
-      ring1.rotation.z = t * 0.2
-      ring2.rotation.z = -t * 0.16
+      // Gimbal rings rotation
+      ring1.rotation.z = t * 0.22
+      ring2.rotation.z = -t * 0.18
 
-      // Cursor parallax response
-      mainGroup.position.x = curMouse.x * 0.3
-      mainGroup.position.y = curMouse.y * 0.22 - (scrollOffset / window.innerHeight) * 0.3
-      mainGroup.rotation.y = curMouse.x * 0.25
-      mainGroup.rotation.x = -curMouse.y * 0.18
+      // Main model positioning with cursor follow
+      mainGroup.position.x = curMouse.x * 0.32
+      mainGroup.position.y = curMouse.y * 0.24 - (scrollOffset / window.innerHeight) * 0.3
+      mainGroup.rotation.y = curMouse.x * 0.28
+      mainGroup.rotation.x = -curMouse.y * 0.2
 
-      // Beacons orbital physics
+      // Orbiting beacons physics
       for (let i = 0; i < beacons.length; i++) {
         const b = beacons[i]
-        b.angle += b.speed * 0.01
+        b.angle += b.speed * 0.012
         b.mesh.position.x = Math.cos(b.angle) * b.radius
         b.mesh.position.z = Math.sin(b.angle) * b.radius
-        b.mesh.position.y = Math.sin(t * 1.5 + b.angle) * 0.35
-        b.mesh.rotation.x += 0.02
-        b.mesh.rotation.y += 0.03
+        b.mesh.position.y = Math.sin(t * 1.6 + b.angle) * 0.4
+        b.mesh.rotation.x += 0.025
+        b.mesh.rotation.y += 0.035
       }
 
       // Starfield gentle drift
-      particleField.rotation.y = t * 0.008
+      particleField.rotation.y = t * 0.009
 
       renderer.render(scene, camera)
     }
@@ -259,13 +269,13 @@ export default function ThreeBackground() {
       <canvas
         ref={canvasRef}
         aria-hidden="true"
-        className="w-full h-full opacity-65 will-change-transform"
+        className="w-full h-full opacity-75 will-change-transform"
       />
       {/* High-Contrast Soft Vignette Mask */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: 'radial-gradient(ellipse 70% 60% at 50% 30%, transparent 20%, #06060f 90%)',
+          background: 'radial-gradient(ellipse 75% 65% at 50% 30%, transparent 25%, #06060f 92%)',
         }}
       />
     </div>

@@ -228,6 +228,27 @@ async function ensureExtras(db) {
     }
   }
 
+  // Ensure each service has its own dedicated high-quality asset image
+  const serviceImageMap = [
+    { pattern: '%Web%', img: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1200&auto=format&fit=crop' },
+    { pattern: '%Mobile%', img: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?q=80&w=1200&auto=format&fit=crop' },
+    { pattern: '%UI%', img: 'https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?q=80&w=1200&auto=format&fit=crop' },
+    { pattern: '%Design%', img: 'https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?q=80&w=1200&auto=format&fit=crop' },
+    { pattern: '%AI%', img: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200&auto=format&fit=crop' },
+    { pattern: '%Cloud%', img: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1200&auto=format&fit=crop' },
+    { pattern: '%DevOps%', img: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1200&auto=format&fit=crop' },
+    { pattern: '%Consulting%', img: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200&auto=format&fit=crop' },
+    { pattern: '%Enterprise%', img: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200&auto=format&fit=crop' },
+  ]
+  for (const item of serviceImageMap) {
+    try {
+      await db.execute({
+        sql: "UPDATE services SET image_url = ? WHERE (image_url IS NULL OR image_url = '') AND title LIKE ?",
+        args: [item.img, item.pattern],
+      })
+    } catch {}
+  }
+
   const projects = [
     {
       title: 'FinTrack — Real-Time Banking & Wealth Dashboard',
