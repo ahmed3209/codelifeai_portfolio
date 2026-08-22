@@ -7,6 +7,7 @@ const NAV_LINKS = [
   { to: '/work',     label: 'Work'     },
   { to: '/team',     label: 'Team'     },
   { to: '/process',  label: 'Process'  },
+  { to: '/blog',     label: 'Blog'     },
   { to: '/contact',  label: 'Contact'  },
 ]
 

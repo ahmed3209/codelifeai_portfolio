@@ -59,6 +59,8 @@ export const publicApi = {
   requestEarlyAccess: (data) => api.post('/early-access', data),
   trackView:          (data) => api.post('/track-view', data),
   getFaqs:            () => api.get('/faqs'),
+  getBlogs:           (params) => api.get('/blogs', { params }),
+  getBlogBySlug:      (slug) => api.get(`/blogs/${slug}`),
 }
 
 // ─── Admin API helpers ────────────────────────────────────────
@@ -152,6 +154,13 @@ export const adminApi = {
   createFaq: (d) => api.post('/admin/faqs', d),
   updateFaq: (id, d) => api.put(`/admin/faqs/${id}`, d),
   deleteFaq: (id) => api.delete(`/admin/faqs/${id}`),
+
+  // Blogs / Articles CMS
+  getBlogs:   () => api.get('/admin/blogs'),
+  createBlog: (d) => api.post('/admin/blogs', d),
+  updateBlog: (id, d) => api.put(`/admin/blogs/${id}`, d),
+  toggleBlog: (id, is_published) => api.put(`/admin/blogs/${id}/toggle`, { is_published }),
+  deleteBlog: (id) => api.delete(`/admin/blogs/${id}`),
 
   // Dashboard stats
   getStats: () => api.get('/admin/stats'),

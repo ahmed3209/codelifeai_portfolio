@@ -290,7 +290,7 @@ export function Footer({ content = {} }) {
           <div>
             <h4 className="text-[0.67rem] font-bold tracking-[0.12em] uppercase text-white/28 mb-5">Company</h4>
             <ul className="space-y-2.5 list-none p-0 m-0">
-              {[['About Us', '/team'], ['Our Process', '/process'], ['Why CodeLifeAI', '/team'], ['Careers', '/contact']].map(([l, h]) => (
+              {[['About Us', '/team'], ['Our Process', '/process'], ['Tech Blog', '/blog'], ['Why CodeLifeAI', '/team'], ['Contact', '/contact']].map(([l, h]) => (
                 <li key={l}>
                   <Link to={h} className="text-[0.84rem] text-bb-muted hover:text-bb-white transition-colors no-underline">{l}</Link>
                 </li>

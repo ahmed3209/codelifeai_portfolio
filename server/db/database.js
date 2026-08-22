@@ -384,12 +384,94 @@ async function ensureExtras(db) {
     }
   }
 
+  // ── Blogs / Articles Table and default seed ──────────────────
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS blogs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL,
+      slug TEXT UNIQUE NOT NULL,
+      excerpt TEXT NOT NULL,
+      content TEXT NOT NULL,
+      cover_image TEXT DEFAULT '',
+      category TEXT DEFAULT 'Engineering',
+      author_name TEXT DEFAULT 'CodeLifeAI Engineering',
+      author_role TEXT DEFAULT 'Core Team',
+      read_time TEXT DEFAULT '5 min read',
+      is_published INTEGER DEFAULT 1,
+      views INTEGER DEFAULT 0,
+      sort_order INTEGER DEFAULT 0,
+      published_at TEXT DEFAULT (datetime('now')),
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    )
+  `)
+
+  const blogCount = await db.execute('SELECT COUNT(*) as c FROM blogs')
+  if (Number(blogCount.rows[0].c) === 0) {
+    const defaultBlogs = [
+      {
+        title: 'Building Production-Grade AI Agents with Gemini 2.0 & Next.js 15',
+        slug: 'building-production-ai-agents-gemini-nextjs',
+        category: 'AI & Machine Learning',
+        author_name: 'CodeLifeAI Engineering',
+        author_role: 'AI Architecture Lead',
+        read_time: '6 min read',
+        excerpt: 'A practical architectural blueprint for deploying autonomous multi-step AI agents with low-latency tool execution and streaming state management.',
+        content: `### Introduction\n\nAI agents are evolving from basic conversational bots into autonomous task execution engines. In this architecture breakdown, we examine how to orchestrate multi-step reasoning using Google's **Gemini 2.0 Flash** model combined with **Next.js 15 Server Actions** and vector databases.\n\n### 1. The Core Execution Loop\n\nTraditional LLM calls are stateless and single-turn. A true autonomous agent requires:\n- **Perception Layer:** Parsing user intent and tool definitions.\n- **Action Execution:** Running external database queries, API lookups, or calculations.\n- **Observation & Feedback:** Feeding execution outputs back into the context window for recursive synthesis.\n\n\`\`\`javascript\n// High-velocity tool dispatcher loop\nasync function executeAgentTurn(prompt, tools) {\n  const response = await ai.generateContent({\n    model: 'gemini-2.0-flash',\n    contents: prompt,\n    tools: tools.map(t => ({ functionDeclarations: [t.declaration] })),\n  })\n  return response\n}\n\`\`\`\n\n### 2. State Management & Latency Optimization\n\nTo achieve sub-500ms initial response times, streaming text generation is mandatory. By leveraging server-sent events (SSE) alongside token streaming, users observe immediate progress while background tool chains execute in parallel.\n\n### Conclusion\n\nAutonomous agents deliver tremendous business value when architected with strict validation, prompt guardrails, and deterministic fallbacks. At CodeLifeAI, we integrate these patterns into production products daily.`,
+        sort_order: 1,
+      },
+      {
+        title: 'Microservices vs Modular Monolith: How We Architect for High Throughput',
+        slug: 'microservices-vs-modular-monolith-architecture',
+        category: 'Architecture',
+        author_name: 'CodeLifeAI Engineering',
+        author_role: 'Principal Systems Architect',
+        read_time: '7 min read',
+        excerpt: 'Why starting with distributed microservices too early creates unnecessary network latency and how a well-factored modular monolith scales gracefully.',
+        content: `### The Microservice Dilemma\n\nMany engineering teams jump directly into distributed microservices on Day 1, only to suffer from distributed transactions, network serialization overhead, and debugging nightmares. For 95% of software applications, a **Modular Monolith** provides superior throughput, simpler deployments, and zero network serialization penalty.\n\n### Core Architecture Principles\n\n1. **Strict Boundary Isolation:** Domain modules must interact only through exported interfaces, never direct database queries across domain schemas.\n2. **Event-Driven Decoupling:** Use in-memory or Redis-backed pub/sub channels for async operations (e.g. email notifications, analytics beacons, invoice generation).\n3. **Independent Database Schemas:** Logical separation within a single relational database (like PostgreSQL or LibSQL) allows future microservice extraction without data migration friction.\n\n### Benchmark Comparison\n\n- **Modular Monolith Inter-Module Latency:** ~0.05ms (direct memory call)\n- **Distributed RPC / HTTP Microservice Latency:** ~15ms - 45ms per hop\n\nBy keeping core business domains consolidated until specific scaling bottlenecks emerge, teams maximize velocity and uptime.`,
+        sort_order: 2,
+      },
+      {
+        title: 'The Flutter 3 Cross-Platform Blueprint: Achieving 60 FPS Native Performance',
+        slug: 'flutter-3-cross-platform-60fps-blueprint',
+        category: 'Mobile Engineering',
+        author_name: 'CodeLifeAI Engineering',
+        author_role: 'Mobile Lead',
+        read_time: '5 min read',
+        excerpt: 'How we architect offline-first mobile applications with local SQLite replication, smooth animations, and platform-specific native performance.',
+        content: `### Delivering True 60 FPS on Mobile\n\nCross-platform development often gets criticized for sluggish frame rates or unpolished touch interactions. With Flutter 3's **Impeller rendering engine**, applications achieve consistent 60–120 FPS without shader compilation jank.\n\n### Key Strategies for Top-Tier Mobile UX\n\n- **Offline-First Data Layer:** Use local SQLite or embedded key-value stores for instant UI hydration on boot. Remote API sync happens seamlessly in the background.\n- **Isolate-Based Heavy Compute:** Offload JSON parsing, cryptographic hashing, and image compression to background Dart isolates to ensure the main UI thread never drops a single frame.\n- **Adaptive Native Design:** Use Cupertino widgets on iOS and Material You styling on Android while sharing 90%+ of core business logic.\n\nOur client mobile apps consistently achieve 4.9-star ratings on the Apple App Store and Google Play.`,
+        sort_order: 3,
+      },
+      {
+        title: 'Zero-Downtime CI/CD Pipelines with Docker, Cloudflare & Automated Health Checks',
+        slug: 'zero-downtime-cicd-docker-cloudflare',
+        category: 'Cloud & DevOps',
+        author_name: 'CodeLifeAI Engineering',
+        author_role: 'Cloud & DevOps Lead',
+        read_time: '6 min read',
+        excerpt: 'A comprehensive walk-through of blue-green rolling deployments, automated rollback strategies, and global edge cache invalidation.',
+        content: `### High-Availability Production Deployments\n\nEvery second of deployment downtime degrades user trust and conversion rates. Our production pipeline delivers seamless rolling updates with automated canary testing and instant rollback safeguards.\n\n### The Deployment Pipeline Breakdown\n\n1. **Automated Unit & Integration Checks:** Every GitHub PR triggers automated linting, test suites, and Docker multi-stage builds.\n2. **Health Check Probing:** New container instances must pass active HTTP \`/health\` probes before ingress traffic is routed to them.\n3. **Edge Cache Purging:** Cloudflare cache tags are selectively invalidated for modified static assets while preserving edge-cached assets.\n\nThis pipeline guarantees 99.99% availability and allows our engineering team to ship production features multiple times per day with zero disruption.`,
+        sort_order: 4,
+      },
+    ]
+
+    for (const b of defaultBlogs) {
+      await db.execute({
+        sql: `INSERT INTO blogs (title, slug, excerpt, content, category, author_name, author_role, read_time, is_published, sort_order)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?)`,
+        args: [b.title, b.slug, b.excerpt, b.content, b.category, b.author_name, b.author_role, b.read_time, b.sort_order],
+      })
+    }
+  }
+
   // Indexes for analytics and hot paths. CREATE INDEX IF NOT EXISTS is
   // idempotent, so this is safe to run every boot.
   await db.execute('CREATE INDEX IF NOT EXISTS idx_chat_messages_session ON chat_messages(session_id, id)')
   await db.execute('CREATE INDEX IF NOT EXISTS idx_pageviews_created ON visitor_pageviews(created_at)')
   await db.execute('CREATE INDEX IF NOT EXISTS idx_pageviews_path ON visitor_pageviews(path)')
   await db.execute('CREATE INDEX IF NOT EXISTS idx_visitor_sessions_last_seen ON visitor_sessions(last_seen)')
+  await db.execute('CREATE INDEX IF NOT EXISTS idx_blogs_slug ON blogs(slug)')
+  await db.execute('CREATE INDEX IF NOT EXISTS idx_blogs_published ON blogs(is_published, published_at)')
 }
 
 async function seed(db) {

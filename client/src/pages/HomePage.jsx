@@ -5,14 +5,11 @@ import PageMeta             from '../components/PageMeta'
 import HeroSection          from '../components/sections/HeroSection'
 import TrustMarquee         from '../components/sections/TrustMarquee'
 import ServicesSection      from '../components/sections/ServicesSection'
-import TechRadar            from '../components/sections/TechRadar'
 import PromoTeaser          from '../components/sections/PromoTeaser'
 import WorkSection          from '../components/sections/WorkSection'
-import ProjectEstimator     from '../components/sections/ProjectEstimator'
-import ProcessSection       from '../components/sections/ProcessSection'
+import BlogPreviewSection   from '../components/sections/BlogPreviewSection'
 import FoundersSection      from '../components/sections/FoundersSection'
 import TestimonialsSection  from '../components/sections/TestimonialsSection'
-import FAQSection           from '../components/sections/FAQSection'
 import CTABanner            from '../components/sections/CTABanner'
 
 const ThreeBackground = lazy(() => import('../components/ThreeBackground'))
@@ -34,8 +31,7 @@ export default function HomePage() {
   const services     = siteData?.services     || []
   const projects     = siteData?.projects     || []
   const founders     = siteData?.founders     || []
-  const process      = siteData?.process      || []
-  const faqs         = siteData?.faqs         || []
+  const blogs        = siteData?.blogs        || []
   const testimonials = (siteData?.testimonials && siteData.testimonials.length > 0) ? siteData.testimonials : DEFAULT_TESTIMONIALS
   const activePromo  = siteData?.activePromo  || null
   const liveProducts = siteData?.liveProducts || []
@@ -44,12 +40,12 @@ export default function HomePage() {
     <>
       <PageMeta
         path="/"
-        title="CodeLifeAI — We Build What's Next | Web, Mobile & AI Engineering"
+        title="CodeLifeAI — We Build What's Next | Web, Mobile &amp; AI Engineering Studio"
         description="CodeLifeAI is a high-velocity software studio crafting next-generation digital products — scalable web applications, mobile apps, custom AI agents, and enterprise cloud infrastructure."
-        keywords="codelifeai, software studio, software development company, web development, mobile app development, ui ux design, ai integration, cloud devops, react, nextjs, flutter, full stack development, AI agents"
+        keywords="codelifeai, software studio, software development company, web development, mobile app development, ui ux design, ai integration, cloud devops, react, nextjs, flutter, full stack development"
       />
 
-      {/* Interactive 3D WebGL background (homepage only, lazy-loaded) */}
+      {/* Subtle, High-Contrast 3D WebGL background */}
       <Suspense fallback={null}>
         <ThreeBackground />
       </Suspense>
@@ -60,42 +56,31 @@ export default function HomePage() {
       {/* 2. Trust & Engineering Metrics Ticker */}
       <TrustMarquee />
 
-      {/* 3. Core Services Matrix */}
+      {/* 3. Core Services Preview */}
       {services.length > 0 && (
         <ServicesSection services={services} />
       )}
 
-      {/* 4. Active Promo / Launch Countdown Slider */}
+      {/* 4. Active Promo / Launch Teaser */}
       <PromoTeaser promo={activePromo} promos={siteData?.activePromos || (activePromo ? [activePromo] : [])} />
 
-      {/* 5. Interactive Engineering Tech Radar */}
-      <TechRadar />
-
-      {/* 6. Featured Case Studies & Live Products */}
+      {/* 5. Featured Case Studies & Projects */}
       {projects.length > 0 && (
         <WorkSection projects={projects} />
       )}
 
-      {/* 7. Interactive Project Cost & Timeline Estimator */}
-      <ProjectEstimator />
+      {/* 6. Latest Engineering Insights & Blog Articles */}
+      <BlogPreviewSection blogs={blogs} />
 
-      {/* 8. 4-Step Agile Delivery Protocol */}
-      {process.length > 0 && (
-        <ProcessSection steps={process} />
-      )}
+      {/* 7. Verified Client Testimonials */}
+      <TestimonialsSection testimonials={testimonials} />
 
-      {/* 9. Founders & Engineering Leadership */}
+      {/* 8. Founders & Senior Engineering Leadership */}
       {founders.length > 0 && (
         <FoundersSection founders={founders} />
       )}
 
-      {/* 10. Verified Client Testimonials */}
-      <TestimonialsSection testimonials={testimonials} />
-
-      {/* 11. Interactive FAQ Accordion with Live Search */}
-      <FAQSection faqs={faqs} />
-
-      {/* 12. Bottom Conversion CTA Banner */}
+      {/* 9. Bottom Conversion CTA Banner */}
       <CTABanner />
     </>
   )

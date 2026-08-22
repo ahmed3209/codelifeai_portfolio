@@ -768,4 +768,108 @@ router.delete('/faqs/:id', async (req, res) => {
   }
 })
 
+// ── BLOGS & ARTICLES CMS ──────────────────────────────────────
+
+router.get('/blogs', async (req, res) => {
+  const { rows } = await getDb().execute('SELECT * FROM blogs ORDER BY sort_order ASC, created_at DESC')
+  res.json(rows)
+})
+
+router.post('/blogs', async (req, res) => {
+  try {
+    const { title, slug, excerpt, content, cover_image, category, author_name, author_role, read_time, is_published, sort_order } = req.body
+    if (!title || !content) return res.status(400).json({ error: 'Title and content are required' })
+
+    const generatedSlug = (slug || title)
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)+/g, '')
+
+    const db = getDb()
+    const ins = await db.execute({
+      sql: `INSERT INTO blogs (title, slug, excerpt, content, cover_image, category, author_name, author_role, read_time, is_published, sort_order)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      args: [
+        title.trim(),
+        generatedSlug,
+        excerpt?.trim() || title.trim(),
+        content.trim(),
+        cover_image || '',
+        category?.trim() || 'Engineering',
+        author_name?.trim() || 'CodeLifeAI Engineering',
+        author_role?.trim() || 'Core Team',
+        read_time?.trim() || '5 min read',
+        is_published !== 0 ? 1 : 0,
+        Number(sort_order) || 0,
+      ],
+    })
+    const { rows } = await db.execute({ sql: 'SELECT * FROM blogs WHERE id = ?', args: [Number(ins.lastInsertRowid)] })
+    res.json(rows[0])
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+router.put('/blogs/:id', async (req, res) => {
+  try {
+    const { title, slug, excerpt, content, cover_image, category, author_name, author_role, read_time, is_published, sort_order } = req.body
+    if (!title || !content) return res.status(400).json({ error: 'Title and content are required' })
+
+    const generatedSlug = (slug || title)
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)+/g, '')
+
+    const db = getDb()
+    await db.execute({
+      sql: `UPDATE blogs SET title=?, slug=?, excerpt=?, content=?, cover_image=?, category=?, author_name=?, author_role=?, read_time=?, is_published=?, sort_order=?, updated_at=datetime('now')
+            WHERE id=?`,
+      args: [
+        title.trim(),
+        generatedSlug,
+        excerpt?.trim() || title.trim(),
+        content.trim(),
+        cover_image || '',
+        category?.trim() || 'Engineering',
+        author_name?.trim() || 'CodeLifeAI Engineering',
+        author_role?.trim() || 'Core Team',
+        read_time?.trim() || '5 min read',
+        is_published !== 0 ? 1 : 0,
+        Number(sort_order) || 0,
+        req.params.id,
+      ],
+    })
+    const { rows } = await db.execute({ sql: 'SELECT * FROM blogs WHERE id = ?', args: [req.params.id] })
+    res.json(rows[0])
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+router.put('/blogs/:id/toggle', async (req, res) => {
+  try {
+    const { is_published } = req.body
+    const db = getDb()
+    await db.execute({
+      sql: "UPDATE blogs SET is_published = ?, updated_at = datetime('now') WHERE id = ?",
+      args: [is_published ? 1 : 0, req.params.id],
+    })
+    const { rows } = await db.execute({ sql: 'SELECT * FROM blogs WHERE id = ?', args: [req.params.id] })
+    res.json(rows[0])
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+router.delete('/blogs/:id', async (req, res) => {
+  try {
+    await getDb().execute({ sql: 'DELETE FROM blogs WHERE id = ?', args: [req.params.id] })
+    res.json({ ok: true })
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
 export default router

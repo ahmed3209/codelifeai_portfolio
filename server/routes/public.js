@@ -7,7 +7,7 @@ const router = Router()
 router.get('/site-data', async (req, res) => {
   const db = getDb()
 
-  const [services, founders, projects, testimonials, process, rawContent, activePromos, liveProducts, faqs] = await Promise.all([
+  const [services, founders, projects, testimonials, process, rawContent, activePromos, liveProducts, faqs, blogs] = await Promise.all([
     db.execute('SELECT * FROM services ORDER BY sort_order ASC'),
     db.execute('SELECT id, name, role, bio, initials, photo_url, avatar_bg, tags, linkedin_url, sort_order, created_at FROM founders ORDER BY sort_order ASC'),
     db.execute('SELECT * FROM projects ORDER BY sort_order ASC'),
@@ -17,6 +17,7 @@ router.get('/site-data', async (req, res) => {
     db.execute('SELECT * FROM promos WHERE is_active = 1 ORDER BY sort_order ASC, id ASC'),
     db.execute('SELECT * FROM live_products WHERE is_active = 1 ORDER BY sort_order ASC, id ASC'),
     db.execute('SELECT * FROM faqs ORDER BY sort_order ASC, id ASC'),
+    db.execute('SELECT id, title, slug, excerpt, category, author_name, author_role, read_time, cover_image, published_at FROM blogs WHERE is_published = 1 ORDER BY sort_order ASC, published_at DESC LIMIT 6'),
   ])
 
   const content = rawContent.rows.reduce((acc, { key, value }) => ({ ...acc, [key]: value }), {})
@@ -32,7 +33,52 @@ router.get('/site-data', async (req, res) => {
     activePromos: activePromos.rows || [],
     liveProducts: liveProducts.rows || [],
     faqs: faqs.rows || [],
+    blogs: blogs.rows || [],
   })
+})
+
+// GET /api/blogs — public published articles list
+router.get('/blogs', async (req, res) => {
+  try {
+    const { category } = req.query
+    const db = getDb()
+    let query = 'SELECT id, title, slug, excerpt, category, author_name, author_role, read_time, cover_image, views, published_at FROM blogs WHERE is_published = 1'
+    const args = []
+    if (category && category !== 'All') {
+      query += ' AND category = ?'
+      args.push(category)
+    }
+    query += ' ORDER BY sort_order ASC, published_at DESC'
+    const { rows } = await db.execute({ sql: query, args })
+    res.json(rows)
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// GET /api/blogs/:slug — single published article with view increment
+router.get('/blogs/:slug', async (req, res) => {
+  try {
+    const db = getDb()
+    const { rows } = await db.execute({
+      sql: 'SELECT * FROM blogs WHERE slug = ? AND is_published = 1',
+      args: [req.params.slug],
+    })
+    if (!rows[0]) return res.status(404).json({ error: 'Article not found' })
+
+    // Non-blocking view increment
+    db.execute({ sql: 'UPDATE blogs SET views = views + 1 WHERE id = ?', args: [rows[0].id] }).catch(() => {})
+
+    // Fetch related articles
+    const related = await db.execute({
+      sql: 'SELECT id, title, slug, excerpt, category, read_time, cover_image FROM blogs WHERE is_published = 1 AND id != ? ORDER BY sort_order ASC LIMIT 3',
+      args: [rows[0].id],
+    })
+
+    res.json({ ...rows[0], related: related.rows || [] })
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
 })
 
 // GET /api/faqs — public FAQs list
