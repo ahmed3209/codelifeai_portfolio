@@ -7,7 +7,7 @@ const router = Router()
 router.get('/site-data', async (req, res) => {
   const db = getDb()
 
-  const [services, founders, projects, testimonials, process, rawContent, activePromos, liveProducts] = await Promise.all([
+  const [services, founders, projects, testimonials, process, rawContent, activePromos, liveProducts, faqs] = await Promise.all([
     db.execute('SELECT * FROM services ORDER BY sort_order ASC'),
     db.execute('SELECT id, name, role, bio, initials, photo_url, avatar_bg, tags, linkedin_url, sort_order, created_at FROM founders ORDER BY sort_order ASC'),
     db.execute('SELECT * FROM projects ORDER BY sort_order ASC'),
@@ -16,6 +16,7 @@ router.get('/site-data', async (req, res) => {
     db.execute('SELECT key, value FROM content'),
     db.execute('SELECT * FROM promos WHERE is_active = 1 ORDER BY sort_order ASC, id ASC'),
     db.execute('SELECT * FROM live_products WHERE is_active = 1 ORDER BY sort_order ASC, id ASC'),
+    db.execute('SELECT * FROM faqs ORDER BY sort_order ASC, id ASC'),
   ])
 
   const content = rawContent.rows.reduce((acc, { key, value }) => ({ ...acc, [key]: value }), {})
@@ -30,7 +31,14 @@ router.get('/site-data', async (req, res) => {
     activePromo: activePromos.rows[0] || null,
     activePromos: activePromos.rows || [],
     liveProducts: liveProducts.rows || [],
+    faqs: faqs.rows || [],
   })
+})
+
+// GET /api/faqs — public FAQs list
+router.get('/faqs', async (req, res) => {
+  const { rows } = await getDb().execute('SELECT * FROM faqs ORDER BY sort_order ASC, id ASC')
+  res.json(rows)
 })
 
 // GET /api/live-products — public active live products list

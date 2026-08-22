@@ -2,252 +2,292 @@ import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 
 /**
- * Fixed full-screen WebGL background: crystal core + rings + satellites +
- * particle field + floating shapes, reacting to scroll and cursor.
- * Scoped to whatever page mounts it; fully disposed on unmount.
- *
- * Setup is deferred via setTimeout so React 18 StrictMode's dev-only
- * setup→cleanup→setup cycle doesn't create→force-context-loss→recreate
- * the WebGL renderer on the same canvas (which leaves the GL context
- * in a bad state and blanks the page).
+ * Next-Level Interactive 3D WebGL Scene:
+ * - Multi-layered glowing cyber core with faceted inner nucleus & wireframe matrix
+ * - Dual counter-rotating orbital rings with glowing satellite crystal nodes
+ * - Floating geometric cyber prisms reacting to scroll and cursor momentum
+ * - Dynamic starry neural particle field with depth perspective
+ * - Optimized lifecycle with graceful cleanup and reduced-motion support
  */
 export default function ThreeBackground() {
   const canvasRef = useRef(null)
 
   useEffect(() => {
-    // Respect reduced-motion: skip the animated scene entirely.
     if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return
-    // Skip on mobile: the 3D is decorative, and mobile LCP suffers badly
-    // from the WebGL setup cost + 120KB chunk download for little benefit.
     if (window.innerWidth < 768) return
 
     let cleanupFn
-    // Defer to browser idle so the page reaches FCP/TTI before three.js
-    // starts allocating geometries and running its RAF loop. Falls back
-    // to setTimeout on browsers without requestIdleCallback (Safari).
-    const ric = window.requestIdleCallback || ((cb) => setTimeout(cb, 1500))
+    const ric = window.requestIdleCallback || ((cb) => setTimeout(cb, 1000))
     const cancelRic = window.cancelIdleCallback || clearTimeout
+
     const idleHandle = ric(() => {
       const canvas = canvasRef.current
       if (!canvas) return
 
-      const isSmall = window.innerWidth < 768
       const disposables = []
       const track = (obj) => { disposables.push(obj); return obj }
 
-      const renderer = new THREE.WebGLRenderer({ canvas, antialias: !isSmall, alpha: true })
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, isSmall ? 1.5 : 2))
+      // ── Renderer ────────────────────────────────────────────────
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' })
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
       renderer.setSize(window.innerWidth, window.innerHeight)
       renderer.setClearColor(0x000000, 0)
       renderer.toneMapping = THREE.ACESFilmicToneMapping
-      renderer.toneMappingExposure = 1.1
+      renderer.toneMappingExposure = 1.25
 
+      // ── Scene & Camera ──────────────────────────────────────────
       const scene = new THREE.Scene()
-      const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000)
-      camera.position.set(0, 0, 6)
+      const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000)
+      camera.position.set(0, 0, 6.2)
 
       const clock = new THREE.Clock()
       let scrollY = window.scrollY || 0
-      const mouse = new THREE.Vector2(0, 0)
+      const targetMouse = new THREE.Vector2(0, 0)
+      const curMouse = new THREE.Vector2(0, 0)
 
       const onScroll = () => { scrollY = window.scrollY }
       const onMouseMove = (e) => {
-        mouse.x = (e.clientX / window.innerWidth) * 2 - 1
-        mouse.y = -(e.clientY / window.innerHeight) * 2 + 1
+        targetMouse.x = (e.clientX / window.innerWidth) * 2 - 1
+        targetMouse.y = -(e.clientY / window.innerHeight) * 2 + 1
       }
       const onResize = () => {
         camera.aspect = window.innerWidth / window.innerHeight
         camera.updateProjectionMatrix()
         renderer.setSize(window.innerWidth, window.innerHeight)
       }
+
       window.addEventListener('scroll', onScroll, { passive: true })
       window.addEventListener('mousemove', onMouseMove, { passive: true })
       window.addEventListener('resize', onResize)
 
-      // ── Hero crystal group ──────────────────────────────────────
-      const sphereGroup = new THREE.Group()
-      scene.add(sphereGroup)
+      // ── Main Hero Cyber Group ───────────────────────────────────
+      const mainGroup = new THREE.Group()
+      scene.add(mainGroup)
 
-      const coreGeo = track(new THREE.SphereGeometry(1.6, 64, 64))
-      const coreMat = track(new THREE.MeshPhongMaterial({
-        color: 0x001830, emissive: 0x002244, specular: 0x00d4e8,
-        shininess: 120, transparent: true, opacity: 0.5,
+      // 1. Faceted Inner Nucleus (Icosahedron)
+      const nucleusGeo = track(new THREE.IcosahedronGeometry(1.35, 1))
+      const nucleusMat = track(new THREE.MeshPhongMaterial({
+        color: 0x031828,
+        emissive: 0x003355,
+        specular: 0x00d4f5,
+        shininess: 100,
+        wireframe: false,
+        transparent: true,
+        opacity: 0.6,
       }))
-      sphereGroup.add(new THREE.Mesh(coreGeo, coreMat))
+      const nucleusMesh = new THREE.Mesh(nucleusGeo, nucleusMat)
+      mainGroup.add(nucleusMesh)
 
-      const wireGeo = track(new THREE.SphereGeometry(1.85, 24, 24))
-      const wireMat = track(new THREE.MeshBasicMaterial({ color: 0x00d4e8, wireframe: true, transparent: true, opacity: 0.07 }))
-      sphereGroup.add(new THREE.Mesh(wireGeo, wireMat))
-
-      const icoGeo = track(new THREE.IcosahedronGeometry(1.1, 1))
-      const icoMat = track(new THREE.MeshPhongMaterial({
-        color: 0x8b5cf6, emissive: 0x4c1d95, specular: 0xffffff,
-        shininess: 200, transparent: true, opacity: 0.55,
+      // 2. Wireframe Shell Layer
+      const wireGeo = track(new THREE.IcosahedronGeometry(1.58, 2))
+      const wireMat = track(new THREE.MeshBasicMaterial({
+        color: 0x00d4f5,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.12,
       }))
-      const icoMesh = new THREE.Mesh(icoGeo, icoMat)
-      sphereGroup.add(icoMesh)
+      const wireMesh = new THREE.Mesh(wireGeo, wireMat)
+      mainGroup.add(wireMesh)
 
-      const icoWireGeo = track(new THREE.IcosahedronGeometry(1.12, 1))
-      const icoWireMat = track(new THREE.MeshBasicMaterial({ color: 0x8b5cf6, wireframe: true, transparent: true, opacity: 0.25 }))
-      sphereGroup.add(new THREE.Mesh(icoWireGeo, icoWireMat))
+      // 3. Orbital Torus Ring 1 (Cyan)
+      const ring1Geo = track(new THREE.TorusGeometry(2.35, 0.018, 16, 100))
+      const ring1Mat = track(new THREE.MeshBasicMaterial({
+        color: 0x00d4f5,
+        transparent: true,
+        opacity: 0.35,
+      }))
+      const ring1 = new THREE.Mesh(ring1Geo, ring1Mat)
+      ring1.rotation.x = Math.PI / 3.2
+      ring1.rotation.y = Math.PI / 6
+      mainGroup.add(ring1)
 
-      const makeRing = (r, tube, rot, color, opacity) => {
-        const g = track(new THREE.TorusGeometry(r, tube, 8, 80))
-        const m = track(new THREE.MeshBasicMaterial({ color, transparent: true, opacity }))
-        const mesh = new THREE.Mesh(g, m)
-        mesh.rotation.set(rot.x || 0, rot.y || 0, rot.z || 0)
-        return mesh
-      }
-      const ring1 = makeRing(2.1, 0.012, { x: Math.PI / 2.2, z: 0.4 }, 0x00d4e8, 0.5)
-      const ring2 = makeRing(1.8, 0.010, { x: 1.1, y: 0.8 }, 0x8b5cf6, 0.4)
-      const ring3 = makeRing(2.4, 0.008, { z: 0.7, y: 0.3 }, 0xec4899, 0.25)
-      sphereGroup.add(ring1, ring2, ring3)
+      // 4. Orbital Torus Ring 2 (Electric Violet)
+      const ring2Geo = track(new THREE.TorusGeometry(2.65, 0.015, 16, 100))
+      const ring2Mat = track(new THREE.MeshBasicMaterial({
+        color: 0xa855f7,
+        transparent: true,
+        opacity: 0.28,
+      }))
+      const ring2 = new THREE.Mesh(ring2Geo, ring2Mat)
+      ring2.rotation.x = -Math.PI / 2.8
+      ring2.rotation.y = Math.PI / 4
+      mainGroup.add(ring2)
 
+      // 5. Orbiting Satellite Nodes
+      const satellites = []
       const satGroup = new THREE.Group()
-      sphereGroup.add(satGroup)
-      const SAT_COLORS = [0x00d4e8, 0x8b5cf6, 0xec4899]
-      const SAT_EMISSIVE = [0x002244, 0x2e1065, 0x831843]
-      for (let i = 0; i < 8; i++) {
-        const g = track(new THREE.OctahedronGeometry(0.07 + Math.random() * 0.04))
-        const m = track(new THREE.MeshPhongMaterial({ color: SAT_COLORS[i % 3], emissive: SAT_EMISSIVE[i % 3], shininess: 200 }))
-        const sat = new THREE.Mesh(g, m)
-        const angle = (i / 8) * Math.PI * 2
-        const radius = 2.0 + Math.random() * 0.4
-        sat.position.set(Math.cos(angle) * radius, (Math.random() - 0.5) * 1.2, Math.sin(angle) * radius)
-        sat.userData = { angle, speed: 0.003 + Math.random() * 0.004, radius, yOff: sat.position.y }
-        satGroup.add(sat)
-      }
-      sphereGroup.position.set(2.8, 0, 0)
+      mainGroup.add(satGroup)
 
-      // ── Particle field ──────────────────────────────────────────
-      const PART_COUNT = isSmall ? 700 : 1800
-      const partPositions = new Float32Array(PART_COUNT * 3)
-      const partColors = new Float32Array(PART_COUNT * 3)
-      const partSpeeds = new Float32Array(PART_COUNT)
-      const palette = [new THREE.Color(0x00d4e8), new THREE.Color(0x8b5cf6), new THREE.Color(0xec4899)]
-      for (let i = 0; i < PART_COUNT; i++) {
-        partPositions[i * 3] = (Math.random() - 0.5) * 22
-        partPositions[i * 3 + 1] = (Math.random() - 0.5) * 14
-        partPositions[i * 3 + 2] = (Math.random() - 0.5) * 10
-        const col = palette[Math.floor(Math.random() * 3)]
-        partColors[i * 3] = col.r
-        partColors[i * 3 + 1] = col.g
-        partColors[i * 3 + 2] = col.b
-        partSpeeds[i] = 0.002 + Math.random() * 0.006
+      const satGeo = track(new THREE.OctahedronGeometry(0.12, 0))
+      const satColors = [0x00d4f5, 0xa855f7, 0x38bdf8, 0x22c55e]
+
+      for (let i = 0; i < 6; i++) {
+        const mat = track(new THREE.MeshBasicMaterial({
+          color: satColors[i % satColors.length],
+          wireframe: true,
+        }))
+        const sat = new THREE.Mesh(satGeo, mat)
+        const radius = 2.2 + (i % 3) * 0.4
+        const angle = (i / 6) * Math.PI * 2
+        sat.position.set(Math.cos(angle) * radius, (Math.random() - 0.5) * 1.2, Math.sin(angle) * radius)
+        satGroup.add(sat)
+        satellites.push({ mesh: sat, radius, angle, speed: 0.25 + (i * 0.08) })
       }
+
+      // ── Floating Ambient Cyber Crystals ─────────────────────────
+      const floatingGroup = new THREE.Group()
+      scene.add(floatingGroup)
+      const floatingShapes = []
+
+      const prismGeos = [
+        track(new THREE.OctahedronGeometry(0.35, 0)),
+        track(new THREE.TetrahedronGeometry(0.4, 0)),
+        track(new THREE.DodecahedronGeometry(0.3, 0)),
+      ]
+
+      for (let i = 0; i < 18; i++) {
+        const geo = prismGeos[i % prismGeos.length]
+        const mat = track(new THREE.MeshPhongMaterial({
+          color: 0x050e1e,
+          emissive: (i % 2 === 0) ? 0x001a33 : 0x1a0b2e,
+          specular: 0x00d4f5,
+          shininess: 90,
+          transparent: true,
+          opacity: 0.4,
+          wireframe: i % 3 === 0,
+        }))
+        const mesh = new THREE.Mesh(geo, mat)
+        const x = (Math.random() - 0.5) * 14
+        const y = (Math.random() - 0.5) * 10
+        const z = -2 + Math.random() * 4
+        mesh.position.set(x, y, z)
+        floatingGroup.add(mesh)
+
+        floatingShapes.push({
+          mesh,
+          baseY: y,
+          rotSpeedX: (Math.random() - 0.5) * 0.6,
+          rotSpeedY: (Math.random() - 0.5) * 0.6,
+          floatSpeed: 0.4 + Math.random() * 0.6,
+          phase: Math.random() * Math.PI * 2,
+        })
+      }
+
+      // ── Neural Particle Starfield ───────────────────────────────
+      const PARTICLE_COUNT = 380
+      const partPositions = new Float32Array(PARTICLE_COUNT * 3)
+      const partColors = new Float32Array(PARTICLE_COUNT * 3)
+
+      const colCyan = new THREE.Color(0x00d4f5)
+      const colPurple = new THREE.Color(0xa855f7)
+      const colWhite = new THREE.Color(0xffffff)
+
+      for (let i = 0; i < PARTICLE_COUNT; i++) {
+        partPositions[i * 3 + 0] = (Math.random() - 0.5) * 18
+        partPositions[i * 3 + 1] = (Math.random() - 0.5) * 14
+        partPositions[i * 3 + 2] = -4 + Math.random() * 8
+
+        const cChoice = Math.random()
+        const c = cChoice < 0.5 ? colCyan : (cChoice < 0.8 ? colPurple : colWhite)
+        partColors[i * 3 + 0] = c.r
+        partColors[i * 3 + 1] = c.g
+        partColors[i * 3 + 2] = c.b
+      }
+
       const partGeo = track(new THREE.BufferGeometry())
       partGeo.setAttribute('position', new THREE.BufferAttribute(partPositions, 3))
       partGeo.setAttribute('color', new THREE.BufferAttribute(partColors, 3))
-      const partMat = track(new THREE.PointsMaterial({ size: 0.03, vertexColors: true, transparent: true, opacity: 0.7, sizeAttenuation: true }))
-      scene.add(new THREE.Points(partGeo, partMat))
 
-      // ── Grid plane ──────────────────────────────────────────────
-      const grid = new THREE.GridHelper(30, 40, 0x00d4e8, 0x00d4e8)
-      grid.material.transparent = true
-      grid.material.opacity = 0.04
-      grid.position.y = -3.5
-      track(grid.geometry); track(grid.material)
-      scene.add(grid)
-
-      // ── Floating shapes ─────────────────────────────────────────
-      const geoShapes = []
-      const shapeDefs = [
-        { geo: new THREE.TetrahedronGeometry(0.25), pos: [-3.5, 1.5, -2], color: 0x00d4e8, speed: 0.008 },
-        { geo: new THREE.OctahedronGeometry(0.18), pos: [-4, -1.2, -1], color: 0x8b5cf6, speed: 0.006 },
-        { geo: new THREE.IcosahedronGeometry(0.15, 0), pos: [-2.8, 2.2, 1], color: 0xec4899, speed: 0.009 },
-        { geo: new THREE.TetrahedronGeometry(0.2), pos: [5, 1.8, -3], color: 0x8b5cf6, speed: 0.007 },
-        { geo: new THREE.OctahedronGeometry(0.22), pos: [4.5, -1.5, -1], color: 0x00d4e8, speed: 0.005 },
-      ]
-      shapeDefs.forEach((def) => {
-        const mat = track(new THREE.MeshPhongMaterial({ color: def.color, emissive: def.color, emissiveIntensity: 0.15, transparent: true, opacity: 0.45, shininess: 150 }))
-        const wireMat = track(new THREE.MeshBasicMaterial({ color: def.color, wireframe: true, transparent: true, opacity: 0.4 }))
-        track(def.geo)
-        const cloned = track(def.geo.clone())
-        const group = new THREE.Group()
-        group.add(new THREE.Mesh(def.geo, mat), new THREE.Mesh(cloned, wireMat))
-        group.position.set(...def.pos)
-        group.userData = { speed: def.speed, initY: def.pos[1] }
-        scene.add(group)
-        geoShapes.push(group)
-      })
+      const partMat = track(new THREE.PointsMaterial({
+        size: 0.045,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.6,
+      }))
+      const particles = new THREE.Points(partGeo, partMat)
+      scene.add(particles)
 
       // ── Lights ──────────────────────────────────────────────────
-      scene.add(new THREE.AmbientLight(0xffffff, 0.3))
-      const pointLight1 = new THREE.PointLight(0x00d4e8, 3, 12); pointLight1.position.set(3, 3, 4); scene.add(pointLight1)
-      const pointLight2 = new THREE.PointLight(0x8b5cf6, 2.5, 12); pointLight2.position.set(-3, -2, 3); scene.add(pointLight2)
-      const pointLight3 = new THREE.PointLight(0xec4899, 1.5, 8); pointLight3.position.set(0, 4, -2); scene.add(pointLight3)
+      const ambientLight = track(new THREE.AmbientLight(0x040c1e, 2.5))
+      scene.add(ambientLight)
 
-      // ── Loop ────────────────────────────────────────────────────
-      let rafId
-      const animate = () => {
-        rafId = requestAnimationFrame(animate)
+      const cyanPoint = track(new THREE.PointLight(0x00d4f5, 4.5, 18))
+      cyanPoint.position.set(3, 3, 4)
+      scene.add(cyanPoint)
+
+      const purplePoint = track(new THREE.PointLight(0xa855f7, 3.5, 18))
+      purplePoint.position.set(-3, -2, 3)
+      scene.add(purplePoint)
+
+      // ── Animation Loop ──────────────────────────────────────────
+      let animId
+      function animate() {
+        animId = requestAnimationFrame(animate)
         const t = clock.getElapsedTime()
-        const scroll = scrollY / (document.body.scrollHeight - window.innerHeight || 1)
 
-        camera.position.y = -scroll * 2.5 + Math.sin(t * 0.15) * 0.08
-        camera.position.x = mouse.x * 0.35 + Math.sin(t * 0.2) * 0.05
-        camera.lookAt(0, camera.position.y, 0)
+        // Cursor smooth interpolation
+        curMouse.x += (targetMouse.x - curMouse.x) * 0.05
+        curMouse.y += (targetMouse.y - curMouse.y) * 0.05
 
-        sphereGroup.rotation.y = t * 0.12 + mouse.x * 0.3
-        sphereGroup.rotation.x = mouse.y * 0.15 + Math.sin(t * 0.08) * 0.05
-        sphereGroup.position.x = 2.8 - scroll * 1.5
-        sphereGroup.position.y = Math.sin(t * 0.4) * 0.12
-        sphereGroup.scale.setScalar(1 - scroll * 0.3 + 0.001)
+        // Core rotations
+        nucleusMesh.rotation.x = t * 0.15
+        nucleusMesh.rotation.y = t * 0.22
+        wireMesh.rotation.x = -t * 0.12
+        wireMesh.rotation.y = -t * 0.18
 
-        icoMesh.rotation.y = -t * 0.25
-        icoMesh.rotation.x = t * 0.15
-        ring1.rotation.z = t * 0.18
-        ring2.rotation.y = t * 0.12
-        ring3.rotation.x = t * 0.08
+        // Rings rotation & breathing
+        ring1.rotation.z = t * 0.28
+        ring2.rotation.z = -t * 0.22
 
-        satGroup.children.forEach((sat) => {
-          sat.userData.angle += sat.userData.speed
-          const a = sat.userData.angle
-          const r = sat.userData.radius
-          sat.position.x = Math.cos(a) * r
-          sat.position.z = Math.sin(a) * r
-          sat.position.y = sat.userData.yOff + Math.sin(a * 2) * 0.3
-          sat.rotation.x = t * 0.5
-          sat.rotation.z = t * 0.3
+        // Main group reaction to cursor & scroll
+        const scrollFactor = (scrollY / (window.innerHeight || 1)) * 0.4
+        mainGroup.position.x = curMouse.x * 0.45
+        mainGroup.position.y = (curMouse.y * 0.35) - scrollFactor
+        mainGroup.rotation.y = curMouse.x * 0.35
+        mainGroup.rotation.x = -curMouse.y * 0.25
+
+        // Satellite orbits
+        satellites.forEach(s => {
+          s.angle += s.speed * 0.012
+          s.mesh.position.x = Math.cos(s.angle) * s.radius
+          s.mesh.position.z = Math.sin(s.angle) * s.radius
+          s.mesh.position.y = Math.sin(t * 1.5 + s.angle) * 0.45
+          s.mesh.rotation.x += 0.02
+          s.mesh.rotation.y += 0.03
         })
 
-        const pos = partGeo.attributes.position.array
-        for (let i = 0; i < PART_COUNT; i++) {
-          pos[i * 3 + 1] += partSpeeds[i] * (Math.sin(t + i) * 0.5 + 0.5)
-          if (pos[i * 3 + 1] > 7) pos[i * 3 + 1] = -7
-        }
-        partGeo.attributes.position.needsUpdate = true
-
-        geoShapes.forEach((g, i) => {
-          g.rotation.x = t * g.userData.speed * 40
-          g.rotation.y = t * g.userData.speed * 30
-          g.position.y = g.userData.initY + Math.sin(t * 0.6 + i) * 0.35
+        // Floating ambient shapes
+        floatingShapes.forEach((shape, idx) => {
+          shape.mesh.rotation.x += shape.rotSpeedX * 0.015
+          shape.mesh.rotation.y += shape.rotSpeedY * 0.015
+          shape.mesh.position.y = shape.baseY + Math.sin(t * shape.floatSpeed + shape.phase) * 0.3 - scrollFactor * 0.7
         })
 
-        pointLight1.intensity = 3 + Math.sin(t * 1.2) * 0.5
-        pointLight2.intensity = 2.5 + Math.cos(t * 0.9) * 0.4
-        pointLight1.position.x = 3 + Math.sin(t * 0.3) * 1.5
-        pointLight2.position.y = -2 + Math.cos(t * 0.4) * 1.5
+        // Particle field slow drift
+        particles.rotation.y = t * 0.02
+        particles.rotation.x = t * 0.01
 
         renderer.render(scene, camera)
       }
+
       animate()
 
-      // ── Register cleanup ────────────────────────────────────────
       cleanupFn = () => {
-        cancelAnimationFrame(rafId)
+        cancelAnimationFrame(animId)
         window.removeEventListener('scroll', onScroll)
         window.removeEventListener('mousemove', onMouseMove)
         window.removeEventListener('resize', onResize)
-        disposables.forEach((d) => d?.dispose?.())
+
+        disposables.forEach(d => {
+          if (d.dispose) d.dispose()
+        })
         renderer.dispose()
-        renderer.forceContextLoss?.()
       }
-    }, { timeout: 2500 })
+    })
 
     return () => {
       cancelRic(idleHandle)
-      cleanupFn?.()
+      if (cleanupFn) cleanupFn()
     }
   }, [])
 

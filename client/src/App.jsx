@@ -27,6 +27,7 @@ const AdminEnquiries      = lazy(() => import('./pages/admin/Enquiries'))
 const AdminEarlyAccess    = lazy(() => import('./pages/admin/EarlyAccess'))
 const AdminPromotions     = lazy(() => import('./pages/admin/Promotions'))
 const AdminLiveProducts   = lazy(() => import('./pages/admin/LiveProducts'))
+const AdminFAQs           = lazy(() => import('./pages/admin/FAQs'))
 
 export default function App() {
   return (
@@ -65,6 +66,7 @@ export default function App() {
             <Route path="zyra" element={<Navigate to="/admin/promotions" replace />} />
             <Route path="early-access" element={<AdminEarlyAccess />} />
             <Route path="enquiries" element={<AdminEnquiries />} />
+            <Route path="faqs" element={<AdminFAQs />} />
             <Route path="chatbot" element={<AdminChatbot />} />
             <Route path="settings" element={<AdminSettings />} />
           </Route>

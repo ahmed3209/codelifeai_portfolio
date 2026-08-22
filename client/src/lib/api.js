@@ -58,6 +58,7 @@ export const publicApi = {
   sendContact:        (data) => api.post('/contact', data),
   requestEarlyAccess: (data) => api.post('/early-access', data),
   trackView:          (data) => api.post('/track-view', data),
+  getFaqs:            () => api.get('/faqs'),
 }
 
 // ─── Admin API helpers ────────────────────────────────────────
@@ -145,6 +146,12 @@ export const adminApi = {
   // Early access requests (ZYRA AI)
   getEarlyAccess:    () => api.get('/admin/early-access'),
   deleteEarlyAccess: (id) => api.delete(`/admin/early-access/${id}`),
+
+  // FAQs (Website FAQ Section)
+  getFaqs:   () => api.get('/admin/faqs'),
+  createFaq: (d) => api.post('/admin/faqs', d),
+  updateFaq: (id, d) => api.put(`/admin/faqs/${id}`, d),
+  deleteFaq: (id) => api.delete(`/admin/faqs/${id}`),
 
   // Dashboard stats
   getStats: () => api.get('/admin/stats'),

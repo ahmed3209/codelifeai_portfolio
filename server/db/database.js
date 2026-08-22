@@ -354,6 +354,36 @@ async function ensureExtras(db) {
     }
   }
 
+  // ── FAQs Table and default seed ──────────────────────────────
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS faqs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      question TEXT NOT NULL,
+      answer TEXT NOT NULL,
+      category TEXT DEFAULT 'General',
+      sort_order INTEGER DEFAULT 0,
+      created_at TEXT DEFAULT (datetime('now'))
+    )
+  `)
+
+  const faqCount = await db.execute('SELECT COUNT(*) as c FROM faqs')
+  if (Number(faqCount.rows[0].c) === 0) {
+    const defaultFaqs = [
+      { question: 'What is the typical timeline to build and launch an MVP with CodeLifeAI?', answer: 'Most MVP projects take 4 to 8 weeks from kickoff to production launch. We operate on high-velocity 1-week sprints with working software delivered at every milestone.', category: 'Process & Timeline', sort_order: 1 },
+      { question: 'Do I retain 100% full intellectual property (IP) and code ownership?', answer: 'Yes, absolutely. You retain 100% ownership of all source code, architecture, designs, databases, and intellectual property from day one upon milestone completion.', category: 'Legal & Ownership', sort_order: 2 },
+      { question: 'How do you handle project confidentiality and NDAs?', answer: 'We execute mutual Non-Disclosure Agreements (NDAs) before reviewing any proprietary assets or starting architecture planning. Your business concepts and technical data remain strictly confidential.', category: 'Security & NDA', sort_order: 3 },
+      { question: 'What technologies and frameworks does CodeLifeAI specialize in?', answer: 'Our core stack includes React, Next.js, TypeScript on frontend; Node.js, Express, Python, Go on backend; Flutter and React Native for mobile; PostgreSQL, MongoDB, Redis, LibSQL for databases; and AWS, GCP, Cloudflare, Docker for cloud infrastructure.', category: 'Technology', sort_order: 4 },
+      { question: 'Do you offer post-launch maintenance, bug warranty, and scale support?', answer: 'Yes. Every project includes a 30-day post-launch warranty with dedicated monitoring. We also provide ongoing sprint retainers and SLA maintenance packages for continuous scaling.', category: 'Support & Warranty', sort_order: 5 },
+      { question: 'How do we communicate and track sprint progress during development?', answer: 'We provide a dedicated communication channel (Slack / WhatsApp / Discord), weekly live video demos, and private staging links where you test working builds in real time.', category: 'Communication', sort_order: 6 },
+    ]
+    for (const f of defaultFaqs) {
+      await db.execute({
+        sql: 'INSERT INTO faqs (question, answer, category, sort_order) VALUES (?, ?, ?, ?)',
+        args: [f.question, f.answer, f.category, f.sort_order],
+      })
+    }
+  }
+
   // Indexes for analytics and hot paths. CREATE INDEX IF NOT EXISTS is
   // idempotent, so this is safe to run every boot.
   await db.execute('CREATE INDEX IF NOT EXISTS idx_chat_messages_session ON chat_messages(session_id, id)')

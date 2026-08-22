@@ -7,7 +7,7 @@ import {
   LayoutDashboard, Layers, Users, FileText,
   MessageSquare, Settings, LogOut, ExternalLink,
   FolderKanban, Quote, Workflow, Rocket, Sparkles, Inbox, Radio,
-  Menu, X
+  Menu, X, HelpCircle
 } from 'lucide-react'
 
 const navItems = [
@@ -22,6 +22,7 @@ const navItems = [
   { to: '/admin/promotions',    label: 'Promotions',    icon: Rocket },
   { to: '/admin/early-access',  label: 'Early Access',  icon: Sparkles },
   { to: '/admin/enquiries',     label: 'Enquiries',     icon: Inbox },
+  { to: '/admin/faqs',          label: 'Website FAQs',  icon: HelpCircle },
   { to: '/admin/chatbot',       label: 'Chatbot KB',    icon: MessageSquare },
   { to: '/admin/settings',      label: 'Settings',      icon: Settings },
 ]

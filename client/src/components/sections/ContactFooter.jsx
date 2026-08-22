@@ -66,6 +66,20 @@ export function ContactSection({ content = {} }) {
   const [form,    setForm]    = useState({ name: '', email: '', message: '' })
   const [sending, setSending] = useState(false)
 
+  // Auto-fill message if user configured a project in the Estimator
+  useState(() => {
+    try {
+      const prefill = sessionStorage.getItem('prefill_project_estimate')
+      if (prefill) {
+        setForm(p => ({
+          ...p,
+          message: `Hi CodeLifeAI Team,\n\nI would like to request a detailed proposal for the following project requirements:\n\n${prefill}\n\nPlease let me know your availability for a discovery call.`
+        }))
+        sessionStorage.removeItem('prefill_project_estimate')
+      }
+    } catch {}
+  })
+
   async function handleSubmit(e) {
     e.preventDefault()
     setSending(true)

@@ -718,4 +718,54 @@ router.put('/live-products/:id/toggle', async (req, res) => {
   }
 })
 
+// ── FAQS (Frequently Asked Questions) ─────────────────────────
+
+router.get('/faqs', async (req, res) => {
+  const { rows } = await getDb().execute('SELECT * FROM faqs ORDER BY sort_order ASC, id ASC')
+  res.json(rows)
+})
+
+router.post('/faqs', async (req, res) => {
+  try {
+    const { question, answer, category, sort_order } = req.body
+    if (!question || !answer) return res.status(400).json({ error: 'Question and answer are required' })
+    const db = getDb()
+    const max = await db.execute('SELECT MAX(sort_order) as m FROM faqs')
+    const nextOrder = sort_order || (Number(max.rows[0].m) || 0) + 1
+    const ins = await db.execute({
+      sql: 'INSERT INTO faqs (question, answer, category, sort_order) VALUES (?, ?, ?, ?)',
+      args: [question.trim(), answer.trim(), category?.trim() || 'General', nextOrder],
+    })
+    const { rows } = await db.execute({ sql: 'SELECT * FROM faqs WHERE id = ?', args: [Number(ins.lastInsertRowid)] })
+    res.json(rows[0])
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+router.put('/faqs/:id', async (req, res) => {
+  try {
+    const { question, answer, category, sort_order } = req.body
+    if (!question || !answer) return res.status(400).json({ error: 'Question and answer are required' })
+    const db = getDb()
+    await db.execute({
+      sql: 'UPDATE faqs SET question=?, answer=?, category=?, sort_order=? WHERE id=?',
+      args: [question.trim(), answer.trim(), category?.trim() || 'General', sort_order || 0, req.params.id],
+    })
+    const { rows } = await db.execute({ sql: 'SELECT * FROM faqs WHERE id = ?', args: [req.params.id] })
+    res.json(rows[0])
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+router.delete('/faqs/:id', async (req, res) => {
+  try {
+    await getDb().execute({ sql: 'DELETE FROM faqs WHERE id = ?', args: [req.params.id] })
+    res.json({ ok: true })
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
 export default router

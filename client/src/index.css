@@ -185,6 +185,15 @@
   to   { transform: translateX(-50%); }
 }
 
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: tickerMove 30s linear infinite;
+}
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
 @keyframes tickerMoveRev {
   from { transform: translateX(-50%); }
   to   { transform: translateX(0); }
