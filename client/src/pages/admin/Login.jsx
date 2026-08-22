@@ -66,7 +66,11 @@ export default function AdminLogin() {
             {loading ? 'Signing in…' : 'Sign In →'}
           </button>
         </form>
-        <p className="text-center text-xs text-bb-muted mt-4">Default: admin / codelifeai2025</p>
+        <div className="text-center mt-4">
+          <a href="/" className="text-xs text-bb-muted hover:text-bb-white transition-colors no-underline">
+            ← Return to Website
+          </a>
+        </div>
       </div>
     </div>
   )
