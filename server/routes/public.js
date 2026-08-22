@@ -8,16 +8,16 @@ router.get('/site-data', async (req, res) => {
   const db = getDb()
 
   const [services, founders, projects, testimonials, process, rawContent, activePromos, liveProducts, faqs, blogs] = await Promise.all([
-    db.execute('SELECT * FROM services ORDER BY sort_order ASC'),
-    db.execute('SELECT id, name, role, bio, initials, photo_url, avatar_bg, tags, linkedin_url, sort_order, created_at FROM founders ORDER BY sort_order ASC'),
+    db.execute('SELECT * FROM services WHERE show_on_home = 1 OR show_on_home IS NULL ORDER BY sort_order ASC'),
+    db.execute('SELECT id, name, role, bio, initials, photo_url, avatar_bg, tags, linkedin_url, show_on_home, sort_order, created_at FROM founders WHERE show_on_home = 1 OR show_on_home IS NULL ORDER BY sort_order ASC'),
     db.execute('SELECT * FROM projects ORDER BY sort_order ASC'),
-    db.execute('SELECT * FROM testimonials ORDER BY sort_order ASC'),
+    db.execute('SELECT * FROM testimonials WHERE show_on_home = 1 OR show_on_home IS NULL ORDER BY sort_order ASC'),
     db.execute('SELECT * FROM process_steps ORDER BY sort_order ASC'),
     db.execute('SELECT key, value FROM content'),
     db.execute('SELECT * FROM promos WHERE is_active = 1 ORDER BY sort_order ASC, id ASC'),
     db.execute('SELECT * FROM live_products WHERE is_active = 1 ORDER BY sort_order ASC, id ASC'),
     db.execute('SELECT * FROM faqs ORDER BY sort_order ASC, id ASC'),
-    db.execute('SELECT id, title, slug, excerpt, category, author_name, author_role, read_time, cover_image, published_at FROM blogs WHERE is_published = 1 ORDER BY sort_order ASC, published_at DESC LIMIT 6'),
+    db.execute('SELECT id, title, slug, excerpt, category, author_name, author_role, read_time, cover_image, published_at FROM blogs WHERE is_published = 1 ORDER BY sort_order ASC, published_at DESC LIMIT 3'),
   ])
 
   const content = rawContent.rows.reduce((acc, { key, value }) => ({ ...acc, [key]: value }), {})
@@ -117,7 +117,7 @@ router.get('/services', async (req, res) => {
 
 // GET /api/founders
 router.get('/founders', async (req, res) => {
-  const { rows } = await getDb().execute('SELECT id, name, role, bio, initials, photo_url, avatar_bg, tags, linkedin_url, sort_order, created_at FROM founders ORDER BY sort_order ASC')
+  const { rows } = await getDb().execute('SELECT id, name, role, bio, initials, photo_url, avatar_bg, tags, linkedin_url, show_on_home, sort_order, created_at FROM founders ORDER BY sort_order ASC')
   res.json(rows)
 })
 

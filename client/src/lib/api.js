@@ -73,6 +73,7 @@ export const adminApi = {
   getServices:    () => api.get('/admin/services'),
   createService:  (d) => api.post('/admin/services', d),
   updateService:  (id, d) => api.put(`/admin/services/${id}`, d),
+  toggleServiceHome: (id, show_on_home) => api.put(`/admin/services/${id}/toggle-home`, { show_on_home }),
   deleteService:  (id) => api.delete(`/admin/services/${id}`),
   reorderServices:(order) => api.put('/admin/services/reorder', { order }),
 
@@ -80,6 +81,7 @@ export const adminApi = {
   getFounders:   () => api.get('/admin/founders'),
   createFounder: (d) => api.post('/admin/founders', d),
   updateFounder: (id, d) => api.put(`/admin/founders/${id}`, d),
+  toggleFounderHome: (id, show_on_home) => api.put(`/admin/founders/${id}/toggle-home`, { show_on_home }),
   deleteFounder: (id) => api.delete(`/admin/founders/${id}`),
   uploadFounderPhoto: (id, file) => {
     const fd = new FormData()
@@ -115,6 +117,7 @@ export const adminApi = {
   getTestimonials:   () => api.get('/admin/testimonials'),
   createTestimonial: (d) => api.post('/admin/testimonials', d),
   updateTestimonial: (id, d) => api.put(`/admin/testimonials/${id}`, d),
+  toggleTestimonialHome: (id, show_on_home) => api.put(`/admin/testimonials/${id}/toggle-home`, { show_on_home }),
   deleteTestimonial: (id) => api.delete(`/admin/testimonials/${id}`),
 
   // Process steps

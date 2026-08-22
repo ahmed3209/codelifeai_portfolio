@@ -6,7 +6,6 @@ import HeroSection          from '../components/sections/HeroSection'
 import TrustMarquee         from '../components/sections/TrustMarquee'
 import ServicesSection      from '../components/sections/ServicesSection'
 import PromoTeaser          from '../components/sections/PromoTeaser'
-import WorkSection          from '../components/sections/WorkSection'
 import BlogPreviewSection   from '../components/sections/BlogPreviewSection'
 import FoundersSection      from '../components/sections/FoundersSection'
 import TestimonialsSection  from '../components/sections/TestimonialsSection'
@@ -29,12 +28,20 @@ export default function HomePage() {
 
   const content      = siteData?.content      || {}
   const services     = siteData?.services     || []
-  const projects     = siteData?.projects     || []
   const founders     = siteData?.founders     || []
   const blogs        = siteData?.blogs        || []
   const testimonials = (siteData?.testimonials && siteData.testimonials.length > 0) ? siteData.testimonials : DEFAULT_TESTIMONIALS
   const activePromo  = siteData?.activePromo  || null
   const liveProducts = siteData?.liveProducts || []
+
+  // Granular section visibility toggles controlled from Admin Panel
+  const showMarquee      = content.section_trust_marquee !== '0'
+  const showServices     = content.section_services !== '0' && services.length > 0
+  const showPromo        = content.section_promo_teaser !== '0' && (activePromo || (siteData?.activePromos && siteData.activePromos.length > 0))
+  const showBlogs        = content.section_blog_preview !== '0' && blogs.length > 0
+  const showTestimonials = content.section_testimonials !== '0' && testimonials.length > 0
+  const showFounders     = content.section_founders !== '0' && founders.length > 0
+  const showCTA          = content.section_cta_banner !== '0'
 
   return (
     <>
@@ -54,34 +61,27 @@ export default function HomePage() {
       <HeroSection content={content} promo={activePromo} liveProducts={liveProducts} />
 
       {/* 2. Trust & Engineering Metrics Ticker */}
-      <TrustMarquee />
+      {showMarquee && <TrustMarquee />}
 
       {/* 3. Core Services Preview */}
-      {services.length > 0 && (
-        <ServicesSection services={services} />
-      )}
+      {showServices && <ServicesSection services={services} />}
 
       {/* 4. Active Promo / Launch Teaser */}
-      <PromoTeaser promo={activePromo} promos={siteData?.activePromos || (activePromo ? [activePromo] : [])} />
-
-      {/* 5. Featured Case Studies & Projects */}
-      {projects.length > 0 && (
-        <WorkSection projects={projects} />
+      {showPromo && (
+        <PromoTeaser promo={activePromo} promos={siteData?.activePromos || (activePromo ? [activePromo] : [])} />
       )}
 
-      {/* 6. Latest Engineering Insights & Blog Articles */}
-      <BlogPreviewSection blogs={blogs} />
+      {/* 5. Latest Engineering Insights & Blog Articles */}
+      {showBlogs && <BlogPreviewSection blogs={blogs} />}
 
-      {/* 7. Verified Client Testimonials */}
-      <TestimonialsSection testimonials={testimonials} />
+      {/* 6. Verified Client Testimonials */}
+      {showTestimonials && <TestimonialsSection testimonials={testimonials} />}
 
-      {/* 8. Founders & Senior Engineering Leadership */}
-      {founders.length > 0 && (
-        <FoundersSection founders={founders} />
-      )}
+      {/* 7. Founders & Senior Engineering Leadership */}
+      {showFounders && <FoundersSection founders={founders} />}
 
-      {/* 9. Bottom Conversion CTA Banner */}
-      <CTABanner />
+      {/* 8. Bottom Conversion CTA Banner */}
+      {showCTA && <CTABanner />}
     </>
   )
 }

@@ -120,13 +120,13 @@ router.get('/services', async (req, res) => {
 })
 
 router.post('/services', async (req, res) => {
-  const { title, icon, short_desc, long_desc, features, stack, sort_order } = req.body
+  const { title, icon, short_desc, long_desc, features, stack, show_on_home, sort_order } = req.body
   const db = getDb()
   const max = await db.execute('SELECT MAX(sort_order) as m FROM services')
   const nextOrder = sort_order || (Number(max.rows[0].m) || 0) + 1
   const ins = await db.execute({
-    sql: 'INSERT INTO services (title,icon,short_desc,long_desc,features,stack,sort_order) VALUES (?,?,?,?,?,?,?)',
-    args: [title, icon || '⚡', short_desc, long_desc, features || '[]', stack || '[]', nextOrder],
+    sql: 'INSERT INTO services (title,icon,short_desc,long_desc,features,stack,show_on_home,sort_order) VALUES (?,?,?,?,?,?,?,?)',
+    args: [title, icon || '⚡', short_desc, long_desc, features || '[]', stack || '[]', show_on_home !== 0 ? 1 : 0, nextOrder],
   })
   const { rows } = await db.execute({
     sql: 'SELECT * FROM services WHERE id = ?',
@@ -149,18 +149,33 @@ router.put('/services/reorder', async (req, res) => {
 })
 
 router.put('/services/:id', async (req, res) => {
-  const { title, icon, short_desc, long_desc, features, stack, sort_order } = req.body
+  const { title, icon, short_desc, long_desc, features, stack, show_on_home, sort_order } = req.body
   const db = getDb()
   await db.execute({
-    sql: `UPDATE services SET title=?,icon=?,short_desc=?,long_desc=?,features=?,stack=?,sort_order=?,
+    sql: `UPDATE services SET title=?,icon=?,short_desc=?,long_desc=?,features=?,stack=?,show_on_home=?,sort_order=?,
           updated_at=datetime('now') WHERE id=?`,
-    args: [title, icon, short_desc, long_desc, features, stack, sort_order, req.params.id],
+    args: [title, icon, short_desc, long_desc, features, stack, show_on_home !== 0 ? 1 : 0, sort_order, req.params.id],
   })
   const { rows } = await db.execute({
     sql: 'SELECT * FROM services WHERE id = ?',
     args: [req.params.id],
   })
   res.json(rows[0])
+})
+
+router.put('/services/:id/toggle-home', async (req, res) => {
+  try {
+    const { show_on_home } = req.body
+    const db = getDb()
+    await db.execute({
+      sql: "UPDATE services SET show_on_home = ?, updated_at = datetime('now') WHERE id = ?",
+      args: [show_on_home ? 1 : 0, req.params.id],
+    })
+    const { rows } = await db.execute({ sql: 'SELECT * FROM services WHERE id = ?', args: [req.params.id] })
+    res.json(rows[0])
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
 })
 
 router.delete('/services/:id', async (req, res) => {
@@ -174,38 +189,56 @@ router.delete('/services/:id', async (req, res) => {
 // ── FOUNDERS ──────────────────────────────────────────────────
 
 router.get('/founders', async (req, res) => {
-  const { rows } = await getDb().execute('SELECT id, name, role, bio, initials, photo_url, avatar_bg, tags, linkedin_url, sort_order, created_at FROM founders ORDER BY sort_order ASC')
+  const { rows } = await getDb().execute('SELECT id, name, role, bio, initials, photo_url, avatar_bg, tags, linkedin_url, show_on_home, sort_order, created_at FROM founders ORDER BY sort_order ASC')
   res.json(rows)
 })
 
 router.post('/founders', async (req, res) => {
-  const { name, role, bio, initials, photo_url, avatar_bg, tags, linkedin_url, sort_order } = req.body
+  const { name, role, bio, initials, photo_url, avatar_bg, tags, linkedin_url, show_on_home, sort_order } = req.body
   const db = getDb()
   const max = await db.execute('SELECT MAX(sort_order) as m FROM founders')
   const nextOrder = sort_order || (Number(max.rows[0].m) || 0) + 1
   const ins = await db.execute({
-    sql: 'INSERT INTO founders (name,role,bio,initials,photo_url,avatar_bg,tags,linkedin_url,sort_order) VALUES (?,?,?,?,?,?,?,?,?)',
-    args: [name, role, bio, initials, photo_url || '', avatar_bg || 'linear-gradient(135deg,#7c3aed,#00d4f5)', tags || '[]', linkedin_url || '', nextOrder],
+    sql: 'INSERT INTO founders (name,role,bio,initials,photo_url,avatar_bg,tags,linkedin_url,show_on_home,sort_order) VALUES (?,?,?,?,?,?,?,?,?,?)',
+    args: [name, role, bio, initials, photo_url || '', avatar_bg || 'linear-gradient(135deg,#7c3aed,#00d4f5)', tags || '[]', linkedin_url || '', show_on_home !== 0 ? 1 : 0, nextOrder],
   })
   const { rows } = await db.execute({
-    sql: 'SELECT id, name, role, bio, initials, photo_url, avatar_bg, tags, linkedin_url, sort_order, created_at FROM founders WHERE id = ?',
+    sql: 'SELECT id, name, role, bio, initials, photo_url, avatar_bg, tags, linkedin_url, show_on_home, sort_order, created_at FROM founders WHERE id = ?',
     args: [Number(ins.lastInsertRowid)],
   })
   res.json(rows[0])
 })
 
 router.put('/founders/:id', async (req, res) => {
-  const { name, role, bio, initials, photo_url, avatar_bg, tags, linkedin_url, sort_order } = req.body
+  const { name, role, bio, initials, photo_url, avatar_bg, tags, linkedin_url, show_on_home, sort_order } = req.body
   const db = getDb()
   await db.execute({
-    sql: 'UPDATE founders SET name=?,role=?,bio=?,initials=?,photo_url=?,avatar_bg=?,tags=?,linkedin_url=?,sort_order=? WHERE id=?',
-    args: [name, role, bio, initials, photo_url, avatar_bg, tags, linkedin_url || '', sort_order, req.params.id],
+    sql: 'UPDATE founders SET name=?,role=?,bio=?,initials=?,photo_url=?,avatar_bg=?,tags=?,linkedin_url=?,show_on_home=?,sort_order=? WHERE id=?',
+    args: [name, role, bio, initials, photo_url, avatar_bg, tags, linkedin_url || '', show_on_home !== 0 ? 1 : 0, sort_order, req.params.id],
   })
   const { rows } = await db.execute({
-    sql: 'SELECT id, name, role, bio, initials, photo_url, avatar_bg, tags, linkedin_url, sort_order, created_at FROM founders WHERE id = ?',
+    sql: 'SELECT id, name, role, bio, initials, photo_url, avatar_bg, tags, linkedin_url, show_on_home, sort_order, created_at FROM founders WHERE id = ?',
     args: [req.params.id],
   })
   res.json(rows[0])
+})
+
+router.put('/founders/:id/toggle-home', async (req, res) => {
+  try {
+    const { show_on_home } = req.body
+    const db = getDb()
+    await db.execute({
+      sql: 'UPDATE founders SET show_on_home = ? WHERE id = ?',
+      args: [show_on_home ? 1 : 0, req.params.id],
+    })
+    const { rows } = await db.execute({
+      sql: 'SELECT id, name, role, bio, initials, photo_url, avatar_bg, tags, linkedin_url, show_on_home, sort_order, created_at FROM founders WHERE id = ?',
+      args: [req.params.id],
+    })
+    res.json(rows[0])
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
 })
 
 router.delete('/founders/:id', async (req, res) => {
@@ -468,25 +501,25 @@ router.get('/projects', async (req, res) => {
 })
 
 router.post('/projects', async (req, res) => {
-  const { title, category, tags, outcome, emoji, accent, bg, live_url, sort_order } = req.body
+  const { title, category, tags, outcome, emoji, accent, bg, live_url, image_url, description, sort_order } = req.body
   const db = getDb()
   const max = await db.execute('SELECT MAX(sort_order) as m FROM projects')
   const nextOrder = sort_order || (Number(max.rows[0].m) || 0) + 1
   const ins = await db.execute({
-    sql: 'INSERT INTO projects (title,category,tags,outcome,emoji,accent,bg,live_url,sort_order) VALUES (?,?,?,?,?,?,?,?,?)',
+    sql: 'INSERT INTO projects (title,category,tags,outcome,emoji,accent,bg,live_url,image_url,description,sort_order) VALUES (?,?,?,?,?,?,?,?,?,?,?)',
     args: [title, category || '', tags || '[]', outcome || '', emoji || '🚀', accent || '#00d4f5',
-           bg || 'linear-gradient(135deg, rgba(0,212,245,0.1) 0%, rgba(124,58,237,0.06) 100%)', live_url || '', nextOrder],
+           bg || 'linear-gradient(135deg, rgba(0,212,245,0.1) 0%, rgba(124,58,237,0.06) 100%)', live_url || '', image_url || '', description || '', nextOrder],
   })
   const { rows } = await db.execute({ sql: 'SELECT * FROM projects WHERE id = ?', args: [Number(ins.lastInsertRowid)] })
   res.json(rows[0])
 })
 
 router.put('/projects/:id', async (req, res) => {
-  const { title, category, tags, outcome, emoji, accent, bg, live_url, sort_order } = req.body
+  const { title, category, tags, outcome, emoji, accent, bg, live_url, image_url, description, sort_order } = req.body
   const db = getDb()
   await db.execute({
-    sql: 'UPDATE projects SET title=?,category=?,tags=?,outcome=?,emoji=?,accent=?,bg=?,live_url=?,sort_order=? WHERE id=?',
-    args: [title, category, tags, outcome, emoji, accent, bg, live_url || '', sort_order, req.params.id],
+    sql: 'UPDATE projects SET title=?,category=?,tags=?,outcome=?,emoji=?,accent=?,bg=?,live_url=?,image_url=?,description=?,sort_order=? WHERE id=?',
+    args: [title, category, tags, outcome, emoji, accent, bg, live_url || '', image_url || '', description || '', sort_order, req.params.id],
   })
   const { rows } = await db.execute({ sql: 'SELECT * FROM projects WHERE id = ?', args: [req.params.id] })
   res.json(rows[0])
@@ -505,28 +538,43 @@ router.get('/testimonials', async (req, res) => {
 })
 
 router.post('/testimonials', async (req, res) => {
-  const { name, role, avatar, bg, rating, quote, sort_order } = req.body
+  const { name, role, avatar, bg, rating, quote, show_on_home, sort_order } = req.body
   const db = getDb()
   const max = await db.execute('SELECT MAX(sort_order) as m FROM testimonials')
   const nextOrder = sort_order || (Number(max.rows[0].m) || 0) + 1
   const ins = await db.execute({
-    sql: 'INSERT INTO testimonials (name,role,avatar,bg,rating,quote,sort_order) VALUES (?,?,?,?,?,?,?)',
+    sql: 'INSERT INTO testimonials (name,role,avatar,bg,rating,quote,show_on_home,sort_order) VALUES (?,?,?,?,?,?,?,?)',
     args: [name, role || '', avatar || (name ? name.slice(0, 2).toUpperCase() : '??'),
-           bg || 'linear-gradient(135deg, #00d4f5, #0099bb)', rating || 5, quote, nextOrder],
+           bg || 'linear-gradient(135deg, #00d4f5, #0099bb)', rating || 5, quote, show_on_home !== 0 ? 1 : 0, nextOrder],
   })
   const { rows } = await db.execute({ sql: 'SELECT * FROM testimonials WHERE id = ?', args: [Number(ins.lastInsertRowid)] })
   res.json(rows[0])
 })
 
 router.put('/testimonials/:id', async (req, res) => {
-  const { name, role, avatar, bg, rating, quote, sort_order } = req.body
+  const { name, role, avatar, bg, rating, quote, show_on_home, sort_order } = req.body
   const db = getDb()
   await db.execute({
-    sql: 'UPDATE testimonials SET name=?,role=?,avatar=?,bg=?,rating=?,quote=?,sort_order=? WHERE id=?',
-    args: [name, role, avatar, bg, rating, quote, sort_order, req.params.id],
+    sql: 'UPDATE testimonials SET name=?,role=?,avatar=?,bg=?,rating=?,quote=?,show_on_home=?,sort_order=? WHERE id=?',
+    args: [name, role, avatar, bg, rating, quote, show_on_home !== 0 ? 1 : 0, sort_order, req.params.id],
   })
   const { rows } = await db.execute({ sql: 'SELECT * FROM testimonials WHERE id = ?', args: [req.params.id] })
   res.json(rows[0])
+})
+
+router.put('/testimonials/:id/toggle-home', async (req, res) => {
+  try {
+    const { show_on_home } = req.body
+    const db = getDb()
+    await db.execute({
+      sql: 'UPDATE testimonials SET show_on_home = ? WHERE id = ?',
+      args: [show_on_home ? 1 : 0, req.params.id],
+    })
+    const { rows } = await db.execute({ sql: 'SELECT * FROM testimonials WHERE id = ?', args: [req.params.id] })
+    res.json(rows[0])
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
 })
 
 router.delete('/testimonials/:id', async (req, res) => {
