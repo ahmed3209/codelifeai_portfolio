@@ -4,6 +4,7 @@ import multer from 'multer'
 import { getDb } from '../db/database.js'
 import { authMiddleware, signToken, ADMIN_COOKIE } from '../middleware/auth.js'
 import { cookieOptions } from '../middleware/session.js'
+import { sendReplyEmail, sendTestEmail } from '../services/email.js'
 
 const SESSION_MS = 60 * 60 * 1000 // 1 hour, matches JWT expiry
 
@@ -319,19 +320,23 @@ router.get('/settings', async (req, res) => {
   // Mask sensitive keys — frontend just needs to know they're set.
   if (settings.anthropic_api_key) settings.anthropic_api_key = settings.anthropic_api_key.slice(0, 6) + '…'
   if (settings.gemini_api_key)    settings.gemini_api_key    = settings.gemini_api_key.slice(0, 6) + '…'
+  if (settings.smtp_pass) {
+    settings.smtp_pass_configured = true
+    settings.smtp_pass = '••••••••'
+  }
   res.json(settings)
 })
 
 // Sensitive keys we mask in the GET response. If a save payload echoes the
 // masked value back (e.g. user didn't touch the field), drop it so we don't
 // overwrite the real secret.
-const MASKED_KEYS = new Set(['gemini_api_key', 'anthropic_api_key'])
+const MASKED_KEYS = new Set(['gemini_api_key', 'anthropic_api_key', 'smtp_pass'])
 
 router.put('/settings', async (req, res) => {
   const db = getDb()
   const entries = Object.entries(req.body).filter(([k, v]) => {
     if (!MASKED_KEYS.has(k)) return true
-    return typeof v === 'string' && v.length > 0 && !v.includes('…')
+    return typeof v === 'string' && v.length > 0 && !v.includes('…') && !v.includes('•')
   })
   if (entries.length === 0) return res.json({ ok: true })
   await db.batch(
@@ -374,11 +379,62 @@ router.put('/change-password', async (req, res) => {
   res.json({ ok: true })
 })
 
+// ── TEST EMAIL ENDPOINT ──────────────────────────────────────
+
+router.post('/test-email', async (req, res) => {
+  try {
+    const info = await sendTestEmail({ to: req.body?.to })
+    res.json({ ok: true, messageId: info.messageId })
+  } catch (err) {
+    res.status(500).json({ error: err.message || 'SMTP connection failed' })
+  }
+})
+
 // ── CONTACTS / ENQUIRIES ─────────────────────────────────────
 
 router.get('/contacts', async (req, res) => {
   const { rows } = await getDb().execute('SELECT * FROM contacts ORDER BY created_at DESC')
   res.json(rows)
+})
+
+router.post('/contacts/:id/reply', async (req, res) => {
+  try {
+    const { subject, message } = req.body
+    if (!message || !message.trim()) {
+      return res.status(400).json({ error: 'Reply message cannot be empty' })
+    }
+
+    const db = getDb()
+    const { rows } = await db.execute({
+      sql: 'SELECT * FROM contacts WHERE id = ?',
+      args: [req.params.id],
+    })
+    const contact = rows[0]
+    if (!contact) return res.status(404).json({ error: 'Enquiry not found' })
+
+    const cleanSubject = subject?.trim() || `Re: Your enquiry with CodeLifeAI`
+    await sendReplyEmail({
+      to: contact.email,
+      toName: contact.name,
+      subject: cleanSubject,
+      message: message.trim(),
+      originalMessage: contact.message,
+      originalDate: contact.created_at,
+    })
+
+    await db.execute({
+      sql: `UPDATE contacts SET status = 'replied', reply_subject = ?, reply_message = ?, replied_at = datetime('now') WHERE id = ?`,
+      args: [cleanSubject, message.trim(), req.params.id],
+    })
+
+    const updated = await db.execute({
+      sql: 'SELECT * FROM contacts WHERE id = ?',
+      args: [req.params.id],
+    })
+    res.json({ ok: true, contact: updated.rows[0] })
+  } catch (err) {
+    res.status(500).json({ error: err.message || 'Failed to send email reply' })
+  }
 })
 
 router.delete('/contacts/:id', async (req, res) => {

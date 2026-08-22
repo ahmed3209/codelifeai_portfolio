@@ -206,6 +206,10 @@ async function ensureExtras(db) {
     "ALTER TABLE promos ADD COLUMN live_url TEXT DEFAULT ''",
     "ALTER TABLE promos ADD COLUMN badge    TEXT DEFAULT 'LIVE NOW'",
     "ALTER TABLE projects ADD COLUMN live_url TEXT DEFAULT ''",
+    "ALTER TABLE contacts ADD COLUMN status TEXT DEFAULT 'new'",
+    "ALTER TABLE contacts ADD COLUMN reply_subject TEXT DEFAULT ''",
+    "ALTER TABLE contacts ADD COLUMN reply_message TEXT DEFAULT ''",
+    "ALTER TABLE contacts ADD COLUMN replied_at TEXT DEFAULT ''",
   ]
   for (const sql of schemaExtensions) {
     try { await db.execute(sql) }

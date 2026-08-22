@@ -4,8 +4,9 @@ import { adminApi } from '../../lib/api'
 import api from '../../lib/api'
 import Card, { CardHeader, CardBody } from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
+import Modal from '../../components/ui/Modal'
 import { Input } from '../../components/ui/Input'
-import { CheckCircle, XCircle, RefreshCw, Sparkles, ExternalLink, ChevronDown, Eye, EyeOff } from 'lucide-react'
+import { CheckCircle, XCircle, RefreshCw, Sparkles, ExternalLink, ChevronDown, Eye, EyeOff, Mail, Send } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 // Curated free-tier-eligible Gemini models. Admin can also type any model
@@ -27,6 +28,12 @@ export default function AdminSettings() {
   const [newApiKey, setNewApiKey] = useState('')
   const [showKey, setShowKey] = useState(false)
 
+  // Email state
+  const [newSmtpPass, setNewSmtpPass] = useState('')
+  const [showSmtpPass, setShowSmtpPass] = useState(false)
+  const [testModal, setTestModal] = useState(false)
+  const [testEmailTo, setTestEmailTo] = useState('')
+
   const { data: settings = {} } = useQuery({
     queryKey: ['admin-settings'],
     queryFn: () => adminApi.getSettings().then(r => r.data)
@@ -39,6 +46,7 @@ export default function AdminSettings() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin-settings'] })
       setNewApiKey('')
+      setNewSmtpPass('')
       toast.success('Settings saved!')
     },
     onError: () => toast.error('Failed to save settings'),
@@ -48,6 +56,17 @@ export default function AdminSettings() {
     mutationFn: adminApi.changePassword,
     onSuccess: () => { setPwForm({ current: '', newPw: '', confirm: '' }); toast.success('Password changed!') },
     onError: (err) => toast.error(err.response?.data?.error || 'Failed to change password')
+  })
+
+  const testEmailMut = useMutation({
+    mutationFn: (to) => adminApi.testEmail({ to }),
+    onSuccess: () => {
+      setTestModal(false)
+      toast.success('Test email sent successfully! Please check your inbox.')
+    },
+    onError: (err) => {
+      toast.error(err.response?.data?.error || 'SMTP Connection test failed', { duration: 6000 })
+    }
   })
 
   async function checkConnection() {
@@ -70,9 +89,6 @@ export default function AdminSettings() {
     pwMut.mutate({ currentPassword: pwForm.current, newPassword: pwForm.newPw })
   }
 
-  // Build the save payload — only include the API key if the admin actually
-  // typed a new one (otherwise we'd echo the masked value back and the
-  // backend would have to filter it out).
   function saveChatbotSettings() {
     const payload = {
       gemini_model:     form.gemini_model || 'gemini-2.0-flash',
@@ -83,9 +99,22 @@ export default function AdminSettings() {
     saveMut.mutate(payload)
   }
 
+  function saveEmailSettings(e) {
+    e.preventDefault()
+    const payload = {
+      smtp_host: form.smtp_host || 'smtp.hostinger.com',
+      smtp_port: form.smtp_port || '465',
+      smtp_user: form.smtp_user || 'contact@codelifeai.com',
+      smtp_from: form.smtp_from || '"CodeLifeAI" <contact@codelifeai.com>',
+    }
+    if (newSmtpPass.trim()) payload.smtp_pass = newSmtpPass.trim()
+    saveMut.mutate(payload)
+  }
+
   const set = k => e => setForm(p => ({ ...p, [k]: e.target.value }))
   const currentModel = form.gemini_model || 'gemini-2.0-flash'
   const keyConfigured = !!settings.gemini_api_key
+  const smtpPassConfigured = !!settings.smtp_pass_configured || !!settings.smtp_pass
 
   // Merge live-fetched models with the recommended list, dedup by id.
   const modelChoices = useMemo(() => {
@@ -105,8 +134,116 @@ export default function AdminSettings() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-bb-white tracking-tight">Settings</h1>
-        <p className="text-bb-muted text-sm mt-1">Chatbot, account, and deployment configuration.</p>
+        <p className="text-bb-muted text-sm mt-1">Email, Chatbot, account, and deployment configuration.</p>
       </div>
+
+      {/* ── Business Email & SMTP Setup (contact@codelifeai.com) ── */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between w-full">
+            <div className="flex items-center gap-2">
+              <Mail size={16} className="text-[#00d4f5]" />
+              <h2 className="text-sm font-bold text-bb-white">Business Email &amp; SMTP Configuration</h2>
+            </div>
+            {smtpPassConfigured ? (
+              <span className="inline-flex items-center gap-1 text-[0.65rem] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/25 px-2.5 py-0.5 rounded-full">
+                <CheckCircle size={11} /> Configured
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 text-[0.65rem] font-bold text-amber-400 bg-amber-500/10 border border-amber-500/25 px-2.5 py-0.5 rounded-full">
+                Password Needed
+              </span>
+            )}
+          </div>
+        </CardHeader>
+        <CardBody>
+          <form onSubmit={saveEmailSettings} className="space-y-4">
+            <p className="text-xs text-bb-muted leading-relaxed">
+              Configure SMTP credentials for sending replies to contact form enquiries directly from the Admin Panel using your business email (<strong className="text-[#00d4f5]">contact@codelifeai.com</strong>).
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Input
+                label="SMTP Host"
+                value={form.smtp_host || 'smtp.hostinger.com'}
+                onChange={set('smtp_host')}
+                placeholder="smtp.hostinger.com"
+                required
+              />
+              <Input
+                label="SMTP Port"
+                value={form.smtp_port || '465'}
+                onChange={set('smtp_port')}
+                placeholder="465 (SSL) or 587 (TLS)"
+                required
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Input
+                label="Email / Username"
+                value={form.smtp_user || 'contact@codelifeai.com'}
+                onChange={set('smtp_user')}
+                placeholder="contact@codelifeai.com"
+                required
+              />
+              <Input
+                label="Sender Name &amp; Address"
+                value={form.smtp_from || '"CodeLifeAI" <contact@codelifeai.com>'}
+                onChange={set('smtp_from')}
+                placeholder='"CodeLifeAI" <contact@codelifeai.com>'
+                required
+              />
+            </div>
+
+            {/* SMTP Password */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-bb-muted uppercase tracking-widest flex items-center justify-between">
+                <span>Email / SMTP Password</span>
+                {smtpPassConfigured && (
+                  <span className="text-[0.68rem] text-emerald-400 lowercase font-normal">Active password saved</span>
+                )}
+              </label>
+              <div className="relative">
+                <input
+                  type={showSmtpPass ? 'text' : 'password'}
+                  value={newSmtpPass}
+                  onChange={e => setNewSmtpPass(e.target.value)}
+                  placeholder={smtpPassConfigured ? '•••••••• (leave blank to keep current)' : 'Enter your Hostinger email password'}
+                  className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 pr-10 text-sm text-bb-white placeholder:text-bb-muted outline-none focus:border-bb-accent/40 transition-colors font-mono"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowSmtpPass(s => !s)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-bb-muted hover:text-bb-white"
+                >
+                  {showSmtpPass ? <EyeOff size={15} /> : <Eye size={15} />}
+                </button>
+              </div>
+              <p className="text-[0.7rem] text-bb-muted">
+                Your Hostinger email account password for <strong className="text-white/80">contact@codelifeai.com</strong>.
+              </p>
+            </div>
+
+            <div className="flex items-center justify-between pt-2 flex-wrap gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setTestEmailTo(form.smtp_user || 'contact@codelifeai.com')
+                  setTestModal(true)
+                }}
+              >
+                <Send size={13} /> Test SMTP Connection
+              </Button>
+              <Button type="submit" loading={saveMut.isPending}>
+                Save Email Settings
+              </Button>
+            </div>
+          </form>
+        </CardBody>
+      </Card>
 
       {/* ── Gemini setup guide ── */}
       <Card>
@@ -276,6 +413,39 @@ export default function AdminSettings() {
           </form>
         </CardBody>
       </Card>
+
+      {/* ── Test Email Modal ── */}
+      <Modal
+        open={testModal}
+        onClose={() => setTestModal(false)}
+        title="Test SMTP Email Delivery"
+        size="md"
+      >
+        <div className="space-y-4">
+          <p className="text-xs text-bb-muted leading-relaxed">
+            Send a test email to verify that your Hostinger SMTP credentials for <strong className="text-[#00d4f5]">contact@codelifeai.com</strong> are working correctly.
+          </p>
+
+          <Input
+            label="Recipient Email"
+            value={testEmailTo}
+            onChange={e => setTestEmailTo(e.target.value)}
+            placeholder="contact@codelifeai.com or your personal email"
+            required
+          />
+
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="outline" onClick={() => setTestModal(false)}>Cancel</Button>
+            <Button
+              onClick={() => testEmailMut.mutate(testEmailTo)}
+              loading={testEmailMut.isPending}
+              disabled={!testEmailTo.trim()}
+            >
+              <Send size={13} /> Send Test Email
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   )
 }

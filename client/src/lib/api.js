@@ -136,7 +136,11 @@ export const adminApi = {
 
   // Enquiries (contact form submissions)
   getContacts:   () => api.get('/admin/contacts'),
+  replyContact:  (id, data) => api.post(`/admin/contacts/${id}/reply`, data),
   deleteContact: (id) => api.delete(`/admin/contacts/${id}`),
+
+  // Email test
+  testEmail:     (data) => api.post('/admin/test-email', data),
 
   // Early access requests (ZYRA AI)
   getEarlyAccess:    () => api.get('/admin/early-access'),
