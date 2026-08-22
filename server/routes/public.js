@@ -160,13 +160,36 @@ router.get('/founders/:id/photo', async (req, res) => {
 
 // POST /api/contact
 router.post('/contact', async (req, res) => {
-  const { name, email, message } = req.body
-  if (!name || !email || !message) return res.status(400).json({ error: 'All fields required' })
+  const { first_name, last_name, name, email, company, country, message, service_interest, referral_source } = req.body
+  const fullName = (name || `${first_name || ''} ${last_name || ''}`).trim()
+  if (!fullName || !email || !message) {
+    return res.status(400).json({ error: 'Name, email, and requirements are required' })
+  }
 
-  await getDb().execute({
-    sql: 'INSERT INTO contacts (name, email, message) VALUES (?, ?, ?)',
-    args: [name, email, message],
-  })
+  // Build structured message context for admin/email
+  let fullDetails = message
+  const metaParts = []
+  if (company) metaParts.push(`Company: ${company}`)
+  if (country) metaParts.push(`Country: ${country}`)
+  if (service_interest) metaParts.push(`Service Interest: ${service_interest}`)
+  if (referral_source) metaParts.push(`Heard via: ${referral_source}`)
+
+  if (metaParts.length > 0) {
+    fullDetails = `${message}\n\n---\n📋 Project Inquiry Details:\n${metaParts.join('\n')}`
+  }
+
+  try {
+    await getDb().execute({
+      sql: 'INSERT INTO contacts (name, email, message, company, country, service_interest, referral_source) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      args: [fullName, email, fullDetails, company || '', country || '', service_interest || '', referral_source || ''],
+    })
+  } catch (err) {
+    // Fallback if DB columns not yet migrated
+    await getDb().execute({
+      sql: 'INSERT INTO contacts (name, email, message) VALUES (?, ?, ?)',
+      args: [fullName, email, fullDetails],
+    })
+  }
   res.json({ ok: true })
 })
 

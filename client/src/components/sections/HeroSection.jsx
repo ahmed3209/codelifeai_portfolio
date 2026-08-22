@@ -66,20 +66,24 @@ export default function HeroSection({ content = {}, promo = null, liveProducts =
       {/* ── Top-Right Animated "Product is LIVE" Multi-Product Slider ── */}
       <LiveProductWidget liveProducts={liveProducts} promo={promo} />
 
-      {/* ── Ambient orbs ──────────────────────────────────── */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute rounded-full" style={{
-          width: '700px', height: '700px',
-          top: '5%', left: '-8%',
-          background: 'radial-gradient(circle, rgba(0,212,245,1) 0%, transparent 65%)',
-          filter: 'blur(100px)', animation: 'orbPulse 9s ease-in-out infinite',
-        }} />
-        <div className="absolute rounded-full" style={{
-          width: '600px', height: '600px',
-          bottom: '0%', right: '-5%',
-          background: 'radial-gradient(circle, rgba(124,58,237,1) 0%, transparent 65%)',
-          filter: 'blur(100px)', animation: 'orbPulse 11s ease-in-out 3s infinite',
-        }} />
+      {/* ── High-Performance Ambient Glow (Zero CPU/GPU blur overhead) ── */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden contain-paint">
+        <div
+          className="absolute rounded-full"
+          style={{
+            width: '650px', height: '650px',
+            top: '5%', left: '-8%',
+            background: 'radial-gradient(circle, rgba(0,212,245,0.07) 0%, rgba(0,212,245,0.02) 45%, transparent 70%)',
+          }}
+        />
+        <div
+          className="absolute rounded-full"
+          style={{
+            width: '550px', height: '550px',
+            bottom: '0%', right: '-5%',
+            background: 'radial-gradient(circle, rgba(124,58,237,0.06) 0%, rgba(124,58,237,0.015) 45%, transparent 70%)',
+          }}
+        />
       </div>
 
       {/* ── Content ───────────────────────────────────────── */}

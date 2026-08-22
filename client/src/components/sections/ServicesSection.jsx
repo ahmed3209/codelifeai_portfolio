@@ -1,28 +1,27 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion'
-import { X, ArrowUpRight, Check } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { X, ArrowUpRight, Check, Sparkles, Code2, Smartphone, Bot, Cloud, Palette, Server } from 'lucide-react'
 
-/* ── Spring 3-D tilt ──────────────────────────── */
-function useTilt(strength = 10) {
-  const rawX  = useMotionValue(0)
-  const rawY  = useMotionValue(0)
-  const rotX  = useSpring(useTransform(rawY, [-1, 1], [ strength, -strength]), { stiffness: 280, damping: 24 })
-  const rotY  = useSpring(useTransform(rawX, [-1, 1], [-strength,  strength]), { stiffness: 280, damping: 24 })
-  const scale = useSpring(1, { stiffness: 280, damping: 24 })
-
-  function onMouseMove(e) {
-    const r = e.currentTarget.getBoundingClientRect()
-    rawX.set(((e.clientX - r.left) / r.width  - 0.5) * 2)
-    rawY.set(((e.clientY - r.top)  / r.height - 0.5) * 2)
-    scale.set(1.026)
-  }
-  function onMouseLeave() { rawX.set(0); rawY.set(0); scale.set(1) }
-
-  return { rotX, rotY, scale, onMouseMove, onMouseLeave }
+const DEFAULT_SERVICE_IMAGES = {
+  'Web Application Development': 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1200&auto=format&fit=crop',
+  'Mobile App Engineering': 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?q=80&w=1200&auto=format&fit=crop',
+  'Custom AI Agents & Automation': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200&auto=format&fit=crop',
+  'Cloud Architecture & DevOps': 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1200&auto=format&fit=crop',
+  'UI/UX Product Design': 'https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?q=80&w=1200&auto=format&fit=crop',
+  'Enterprise Software Systems': 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200&auto=format&fit=crop',
 }
 
-/* ── Section ─────────────────────────────────── */
+function parseJsonArray(val) {
+  if (Array.isArray(val)) return val
+  try {
+    const parsed = JSON.parse(val)
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return typeof val === 'string' ? val.split(',').map(s => s.trim()).filter(Boolean) : []
+  }
+}
+
 export default function ServicesSection({ services = [] }) {
   const [active, setActive] = useState(null)
 
@@ -30,38 +29,39 @@ export default function ServicesSection({ services = [] }) {
     <section id="services" className="relative z-10 py-20 sm:py-32 px-4 sm:px-6 lg:px-14">
       <div className="max-w-[1280px] mx-auto">
 
-        {/* Header */}
+        {/* Section Header */}
         <motion.div
-          initial={{ opacity: 0, y: 28 }}
+          initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.15 }}
-          transition={{ duration: 0.72, ease: [0.16, 1, 0.3, 1] }}
-          className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10 sm:mb-14"
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-12 sm:mb-16"
         >
           <div>
-            <p className="section-number mb-1">01 / Services</p>
-            <div className="section-label">What We Do</div>
-            <h2 className="font-extrabold tracking-tight leading-[1.04]" style={{ fontSize: 'clamp(2rem, 4vw, 3.2rem)' }}>
-              Our <em className="font-fraunces font-light not-italic text-white/35">Services</em>
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#00d4f5]/10 border border-[#00d4f5]/25 text-[0.68rem] font-bold uppercase tracking-widest text-[#00d4f5] mb-3">
+              <Sparkles size={12} /> Engineering Capabilities
+            </div>
+            <h2 className="text-3xl sm:text-5xl font-black text-bb-white tracking-tight leading-tight">
+              Specialized Services We <br />
+              <span className="bg-gradient-to-r from-[#00d4f5] via-[#38bdf8] to-[#a855f7] bg-clip-text text-transparent">
+                Design, Build &amp; Scale
+              </span>
             </h2>
           </div>
-          <p className="text-bb-muted text-sm leading-relaxed max-w-[280px] sm:text-right">
-            We turn complex ideas into clean, scalable solutions. Click any service to learn more.
+          <p className="text-bb-muted text-sm leading-relaxed max-w-[320px] sm:text-right">
+            From zero-to-one startup MVPs to high-concurrency enterprise distributed systems.
           </p>
         </motion.div>
 
-        {/* Grid */}
-        <div
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 rounded-2xl overflow-hidden border border-white/[0.07]"
-          style={{ gap: '1px', background: 'rgba(255,255,255,0.045)' }}
-        >
+        {/* Services Grid with Visual Assets */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {services.map((svc, i) => (
             <motion.div
               key={svc.id}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.08 }}
-              transition={{ delay: i * 0.07, duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ delay: i * 0.05, duration: 0.45 }}
             >
               <ServiceCard svc={svc} index={i} onClick={() => setActive(svc)} />
             </motion.div>
@@ -77,113 +77,137 @@ export default function ServicesSection({ services = [] }) {
   )
 }
 
-/* ── Card ────────────────────────────────────── */
 function ServiceCard({ svc, index, onClick }) {
-  const { rotX, rotY, scale, onMouseMove, onMouseLeave } = useTilt(9)
+  const imageUrl = svc.image_url || DEFAULT_SERVICE_IMAGES[svc.title] || DEFAULT_SERVICE_IMAGES['Web Application Development']
+  const stack = parseJsonArray(svc.stack)
 
   return (
-    <motion.div
+    <div
       onClick={onClick}
-      onMouseMove={onMouseMove}
-      onMouseLeave={onMouseLeave}
-      style={{ rotateX: rotX, rotateY: rotY, scale, transformStyle: 'preserve-3d', perspective: 900 }}
-      className="group relative bg-[#0d0d1c] p-8 cursor-pointer overflow-hidden h-full flex flex-col min-h-[200px]"
+      className="group relative bg-[#090918]/80 border border-white/[0.08] hover:border-[#00d4f5]/40 rounded-3xl overflow-hidden h-full flex flex-col cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-black/70"
     >
-      {/* Hover gradient */}
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-400 pointer-events-none"
-        style={{ background: 'linear-gradient(150deg, rgba(0,212,245,0.055) 0%, rgba(124,58,237,0.03) 100%)' }} />
-      {/* Top bar */}
-      <div className="absolute top-0 left-0 right-0 h-[2px] scale-x-0 group-hover:scale-x-100 transition-transform duration-350 origin-left"
-        style={{ background: 'linear-gradient(90deg, #00d4f5, #7c3aed)' }} />
+      {/* Visual Asset Banner */}
+      <div className="relative h-44 sm:h-48 overflow-hidden bg-black/40">
+        <img
+          src={imageUrl}
+          alt={svc.title}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          loading="lazy"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#090918] via-[#090918]/40 to-transparent pointer-events-none" />
 
-      {/* Index number */}
-      <span className="text-[0.67rem] font-extrabold tracking-[0.15em] text-white/[0.15] mb-3 block">
-        {String(index + 1).padStart(2, '0')}
-      </span>
+        {/* Floating Icon Badge */}
+        <div className="absolute top-3.5 left-3.5 w-11 h-11 rounded-2xl bg-black/70 border border-white/15 backdrop-blur-md flex items-center justify-center text-xl shadow-lg">
+          {svc.icon || '⚡'}
+        </div>
 
-      {/* Icon */}
-      <motion.div
-        className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl mb-4 border border-bb-accent/14"
-        style={{ background: 'rgba(0,212,245,0.08)', transformStyle: 'preserve-3d' }}
-        whileHover={{ z: 18, scale: 1.07 }}
-      >
-        {svc.icon}
-      </motion.div>
-
-      <h3 className="text-[0.98rem] font-bold text-bb-white mb-2 tracking-[-0.01em]">{svc.title}</h3>
-      <p className="text-[0.82rem] text-bb-muted leading-relaxed flex-1">{svc.short_desc}</p>
-
-      {/* Arrow */}
-      <div className="absolute bottom-5 right-5 w-8 h-8 rounded-full flex items-center justify-center text-bb-accent border border-bb-accent/20 bg-bb-accent/8
-        opacity-0 translate-x-2 translate-y-2 group-hover:opacity-100 group-hover:translate-x-0 group-hover:translate-y-0 transition-all duration-300">
-        <ArrowUpRight size={14} />
+        {/* Number Badge */}
+        <div className="absolute top-3.5 right-3.5 px-2.5 py-0.5 rounded-full bg-black/60 border border-white/10 text-[0.65rem] font-mono font-bold text-white/50">
+          0{index + 1}
+        </div>
       </div>
-    </motion.div>
+
+      {/* Card Content */}
+      <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
+        <div>
+          <h3 className="text-lg font-bold text-bb-white group-hover:text-[#00d4f5] transition-colors leading-snug flex items-center justify-between">
+            <span>{svc.title}</span>
+            <ArrowUpRight size={16} className="opacity-0 group-hover:opacity-100 text-[#00d4f5] transition-opacity flex-shrink-0" />
+          </h3>
+          <p className="text-xs text-slate-300 mt-2 leading-relaxed line-clamp-2">
+            {svc.short_desc}
+          </p>
+        </div>
+
+        {/* Tech Stack Chips */}
+        {stack.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 pt-2 border-t border-white/[0.05]">
+            {stack.slice(0, 3).map((s, idx) => (
+              <span
+                key={idx}
+                className="text-[0.68rem] font-medium px-2.5 py-0.5 rounded-lg bg-white/[0.03] border border-white/[0.06] text-slate-300"
+              >
+                {s}
+              </span>
+            ))}
+            {stack.length > 3 && (
+              <span className="text-[0.65rem] font-mono text-bb-muted px-1 py-0.5">
+                +{stack.length - 3}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
   )
 }
 
-/* ── Modal ───────────────────────────────────── */
 function ServiceModal({ svc, onClose }) {
-  const features = svc.features ? JSON.parse(svc.features) : []
-  const stack    = svc.stack    ? JSON.parse(svc.stack)    : []
+  const imageUrl = svc.image_url || DEFAULT_SERVICE_IMAGES[svc.title] || DEFAULT_SERVICE_IMAGES['Web Application Development']
+  const features = parseJsonArray(svc.features)
+  const stack = parseJsonArray(svc.stack)
 
   return (
     <motion.div
-      key="overlay"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.18 }}
-      className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-black/82 backdrop-blur-2xl"
+      className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
       onClick={e => { if (e.target === e.currentTarget) onClose() }}
     >
       <motion.div
-        key="panel"
-        initial={{ opacity: 0, scale: 0.88, y: 36 }}
-        animate={{ opacity: 1, scale: 1,    y: 0  }}
-        exit={{    opacity: 0, scale: 0.88, y: 36 }}
-        transition={{ type: 'spring', damping: 26, stiffness: 340 }}
-        className="w-full max-w-[640px] max-h-[88vh] flex flex-col overflow-hidden rounded-2xl border border-white/[0.1] shadow-[0_32px_80px_rgba(0,0,0,0.65)]"
-        style={{ background: '#0b0b1d' }}
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+        className="w-full max-w-[620px] max-h-[88vh] flex flex-col overflow-hidden rounded-3xl border border-white/[0.12] shadow-2xl bg-[#0c0c1e]"
       >
-        {/* Header */}
-        <div className="px-5 pt-6 pb-5 sm:px-8 sm:pt-8 sm:pb-6 border-b border-white/[0.06] relative flex-shrink-0"
-          style={{ background: 'linear-gradient(145deg, rgba(0,212,245,0.06) 0%, rgba(124,58,237,0.04) 100%)' }}>
-          <div className="absolute top-0 right-0 w-80 h-80 rounded-full pointer-events-none"
-            style={{ background: 'radial-gradient(circle, rgba(0,212,245,0.07) 0%, transparent 60%)', transform: 'translate(30%,-30%)' }} />
+        {/* Modal Banner Graphic */}
+        <div className="relative h-48 sm:h-56 overflow-hidden flex-shrink-0 bg-black">
+          <img src={imageUrl} alt={svc.title} className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c1e] via-[#0c0c1e]/50 to-transparent" />
 
-          <div className="flex items-start gap-3 sm:gap-4 relative pr-6">
-            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center text-xl sm:text-2xl border border-bb-accent/18 flex-shrink-0"
-              style={{ background: 'linear-gradient(135deg, rgba(0,212,245,0.14), rgba(124,58,237,0.1))' }}>
-              {svc.icon}
-            </div>
-            <div className="flex-1 min-w-0 pt-0.5 sm:pt-1">
-              <h2 className="text-[1.15rem] sm:text-[1.3rem] font-extrabold tracking-tight text-bb-white mb-1">{svc.title}</h2>
-              <p className="text-bb-muted text-xs sm:text-sm leading-relaxed">{svc.long_desc || svc.short_desc}</p>
-            </div>
-          </div>
-          <button onClick={onClose}
-            className="absolute top-4 right-4 sm:top-5 sm:right-5 w-8 h-8 rounded-xl bg-white/[0.05] border border-white/[0.07] flex items-center justify-center text-bb-muted hover:text-bb-white hover:bg-white/[0.1] transition-all">
+          {/* Close button */}
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 w-8 h-8 rounded-full bg-black/70 border border-white/20 flex items-center justify-center text-white/80 hover:text-white hover:scale-105 transition-all shadow-lg backdrop-blur-md"
+          >
             <X size={14} />
           </button>
+
+          {/* Service Title */}
+          <div className="absolute bottom-4 left-6 right-6 flex items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl bg-black/80 border border-white/20 backdrop-blur-md flex items-center justify-center text-2xl shadow-xl flex-shrink-0">
+              {svc.icon || '⚡'}
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-bb-white">{svc.title}</h2>
+              <p className="text-xs text-[#00d4f5] font-semibold">Specialized Capability</p>
+            </div>
+          </div>
         </div>
 
-        {/* Body */}
-        <div className="flex-1 overflow-y-auto p-5 sm:p-8 scrollbar-thin space-y-6">
+        {/* Modal Body */}
+        <div className="flex-1 overflow-y-auto p-6 sm:p-7 space-y-5">
+          <p className="text-sm text-slate-200 leading-relaxed">
+            {svc.long_desc || svc.short_desc}
+          </p>
+
           {features.length > 0 && (
             <div>
-              <p className="text-[0.67rem] font-bold tracking-[0.13em] uppercase text-bb-accent mb-3">What's Included</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-[#00d4f5] mb-3">
+                Key Deliverables &amp; Features
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 {features.map((f, i) => (
-                  <motion.div key={i}
-                    initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.045 }}
-                    className="flex items-start gap-2.5 bg-white/[0.03] border border-white/[0.05] rounded-xl p-3 hover:border-bb-accent/20 transition-colors">
-                    <div className="w-5 h-5 rounded-full bg-bb-accent/14 flex items-center justify-center text-bb-accent flex-shrink-0 mt-0.5">
-                      <Check size={11} strokeWidth={3} />
+                  <div
+                    key={i}
+                    className="flex items-start gap-2.5 bg-white/[0.025] border border-white/[0.06] rounded-xl p-3"
+                  >
+                    <div className="w-4 h-4 rounded-full bg-[#00d4f5]/15 flex items-center justify-center text-[#00d4f5] flex-shrink-0 mt-0.5">
+                      <Check size={10} strokeWidth={3} />
                     </div>
-                    <span className="text-[0.82rem] text-white/68 leading-snug">{f}</span>
-                  </motion.div>
+                    <span className="text-xs text-slate-200 leading-snug">{f}</span>
+                  </div>
                 ))}
               </div>
             </div>
@@ -191,27 +215,39 @@ function ServiceModal({ svc, onClose }) {
 
           {stack.length > 0 && (
             <div>
-              <p className="text-[0.67rem] font-bold tracking-[0.13em] uppercase text-bb-accent mb-3">Tech Stack</p>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-bb-muted mb-2.5">
+                Technologies Used
+              </h4>
               <div className="flex flex-wrap gap-2">
                 {stack.map((s, i) => (
-                  <motion.span key={i}
-                    initial={{ opacity: 0, scale: 0.78 }} animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: i * 0.038 }}
-                    className="text-[0.76rem] font-medium text-white/55 bg-white/[0.05] border border-white/[0.08] px-3 py-1.5 rounded-full hover:border-bb-accent/28 hover:text-white/78 transition-colors cursor-default">
+                  <span
+                    key={i}
+                    className="text-xs font-medium text-slate-200 bg-white/[0.04] border border-white/[0.08] px-3 py-1 rounded-xl"
+                  >
                     {s}
-                  </motion.span>
+                  </span>
                 ))}
               </div>
             </div>
           )}
 
-          <div className="flex gap-3 flex-wrap pt-1">
-            <Link to="/contact" onClick={onClose} className="btn-primary text-sm py-2.5 px-5 gap-1.5">
-              Start a Project <ArrowUpRight size={13} />
-            </Link>
-            <button onClick={onClose} className="btn-ghost text-sm py-2.5 px-5">
+          {/* CTA Footer */}
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/[0.08]">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-xs font-semibold text-bb-muted hover:text-white transition-colors"
+            >
               Close
             </button>
+            <Link
+              to="/contact"
+              onClick={onClose}
+              className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-[#00d4f5] hover:bg-[#00b8e6] text-black font-bold text-xs transition-colors"
+            >
+              <span>Scope Your Project</span>
+              <ArrowUpRight size={13} />
+            </Link>
           </div>
         </div>
       </motion.div>

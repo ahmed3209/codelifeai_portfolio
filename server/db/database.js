@@ -210,11 +210,16 @@ async function ensureExtras(db) {
     "ALTER TABLE projects ADD COLUMN description TEXT DEFAULT ''",
     "ALTER TABLE founders ADD COLUMN show_on_home INTEGER DEFAULT 1",
     "ALTER TABLE services ADD COLUMN show_on_home INTEGER DEFAULT 1",
+    "ALTER TABLE services ADD COLUMN image_url TEXT DEFAULT ''",
     "ALTER TABLE testimonials ADD COLUMN show_on_home INTEGER DEFAULT 1",
     "ALTER TABLE contacts ADD COLUMN status TEXT DEFAULT 'new'",
     "ALTER TABLE contacts ADD COLUMN reply_subject TEXT DEFAULT ''",
     "ALTER TABLE contacts ADD COLUMN reply_message TEXT DEFAULT ''",
     "ALTER TABLE contacts ADD COLUMN replied_at TEXT DEFAULT ''",
+    "ALTER TABLE contacts ADD COLUMN company TEXT DEFAULT ''",
+    "ALTER TABLE contacts ADD COLUMN country TEXT DEFAULT ''",
+    "ALTER TABLE contacts ADD COLUMN service_interest TEXT DEFAULT ''",
+    "ALTER TABLE contacts ADD COLUMN referral_source TEXT DEFAULT ''",
   ]
   for (const sql of schemaExtensions) {
     try { await db.execute(sql) }

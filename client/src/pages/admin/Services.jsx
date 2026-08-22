@@ -5,7 +5,7 @@ import Card, { CardBody } from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Modal from '../../components/ui/Modal'
 import { Input, Textarea } from '../../components/ui/Input'
-import { Pencil, Trash2, Plus, GripVertical, Home, Check } from 'lucide-react'
+import { Pencil, Trash2, Plus, GripVertical, Home, Check, Image as ImageIcon } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 const EMPTY = {
@@ -15,6 +15,7 @@ const EMPTY = {
   long_desc: '',
   features: '[]',
   stack: '[]',
+  image_url: '',
   show_on_home: 1,
   sort_order: 0,
 }
@@ -62,6 +63,7 @@ export default function AdminServices() {
       ...svc,
       features: typeof svc.features === 'string' ? svc.features : JSON.stringify(svc.features),
       stack: typeof svc.stack === 'string' ? svc.stack : JSON.stringify(svc.stack),
+      image_url: svc.image_url || '',
       show_on_home: svc.show_on_home !== 0 ? 1 : 0,
     })
     setEditId(svc.id)
@@ -72,6 +74,7 @@ export default function AdminServices() {
     e.preventDefault()
     const payload = {
       ...form,
+      image_url: (form.image_url || '').trim(),
       show_on_home: form.show_on_home ? 1 : 0,
       features: parseJsonField(form.features),
       stack: parseJsonField(form.stack),
@@ -98,7 +101,7 @@ export default function AdminServices() {
         <div>
           <h1 className="text-2xl font-bold text-bb-white tracking-tight">Services &amp; Capabilities</h1>
           <p className="text-bb-muted text-sm mt-1">
-            Manage services and selectively choose which cards appear on the Homepage.
+            Manage services, visual preview assets, and selectively choose which cards appear on the Homepage.
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -118,10 +121,16 @@ export default function AdminServices() {
               const isHome = svc.show_on_home !== 0
               return (
                 <div key={svc.id} className="flex items-center gap-4 px-6 py-4 hover:bg-white/[0.02] transition-colors">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0"
-                    style={{ background: 'rgba(0,212,245,0.08)', border: '1px solid rgba(0,212,245,0.12)' }}>
-                    {svc.icon}
-                  </div>
+                  {svc.image_url ? (
+                    <div className="w-12 h-10 rounded-xl overflow-hidden bg-black/40 border border-white/10 flex-shrink-0">
+                      <img src={svc.image_url} alt={svc.title} className="w-full h-full object-cover" />
+                    </div>
+                  ) : (
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0"
+                      style={{ background: 'rgba(0,212,245,0.08)', border: '1px solid rgba(0,212,245,0.12)' }}>
+                      {svc.icon}
+                    </div>
+                  )}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <p className="text-sm font-semibold text-bb-white">{svc.title}</p>
@@ -162,7 +171,7 @@ export default function AdminServices() {
           <div className="grid grid-cols-5 gap-3">
             <Input label="Icon (emoji)" value={form.icon} onChange={e => setForm(p => ({...p, icon: e.target.value}))} className="col-span-1 text-2xl text-center" />
             <div className="col-span-4">
-              <Input label="Title" value={form.title} onChange={e => setForm(p => ({...p, title: e.target.value}))} required placeholder="e.g. Web Development" />
+              <Input label="Title" value={form.title} onChange={e => setForm(p => ({...p, title: e.target.value}))} required placeholder="e.g. Web Application Development" />
             </div>
           </div>
 
@@ -190,6 +199,19 @@ export default function AdminServices() {
               />
             </button>
           </div>
+
+          <Input
+            label="Service Mockup / Banner Image URL"
+            value={form.image_url}
+            onChange={e => setForm(p => ({ ...p, image_url: e.target.value }))}
+            placeholder="https://images.unsplash.com/... or leave blank for default graphic"
+          />
+
+          {form.image_url && (
+            <div className="h-28 rounded-xl bg-black/40 border border-white/10 overflow-hidden">
+              <img src={form.image_url} alt="Preview" className="w-full h-full object-cover" />
+            </div>
+          )}
 
           <Textarea label="Short Description (card preview)" value={form.short_desc} onChange={e => setForm(p => ({...p, short_desc: e.target.value}))} rows={2} required placeholder="Brief description shown on the service card…" />
           <Textarea label="Long Description (popup detail)" value={form.long_desc} onChange={e => setForm(p => ({...p, long_desc: e.target.value}))} rows={3} placeholder="Detailed description shown in the modal popup…" />

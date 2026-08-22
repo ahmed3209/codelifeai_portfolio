@@ -120,13 +120,13 @@ router.get('/services', async (req, res) => {
 })
 
 router.post('/services', async (req, res) => {
-  const { title, icon, short_desc, long_desc, features, stack, show_on_home, sort_order } = req.body
+  const { title, icon, short_desc, long_desc, features, stack, image_url, show_on_home, sort_order } = req.body
   const db = getDb()
   const max = await db.execute('SELECT MAX(sort_order) as m FROM services')
   const nextOrder = sort_order || (Number(max.rows[0].m) || 0) + 1
   const ins = await db.execute({
-    sql: 'INSERT INTO services (title,icon,short_desc,long_desc,features,stack,show_on_home,sort_order) VALUES (?,?,?,?,?,?,?,?)',
-    args: [title, icon || '⚡', short_desc, long_desc, features || '[]', stack || '[]', show_on_home !== 0 ? 1 : 0, nextOrder],
+    sql: 'INSERT INTO services (title,icon,short_desc,long_desc,features,stack,image_url,show_on_home,sort_order) VALUES (?,?,?,?,?,?,?,?,?)',
+    args: [title, icon || '⚡', short_desc, long_desc, features || '[]', stack || '[]', image_url || '', show_on_home !== 0 ? 1 : 0, nextOrder],
   })
   const { rows } = await db.execute({
     sql: 'SELECT * FROM services WHERE id = ?',
@@ -149,12 +149,12 @@ router.put('/services/reorder', async (req, res) => {
 })
 
 router.put('/services/:id', async (req, res) => {
-  const { title, icon, short_desc, long_desc, features, stack, show_on_home, sort_order } = req.body
+  const { title, icon, short_desc, long_desc, features, stack, image_url, show_on_home, sort_order } = req.body
   const db = getDb()
   await db.execute({
-    sql: `UPDATE services SET title=?,icon=?,short_desc=?,long_desc=?,features=?,stack=?,show_on_home=?,sort_order=?,
+    sql: `UPDATE services SET title=?,icon=?,short_desc=?,long_desc=?,features=?,stack=?,image_url=?,show_on_home=?,sort_order=?,
           updated_at=datetime('now') WHERE id=?`,
-    args: [title, icon, short_desc, long_desc, features, stack, show_on_home !== 0 ? 1 : 0, sort_order, req.params.id],
+    args: [title, icon, short_desc, long_desc, features, stack, image_url || '', show_on_home !== 0 ? 1 : 0, sort_order, req.params.id],
   })
   const { rows } = await db.execute({
     sql: 'SELECT * FROM services WHERE id = ?',
