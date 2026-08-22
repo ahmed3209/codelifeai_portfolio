@@ -17,6 +17,20 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    emptyOutDir: true
+    emptyOutDir: true,
+    chunkSizeWarningLimit: 600,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('three')) return 'vendor-three'
+            if (id.includes('framer-motion')) return 'vendor-framer'
+            if (id.includes('lucide-react')) return 'vendor-icons'
+            if (id.includes('@tanstack') || id.includes('axios')) return 'vendor-data'
+            if (id.includes('react')) return 'vendor-react'
+          }
+        }
+      }
+    }
   }
 })

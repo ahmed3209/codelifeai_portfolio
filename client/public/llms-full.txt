@@ -1,0 +1,98 @@
+# CodeLifeAI — Complete Technical & Organizational Profile
+
+## Executive Summary
+CodeLifeAI (official brand: CodeLifeAI, URL: https://codelifeai.com) is a high-velocity software engineering studio and digital product development company. Founded by senior engineers Muhammad Ahmed (CEO) and Anas Waheed (CTO), the firm delivers production-grade software across four core pillars:
+1. Modern Full-Stack Web Development
+2. High-Performance Cross-Platform Mobile Applications
+3. Custom Artificial Intelligence (AI) Agents & LLM Integration
+4. Enterprise Cloud Architecture & DevOps Automation
+
+## Leadership & Founders
+- **Muhammad Ahmed** — Co-Founder & Chief Executive Officer (CEO). Oversees product vision, software architecture, technical delivery, and client partnerships.
+- **Anas Waheed** — Co-Founder & Chief Technology Officer (CTO). Leads core engineering, distributed systems design, AI model integration, and cloud infrastructure.
+
+## Technical Capabilities & Technology Stack
+- **Frontend:** React.js, Next.js 15 (App Router, Server Components), TypeScript, TailwindCSS, Framer Motion, Three.js (WebGL 3D graphics), HTML5, Vanilla CSS.
+- **Mobile Development:** Flutter, Dart, React Native, iOS (Swift), Android (Kotlin), SQLite, Firebase, WebRTC.
+- **Backend & APIs:** Node.js, Express, Python (FastAPI, Flask), Go (Golang), REST APIs, GraphQL, WebSockets, gRPC.
+- **Database & Caching:** PostgreSQL, MySQL, SQLite, LibSQL, MongoDB, Redis, Supabase, Pinecone, ChromaDB (Vector Databases).
+- **AI & Machine Learning:** OpenAI GPT-4o / O1, Google Gemini 2.0, Anthropic Claude 3.5, LangChain, LlamaIndex, Retrieval-Augmented Generation (RAG), Fine-Tuning, Hugging Face, Tesseract OCR.
+- **Cloud & DevOps:** Amazon Web Services (AWS), Google Cloud Platform (GCP), Docker, Kubernetes, Terraform, Cloudflare, GitHub Actions, Linux administration, Prometheus, Grafana.
+
+## Portfolio Projects & Shipped Products
+1. **FinTrack — Real-Time Banking & Wealth Dashboard**
+   - Domain: Fintech & Banking
+   - Technologies: React, TypeScript, Node.js, PostgreSQL, TailwindCSS
+   - Key Features: Sub-second multi-currency portfolio valuation, automated transaction classification, real-time banking analytics.
+   - Outcome Metric: 10,000+ active users.
+   - Live URL: https://fintrack.codelifeai.com
+
+2. **ShopEase — High-Conversion E-Commerce Platform**
+   - Domain: E-Commerce & Retail
+   - Technologies: Next.js 15, Stripe Connect, MongoDB, Redis
+   - Key Features: Sub-50ms product catalog search, personalized recommendations, multi-currency checkout, automated inventory sync.
+   - Outcome Metric: $2M+ in transactions processed.
+   - Live URL: https://shopease.codelifeai.com
+
+3. **MedSync — Telehealth & Patient Records Mobile App**
+   - Domain: Healthcare & Telemedicine
+   - Technologies: Flutter, Firebase, WebRTC, Dart
+   - Key Features: HIPAA-compliant HD video consultations, digital prescription management, real-time vitals monitoring.
+   - Outcome Metric: 4.9★ rating on the App Store.
+   - Live URL: https://medsync.app
+
+4. **LogiFlow — Intelligent Supply Chain SaaS**
+   - Domain: Logistics & Supply Chain
+   - Technologies: React, Python FastAPI, AWS ECS, PostgreSQL, Docker
+   - Key Features: 2M+ telemetry events/day, automated dynamic GPS route optimization, predictive warehouse inventory replenishment.
+   - Outcome Metric: 35% reduction in operational logistics costs.
+   - Live URL: https://logiflow.io
+
+5. **ZYRA AI — Multimodal Autonomous Work Assistant**
+   - Domain: Artificial Intelligence & Workflow Automation
+   - Technologies: Gemini 2.0, LangChain, Next.js, Python, Vector DB
+   - Key Features: Autonomous research agents, automated code generation & refactoring, document intelligence, interactive charts.
+   - Outcome Metric: 50,000+ early adopters.
+   - Live URL: https://zyra-ai.com
+
+6. **SocialPulse — AI Sentiment & Viral Growth Engine**
+   - Domain: Marketing Technology & Social Analytics
+   - Technologies: Python, OpenAI, React, FastAPI, Redis
+   - Key Features: Real-time sentiment tracking across Twitter/LinkedIn/Instagram, competitor intelligence, automated content suggestions.
+   - Outcome Metric: 500+ agency clients.
+   - Live URL: https://socialpulse.io
+
+7. **ScreenSnap — AI Screen Capture & Annotation Suite**
+   - Domain: Productivity & Developer Tools
+   - Technologies: Electron, React, WebRTC, Tesseract OCR, Cloudflare
+   - Key Features: One-click HD screen recording, automated OCR text extraction from screenshots, cloud link generation.
+   - Outcome Metric: 120,000+ downloads.
+   - Live URL: https://screensnap.app
+
+8. **EduPath — Interactive Video LMS & Skill Academy**
+   - Domain: EdTech & Online Learning
+   - Technologies: Next.js, HLS Video, Node.js, PostgreSQL, Stripe
+   - Key Features: Adaptive bitrate video streaming, in-browser code editor for exercises, automated course completion certification.
+   - Outcome Metric: 20,000+ enrolled students.
+   - Live URL: https://edupath.academy
+
+9. **CloudGuard — Zero-Trust DevOps & Cluster Monitor**
+   - Domain: Cloud Infrastructure & Security
+   - Technologies: Go, Kubernetes, Prometheus, React, Docker
+   - Key Features: Real-time Kubernetes pod visualization, anomaly detection, automated container vulnerability alerts.
+   - Outcome Metric: 99.999% production cluster reliability.
+   - Live URL: https://cloudguard.dev
+
+10. **Alarmify — AI Sleep Partner & Smart Wake System**
+    - Domain: Health & Lifestyle Mobile Apps
+    - Technologies: Flutter, TensorFlow Lite, Audio DSP, SQLite, iOS
+    - Key Features: On-device sleep cycle analysis using acoustic sensors, gentle optimal-phase alarm awakening.
+    - Outcome Metric: 25,000+ daily active users.
+    - Live URL: https://alarmify.app
+
+## Contact & Working With CodeLifeAI
+- **Inquiries & Consultations:** contact@codelifeai.com
+- **Website:** https://codelifeai.com
+- **Portfolio:** https://codelifeai.com/work
+- **Technical Blog:** https://codelifeai.com/blog
+- **Service Engagement Model:** Fixed-scope project sprints, dedicated engineering teams, and fractional CTO/architecture advisory.

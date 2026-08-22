@@ -1,43 +1,59 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-    <!-- Primary meta -->
-    <title>CodeLifeAI — We Build What's Next | Web, Mobile &amp; AI Engineering</title>
-    <meta name="description" content="CodeLifeAI is a high-velocity software studio crafting next-generation digital products — from scalable web applications and mobile experiences to custom AI agents and cloud systems." />
-    <meta name="keywords" content="CodeLifeAI, software development company, AI agents, web app development, mobile app development, UI UX design, cloud engineering, software studio, Pakistan, USA, global" />
+    <!-- Primary Meta & Title -->
+    <title>CodeLifeAI — We Build What's Next | Web, Mobile &amp; AI Engineering Studio</title>
+    <meta name="title" content="CodeLifeAI — We Build What's Next | Web, Mobile &amp; AI Engineering Studio" />
+    <meta name="description" content="CodeLifeAI is a high-velocity software engineering studio building next-generation digital products — scalable web applications, mobile apps, custom AI agents, and enterprise cloud infrastructure." />
+    <meta name="keywords" content="CodeLifeAI, CodeLife AI, software development company, custom AI agents, web app development, mobile app development, Flutter, React, Next.js, Python, UI UX design, cloud engineering, software studio" />
     <meta name="author" content="CodeLifeAI" />
     <meta name="theme-color" content="#06060f" />
     <link rel="canonical" href="https://codelifeai.com/" />
 
-    <!-- Open Graph / Facebook / LinkedIn -->
-    <meta property="og:type"        content="website" />
-    <meta property="og:url"         content="https://codelifeai.com/" />
-    <meta property="og:title"       content="CodeLifeAI — We Build What's Next" />
-    <meta property="og:description" content="CodeLifeAI crafts high-performance digital products — web applications, mobile experiences, custom AI integrations, and cloud infrastructure." />
-    <meta property="og:site_name"   content="CodeLifeAI" />
-    <meta property="og:image"       content="https://codelifeai.com/og-image.png" />
-    <meta property="og:image:secure_url" content="https://codelifeai.com/og-image.png" />
-    <meta property="og:image:type"   content="image/png" />
-    <meta property="og:image:width"  content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt"    content="CodeLifeAI — Software Studio" />
+    <!-- Google Bot & AI Crawler Directives -->
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large" />
+    <meta name="bingbot" content="index, follow, max-snippet:-1, max-image-preview:large" />
+    <meta name="rating" content="general" />
+    <meta name="revisit-after" content="3 days" />
+    <meta name="language" content="English" />
+    <meta name="distribution" content="global" />
 
-    <!-- Twitter -->
-    <meta name="twitter:card"        content="summary_large_image" />
-    <meta name="twitter:url"         content="https://codelifeai.com/" />
-    <meta name="twitter:title"       content="CodeLifeAI — We Build What's Next" />
-    <meta name="twitter:description" content="CodeLifeAI crafts high-performance digital products — web applications, mobile experiences, custom AI integrations, and cloud infrastructure." />
-    <meta name="twitter:image"       content="https://codelifeai.com/og-image.png" />
+    <!-- Open Graph / Facebook / LinkedIn / WhatsApp -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://codelifeai.com/" />
+    <meta property="og:title" content="CodeLifeAI — We Build What's Next | Web, Mobile &amp; AI Engineering Studio" />
+    <meta property="og:description" content="CodeLifeAI crafts high-performance digital products — scalable web applications, mobile apps, custom AI integrations, and cloud infrastructure." />
+    <meta property="og:site_name" content="CodeLifeAI" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:image" content="https://codelifeai.com/og-image.png" />
+    <meta property="og:image:secure_url" content="https://codelifeai.com/og-image.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="CodeLifeAI — Next-Generation Software Engineering Studio" />
+
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://codelifeai.com/" />
+    <meta name="twitter:title" content="CodeLifeAI — We Build What's Next" />
+    <meta name="twitter:description" content="High-velocity software studio building web applications, mobile experiences, custom AI integrations, and cloud infrastructure." />
+    <meta name="twitter:image" content="https://codelifeai.com/og-image.png" />
+    <meta name="twitter:image:alt" content="CodeLifeAI Studio" />
 
     <!-- Favicon & Touch Icons -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/logo.png" />
     <link rel="icon" type="image/png" sizes="512x512" href="/logo.png" />
 
-    <!-- Google Structured Data (Schema.org Organization & WebSite for Google Search indexing and Logo display) -->
+    <!-- LLM and AI Agents Knowledge Standard -->
+    <link rel="alternate" type="text/plain" href="/llms.txt" title="LLMs.txt" />
+
+    <!-- Complete Schema.org Knowledge Graph (For Google, Gemini, ChatGPT, Perplexity, Claude) -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -46,28 +62,151 @@
             "@type": "Organization",
             "@id": "https://codelifeai.com/#organization",
             "name": "CodeLifeAI",
+            "alternateName": ["CodeLife AI", "CodeLife Studio", "CodeLifeAI Technologies"],
+            "legalName": "CodeLifeAI Software Studio",
             "url": "https://codelifeai.com",
             "logo": {
               "@type": "ImageObject",
               "@id": "https://codelifeai.com/#logo",
               "url": "https://codelifeai.com/logo.png",
               "contentUrl": "https://codelifeai.com/logo.png",
-              "caption": "CodeLifeAI Logo",
+              "caption": "CodeLifeAI Official Logo",
               "width": 512,
               "height": 512
             },
             "image": "https://codelifeai.com/og-image.png",
-            "description": "CodeLifeAI is a high-velocity software engineering studio building modern web apps, mobile products, AI integrations, and scalable cloud systems.",
+            "description": "CodeLifeAI is a high-velocity software engineering studio and digital product consultancy that designs, develops, and deploys next-generation web applications, cross-platform mobile apps, autonomous AI agents, and enterprise cloud infrastructure for startups and enterprises globally.",
+            "slogan": "We Build What's Next",
             "email": "contact@codelifeai.com",
+            "founder": [
+              {
+                "@type": "Person",
+                "name": "Muhammad Ahmed",
+                "jobTitle": "Co-Founder & CEO",
+                "worksFor": { "@id": "https://codelifeai.com/#organization" }
+              },
+              {
+                "@type": "Person",
+                "name": "Anas Waheed",
+                "jobTitle": "Co-Founder & CTO",
+                "worksFor": { "@id": "https://codelifeai.com/#organization" }
+              }
+            ],
+            "knowsAbout": [
+              "Custom AI Agents & Multi-Agent Workflows",
+              "Retrieval-Augmented Generation (RAG)",
+              "Full-Stack Web Development",
+              "Next.js 15 & React Architecture",
+              "Flutter Cross-Platform Mobile Applications",
+              "Cloud DevOps & Kubernetes Infrastructure",
+              "Fintech & Banking Dashboards",
+              "E-Commerce Platform Engineering",
+              "Telemedicine & Healthcare Apps"
+            ],
             "sameAs": [
               "https://github.com/codelifeai",
-              "https://linkedin.com/company/codelifeai"
+              "https://linkedin.com/company/codelifeai",
+              "https://twitter.com/codelifeai"
             ],
             "contactPoint": [
               {
                 "@type": "ContactPoint",
                 "email": "contact@codelifeai.com",
-                "contactType": "customer support"
+                "contactType": "customer support & sales",
+                "availableLanguage": ["English", "Urdu"]
+              }
+            ]
+          },
+          {
+            "@type": "ProfessionalService",
+            "@id": "https://codelifeai.com/#service",
+            "name": "CodeLifeAI Software Engineering Services",
+            "url": "https://codelifeai.com/services",
+            "image": "https://codelifeai.com/og-image.png",
+            "priceRange": "$$$",
+            "telephone": "+92 300 1234567",
+            "address": {
+              "@type": "PostalAddress",
+              "addressCountry": "Global"
+            },
+            "hasOfferCatalog": {
+              "@type": "OfferCatalog",
+              "name": "Software Engineering Services",
+              "itemListElement": [
+                {
+                  "@type": "Offer",
+                  "itemOffered": {
+                    "@type": "Service",
+                    "name": "Full-Stack Web Development",
+                    "description": "High-performance React, Next.js, and Node.js applications with real-time architectures."
+                  }
+                },
+                {
+                  "@type": "Offer",
+                  "itemOffered": {
+                    "@type": "Service",
+                    "name": "Cross-Platform Mobile App Engineering",
+                    "description": "60/120 FPS native-speed iOS and Android apps using Flutter and Dart."
+                  }
+                },
+                {
+                  "@type": "Offer",
+                  "itemOffered": {
+                    "@type": "Service",
+                    "name": "Custom AI Agents & LLM Integration",
+                    "description": "Autonomous AI workflows, fine-tuned LLMs, LangChain agents, and vector databases."
+                  }
+                },
+                {
+                  "@type": "Offer",
+                  "itemOffered": {
+                    "@type": "Service",
+                    "name": "Cloud Infrastructure & DevOps Automation",
+                    "description": "Zero-downtime CI/CD pipelines, Kubernetes container orchestration, and cloud security."
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "@type": "ItemList",
+            "@id": "https://codelifeai.com/#projects",
+            "name": "Shipped Projects & Case Studies by CodeLifeAI",
+            "itemListElement": [
+              {
+                "@type": "SoftwareApplication",
+                "name": "FinTrack",
+                "applicationCategory": "BusinessApplication",
+                "description": "Real-time banking and wealth management dashboard with sub-second portfolio valuations and multi-currency wallets.",
+                "url": "https://fintrack.codelifeai.com"
+              },
+              {
+                "@type": "SoftwareApplication",
+                "name": "ShopEase",
+                "applicationCategory": "ECommerceApplication",
+                "description": "High-conversion headless e-commerce store with instant edge search and Stripe multi-currency checkout.",
+                "url": "https://shopease.codelifeai.com"
+              },
+              {
+                "@type": "SoftwareApplication",
+                "name": "MedSync",
+                "applicationCategory": "HealthApplication",
+                "description": "HIPAA-compliant telemedicine app with encrypted HD video doctor consultations and vitals tracking.",
+                "url": "https://medsync.app"
+              },
+              {
+                "@type": "SoftwareApplication",
+                "name": "LogiFlow",
+                "applicationCategory": "LogisticsApplication",
+                "description": "Intelligent supply chain SaaS handling 2M+ telemetry events per day with GPS route recalculation.",
+                "url": "https://logiflow.io"
+              },
+              {
+                "@type": "SoftwareApplication",
+                "name": "ZYRA AI",
+                "applicationCategory": "ArtificialIntelligenceApplication",
+                "description": "Multimodal autonomous work assistant automating research, code refactoring, and data intelligence.",
+                "url": "https://zyra-ai.com"
               }
             ]
           },
@@ -78,13 +217,18 @@
             "name": "CodeLifeAI",
             "publisher": {
               "@id": "https://codelifeai.com/#organization"
+            },
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": "https://codelifeai.com/blog?q={search_term_string}",
+              "query-input": "required name=search_term_string"
             }
           }
         ]
       }
     </script>
 
-    <!-- Fonts (non-blocking: load as print, swap to all once loaded) -->
+    <!-- DNS Prefetch & Fonts (Optimized for instant page load) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -100,7 +244,7 @@
       />
     </noscript>
   </head>
-  <body>
+  <body class="bg-[#06060f] text-slate-100 antialiased selection:bg-[#00d4f5]/30 selection:text-[#00d4f5] overflow-x-hidden">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
