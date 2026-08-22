@@ -36,6 +36,7 @@ export default function InteractiveDotGrid() {
     let mouseX = -10000
     let mouseY = -10000
     let rafId  = 0
+    let animating = false
 
     const SPACING        = 36
     const BASE_OPACITY   = 0.06
@@ -52,9 +53,10 @@ export default function InteractiveDotGrid() {
       canvas.style.width  = width  + 'px'
       canvas.style.height = height + 'px'
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      render()
     }
 
-    function draw() {
+    function render() {
       ctx.clearRect(0, 0, width, height)
 
       // Match the body::after `mask-image: radial-gradient(ellipse 80% 80%)`
@@ -100,28 +102,53 @@ export default function InteractiveDotGrid() {
         }
       }
 
-      rafId = requestAnimationFrame(draw)
+      if (animating) {
+        rafId = requestAnimationFrame(render)
+      }
     }
 
     function onMove(e) {
       mouseX = e.clientX
       mouseY = e.clientY
+      if (!animating) {
+        animating = true
+        render()
+      }
     }
+
+    function onTouch(e) {
+      if (e.touches && e.touches[0]) {
+        mouseX = e.touches[0].clientX
+        mouseY = e.touches[0].clientY
+        if (!animating) {
+          animating = true
+          render()
+        }
+      }
+    }
+
     function onLeave() {
       mouseX = -10000
       mouseY = -10000
+      animating = false
+      if (rafId) cancelAnimationFrame(rafId)
+      render()
     }
 
     resize()
-    draw()
     window.addEventListener('resize', resize)
     window.addEventListener('mousemove', onMove, { passive: true })
+    window.addEventListener('touchmove', onTouch, { passive: true })
+    window.addEventListener('touchend', onLeave, { passive: true })
     document.addEventListener('mouseleave', onLeave)
 
     return () => {
-      cancelAnimationFrame(rafId)
+      animating = false
+      if (rafId) cancelAnimationFrame(rafId)
       window.removeEventListener('resize', resize)
       window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('touchmove', onTouch)
+      window.removeEventListener('touchend', onLeave)
       document.removeEventListener('mouseleave', onLeave)
       document.body.classList.remove('has-dotgrid')
     }

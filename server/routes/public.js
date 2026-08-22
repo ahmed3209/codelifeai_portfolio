@@ -111,6 +111,9 @@ router.post('/early-access', async (req, res) => {
     sql: 'INSERT INTO early_access (name, email, reason) VALUES (?, ?, ?)',
     args: [name.trim(), email.trim(), reason.trim()],
   })
+  res.json({ ok: true })
+})
+
 // POST /api/track-view — records a real-time pageview
 router.post('/track-view', async (req, res) => {
   try {
