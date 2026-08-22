@@ -77,6 +77,9 @@ export default function AdminPromotions() {
       invalidate()
       toast.success(vars.active ? 'Now active on the site' : 'Promotion deactivated')
     },
+    onError: (err) => {
+      toast.error(err.response?.data?.error || 'Failed to update promotion status')
+    },
   })
 
   function openCreate() {
