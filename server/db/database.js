@@ -220,6 +220,11 @@ async function ensureExtras(db) {
     "ALTER TABLE contacts ADD COLUMN country TEXT DEFAULT ''",
     "ALTER TABLE contacts ADD COLUMN service_interest TEXT DEFAULT ''",
     "ALTER TABLE contacts ADD COLUMN referral_source TEXT DEFAULT ''",
+    "ALTER TABLE process_steps ADD COLUMN timeline TEXT DEFAULT ''",
+    "ALTER TABLE process_steps ADD COLUMN summary TEXT DEFAULT ''",
+    "ALTER TABLE process_steps ADD COLUMN deliverables TEXT DEFAULT '[]'",
+    "ALTER TABLE process_steps ADD COLUMN tools TEXT DEFAULT '[]'",
+    "ALTER TABLE process_steps ADD COLUMN client_checkpoint TEXT DEFAULT ''",
   ]
   for (const sql of schemaExtensions) {
     try { await db.execute(sql) }
@@ -227,6 +232,16 @@ async function ensureExtras(db) {
       if (!/duplicate column|already exists/i.test(e.message || '')) throw e
     }
   }
+
+  // Deduplicate any repeated project titles
+  try {
+    await db.execute(`
+      DELETE FROM projects
+      WHERE id NOT IN (
+        SELECT MIN(id) FROM projects GROUP BY title
+      )
+    `)
+  } catch {}
 
   // Ensure each service has its own dedicated high-quality asset image
   const serviceImageMap = [
@@ -244,6 +259,28 @@ async function ensureExtras(db) {
     try {
       await db.execute({
         sql: "UPDATE services SET image_url = ? WHERE (image_url IS NULL OR image_url = '') AND title LIKE ?",
+        args: [item.img, item.pattern],
+      })
+    } catch {}
+  }
+
+  // Ensure all projects have dedicated high-resolution mockups
+  const projectImageMap = [
+    { pattern: '%FinTrack%', img: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1200&auto=format&fit=crop' },
+    { pattern: '%ShopEase%', img: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200&auto=format&fit=crop' },
+    { pattern: '%MedSync%', img: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=1200&auto=format&fit=crop' },
+    { pattern: '%LogiFlow%', img: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1200&auto=format&fit=crop' },
+    { pattern: '%ZYRA%', img: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200&auto=format&fit=crop' },
+    { pattern: '%SocialPulse%', img: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=1200&auto=format&fit=crop' },
+    { pattern: '%ScreenSnap%', img: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1200&auto=format&fit=crop' },
+    { pattern: '%EduPath%', img: 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?q=80&w=1200&auto=format&fit=crop' },
+    { pattern: '%CloudGuard%', img: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1200&auto=format&fit=crop' },
+    { pattern: '%Alarmify%', img: 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?q=80&w=1200&auto=format&fit=crop' },
+  ]
+  for (const item of projectImageMap) {
+    try {
+      await db.execute({
+        sql: "UPDATE projects SET image_url = ? WHERE (image_url IS NULL OR image_url = '') AND title LIKE ?",
         args: [item.img, item.pattern],
       })
     } catch {}
@@ -412,17 +449,101 @@ async function ensureExtras(db) {
   }
 
   const processSteps = [
-    { number: '01', title: 'Discovery', icon: '🔍', description: 'Deep dive into your goals, users, and constraints. We ask hard questions to define the right problem before writing a single line of code.', sort_order: 1 },
-    { number: '02', title: 'Design', icon: '✏️', description: 'Wireframes, prototypes, and a full design system. We validate ideas visually before committing to production.', sort_order: 2 },
-    { number: '03', title: 'Build', icon: '⚙️', description: 'Agile sprints with real deliverables every week. You see live progress — not just status updates and promises.', sort_order: 3 },
-    { number: '04', title: 'Launch', icon: '🚀', description: 'CI/CD deployment, performance monitoring, and dedicated post-launch support. We stay involved until you are fully in flight.', sort_order: 4 },
+    {
+      number: '01',
+      title: 'Discovery & System Architecture',
+      timeline: 'Week 1',
+      icon: '🔍',
+      description: 'Deep architectural dive into your business logic, technical constraints, data schemas, and scalability targets.',
+      summary: 'Deep architectural dive into your business logic, technical constraints, data schemas, and scalability targets.',
+      deliverables: JSON.stringify([
+        'Product Requirements Document (PRD)',
+        'Database Entity Relationship Diagram (ERD)',
+        'API Architecture & Third-Party Integration Map',
+        'Sprint Roadmap & Milestone Cost Breakdown',
+      ]),
+      tools: JSON.stringify(['Figma Jam', 'PostgreSQL / Prisma', 'Swagger / OpenAPI', 'Notion']),
+      client_checkpoint: 'Architecture Review & Kickoff Call (Full Scope Alignment)',
+      sort_order: 1,
+    },
+    {
+      number: '02',
+      title: 'UI/UX & Interactive Prototyping',
+      timeline: 'Week 1 – 2',
+      icon: '🎨',
+      description: 'Translating concepts into high-fidelity, high-conversion user interfaces with responsive design systems.',
+      summary: 'Translating concepts into high-fidelity, high-conversion user interfaces with responsive design systems.',
+      deliverables: JSON.stringify([
+        'Complete Clickable Figma Prototype',
+        'Atomic Design System & Component Library',
+        'Mobile Responsive Breakpoints (iOS/Android/Web)',
+        'Micro-Interactions & Animation Specs',
+      ]),
+      tools: JSON.stringify(['Figma', 'Tailwind Design Tokens', 'Framer', 'Lottie']),
+      client_checkpoint: 'Interactive Prototype Walkthrough & Visual Signoff',
+      sort_order: 2,
+    },
+    {
+      number: '03',
+      title: 'Agile Build & Weekly Sprints',
+      timeline: 'Week 2 – 6',
+      icon: '⚙️',
+      description: 'High-velocity test-driven development in 1-week sprints with working software deployed to private staging.',
+      summary: 'High-velocity test-driven development in 1-week sprints with working software deployed to private staging.',
+      deliverables: JSON.stringify([
+        'Clean Modular TypeScript / Flutter / Python Code',
+        'Live Staging Sandbox with Test Data',
+        'Automated CI/CD Pipeline & Unit Testing Suite',
+        'Weekly Async Video Demo & Progress Loom',
+      ]),
+      tools: JSON.stringify(['React / Next.js', 'Flutter / Dart', 'Node / FastAPI', 'GitHub Actions']),
+      client_checkpoint: 'Weekly Live Sandbox Testing & Iterative Feedback',
+      sort_order: 3,
+    },
+    {
+      number: '04',
+      title: 'Production Deploy & Hardening',
+      timeline: 'Launch Week',
+      icon: '🚀',
+      description: 'Zero-downtime production deployment, performance audits, security hardening, and DNS cutover.',
+      summary: 'Zero-downtime production deployment, performance audits, security hardening, and DNS cutover.',
+      deliverables: JSON.stringify([
+        'Production Kubernetes / AWS / GCP Cluster',
+        'SSL Encryption, Cloudflare WAF & Edge CDN',
+        'Sub-Second Page Load Optimization',
+        'Automated Database Backup Snapshots',
+      ]),
+      tools: JSON.stringify(['AWS / GCP', 'Docker / Kubernetes', 'Cloudflare', 'PostgreSQL']),
+      client_checkpoint: 'Production Go-Live & Domain Launch Cutover',
+      sort_order: 4,
+    },
+    {
+      number: '05',
+      title: 'Observability, Scale & Warranty',
+      timeline: 'Post-Launch',
+      icon: '🛡️',
+      description: 'Continuous 24/7 APM monitoring, 30-day bug warranty, and sprint retainers for feature scaling.',
+      summary: 'Continuous 24/7 APM monitoring, 30-day bug warranty, and sprint retainers for feature scaling.',
+      deliverables: JSON.stringify([
+        '30-Day Complete Post-Launch Bug Warranty',
+        'Prometheus & Grafana Real-Time APM Dashboards',
+        '100% IP & Clean Repository Handover',
+        'Dedicated Sprint Scaling Support Option',
+      ]),
+      tools: JSON.stringify(['Prometheus', 'Grafana', 'Sentry', 'GitHub Enterprise']),
+      client_checkpoint: 'Handover Certification & Growth Roadmap Meeting',
+      sort_order: 5,
+    },
   ]
+
   const stepCount = await db.execute('SELECT COUNT(*) as c FROM process_steps')
-  if (stepCount.rows[0].c === 0) {
+  if (Number(stepCount.rows[0].c) < 5) {
+    await db.execute('DELETE FROM process_steps')
     for (const s of processSteps) {
       await db.execute({
-        sql: 'INSERT INTO process_steps (number,title,icon,description,sort_order) VALUES (?,?,?,?,?)',
-        args: [s.number, s.title, s.icon, s.description, s.sort_order],
+        sql: `INSERT INTO process_steps (number, title, timeline, icon, description, summary, deliverables, tools, client_checkpoint, sort_order)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        args: [s.number, s.title, s.timeline, s.icon, s.description, s.summary, s.deliverables, s.tools, s.client_checkpoint, s.sort_order],
       })
     }
   }

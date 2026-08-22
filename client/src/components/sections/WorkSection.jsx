@@ -28,10 +28,20 @@ export default function WorkSection({ projects = [] }) {
 
   if (!projects.length) return null
 
+  const uniqueProjects = useMemo(() => {
+    const seen = new Set()
+    return projects.filter(p => {
+      const normalizedTitle = (p.title || '').trim().toLowerCase()
+      if (seen.has(normalizedTitle)) return false
+      seen.add(normalizedTitle)
+      return true
+    })
+  }, [projects])
+
   const filteredProjects = useMemo(() => {
-    if (selectedCategory === 'All') return projects
-    return projects.filter(p => p.category === selectedCategory)
-  }, [projects, selectedCategory])
+    if (selectedCategory === 'All') return uniqueProjects
+    return uniqueProjects.filter(p => p.category === selectedCategory)
+  }, [uniqueProjects, selectedCategory])
 
   return (
     <section id="work" className="relative z-10 py-20 sm:py-32 px-4 sm:px-6 lg:px-14">

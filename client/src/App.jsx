@@ -32,9 +32,12 @@ const AdminPromotions     = lazy(() => import('./pages/admin/Promotions'))
 const AdminLiveProducts   = lazy(() => import('./pages/admin/LiveProducts'))
 const AdminFAQs           = lazy(() => import('./pages/admin/FAQs'))
 
+import ScrollToTop from './components/ScrollToTop'
+
 export default function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Suspense fallback={null}>
         <Routes>
           {/* Public site */}

@@ -128,9 +128,40 @@ const COMPARISON_ROWS = [
   },
 ]
 
-export default function ProcessSection() {
+function parseFieldArray(val) {
+  if (Array.isArray(val)) return val
+  try {
+    const parsed = JSON.parse(val)
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return typeof val === 'string' ? val.split(/[\n,]/).map(s => s.trim()).filter(Boolean) : []
+  }
+}
+
+export default function ProcessSection({ steps = [] }) {
   const [activeTab, setActiveTab] = useState(0)
-  const currentStage = PROCESS_STAGES[activeTab]
+
+  const activeStages = steps.length > 0
+    ? steps.map((s, idx) => {
+        const defaultMatch = PROCESS_STAGES[idx] || PROCESS_STAGES[0]
+        const deliverables = s.deliverables ? parseFieldArray(s.deliverables) : defaultMatch.deliverables
+        const tools = s.tools ? parseFieldArray(s.tools) : defaultMatch.tools
+        return {
+          id: s.number || String(idx + 1).padStart(2, '0'),
+          phase: `Phase ${s.number || String(idx + 1).padStart(2, '0')}`,
+          title: s.title || defaultMatch.title,
+          timeline: s.timeline || defaultMatch.timeline,
+          icon: defaultMatch.icon,
+          color: defaultMatch.color,
+          summary: s.summary || s.description || defaultMatch.summary,
+          deliverables: deliverables.length > 0 ? deliverables : defaultMatch.deliverables,
+          tools: tools.length > 0 ? tools : defaultMatch.tools,
+          clientCheckpoint: s.client_checkpoint || defaultMatch.clientCheckpoint,
+        }
+      })
+    : PROCESS_STAGES
+
+  const currentStage = activeStages[activeTab] || activeStages[0]
 
   return (
     <section id="process" className="relative z-10 py-16 sm:py-24 px-4 sm:px-6 lg:px-14 overflow-hidden">
@@ -162,8 +193,8 @@ export default function ProcessSection() {
         <div className="space-y-8">
           {/* Stage Tabs */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-            {PROCESS_STAGES.map((s, idx) => {
-              const Icon = s.icon
+            {activeStages.map((s, idx) => {
+              const Icon = s.icon || Search
               const isSelected = idx === activeTab
               return (
                 <button

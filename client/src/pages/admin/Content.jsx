@@ -4,7 +4,7 @@ import { adminApi } from '../../lib/api'
 import Card, { CardHeader, CardBody } from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import { Input, Textarea } from '../../components/ui/Input'
-import { LayoutGrid, Eye, Check, Sparkles, SlidersHorizontal } from 'lucide-react'
+import { LayoutGrid, Eye, Check, Sparkles, SlidersHorizontal, Image as ImageIcon, Globe, Shield } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 const SECTION_TOGGLES = [
@@ -32,14 +32,14 @@ export default function AdminContent() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin-content'] })
       qc.invalidateQueries({ queryKey: ['site-data'] })
-      toast.success('Homepage controls & content saved!')
+      toast.success('Site branding, logo & content saved successfully!')
     }
   })
 
   const set = (key) => (e) => setForm(p => ({ ...p, [key]: e.target.value }))
   const toggleSection = (key) => {
     setForm(p => {
-      const current = p[key] !== '0' // default is true/enabled
+      const current = p[key] !== '0'
       return { ...p, [key]: current ? '0' : '1' }
     })
   }
@@ -48,9 +48,9 @@ export default function AdminContent() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-bb-white tracking-tight">Homepage &amp; Site Content</h1>
+          <h1 className="text-2xl font-bold text-bb-white tracking-tight">Site Branding &amp; Content CMS</h1>
           <p className="text-bb-muted text-sm mt-1">
-            Toggle homepage sections on/off and edit all headlines and contact details.
+            Change your site logo, brand assets, homepage section toggles, headlines, and contact details.
           </p>
         </div>
         <Button
@@ -62,7 +62,52 @@ export default function AdminContent() {
         </Button>
       </div>
 
-      {/* 1. Homepage Section Visibility Controls */}
+      {/* 1. Brand Assets & Logo Manager */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <ImageIcon size={16} className="text-[#00d4f5]" />
+            <h2 className="text-sm font-bold text-bb-white">Site Logo &amp; Brand Assets</h2>
+          </div>
+          <p className="text-xs text-bb-muted mt-0.5">
+            Update your header logo and site branding across all public pages.
+          </p>
+        </CardHeader>
+        <CardBody className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              label="Site Logo URL (Navbar & Footer)"
+              value={form.site_logo_url || ''}
+              onChange={set('site_logo_url')}
+              placeholder="/logo.svg or https://.../logo.png"
+            />
+            <Input
+              label="Site Favicon URL"
+              value={form.site_favicon_url || ''}
+              onChange={set('site_favicon_url')}
+              placeholder="/favicon.ico or https://.../icon.png"
+            />
+          </div>
+
+          {/* Logo Live Preview */}
+          <div className="p-4 rounded-2xl bg-black/40 border border-white/[0.08] flex items-center justify-between flex-wrap gap-4">
+            <div>
+              <p className="text-xs font-bold text-slate-300">Active Logo Preview:</p>
+              <p className="text-[0.7rem] text-slate-400">Rendered on dark navigation headers</p>
+            </div>
+            <div className="h-10 px-4 rounded-xl bg-[#06060f] border border-white/10 flex items-center justify-center">
+              <img
+                src={form.site_logo_url || '/logo.svg'}
+                alt="Logo Preview"
+                className="h-6 w-auto object-contain"
+                onError={(e) => { e.target.src = '/logo.svg' }}
+              />
+            </div>
+          </div>
+        </CardBody>
+      </Card>
+
+      {/* 2. Homepage Section Visibility Controls */}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
@@ -101,7 +146,7 @@ export default function AdminContent() {
         </CardBody>
       </Card>
 
-      {/* 2. Hero Section */}
+      {/* 3. Hero Section */}
       <Card>
         <CardHeader><h2 className="text-sm font-bold text-bb-white">Hero Section</h2></CardHeader>
         <CardBody className="space-y-4">
@@ -113,7 +158,7 @@ export default function AdminContent() {
         </CardBody>
       </Card>
 
-      {/* 3. Contact & Social */}
+      {/* 4. Contact & Social */}
       <Card>
         <CardHeader><h2 className="text-sm font-bold text-bb-white">Contact &amp; Social Links</h2></CardHeader>
         <CardBody className="space-y-4">
@@ -133,7 +178,7 @@ export default function AdminContent() {
         </CardBody>
       </Card>
 
-      {/* 4. Footer */}
+      {/* 5. Footer */}
       <Card>
         <CardHeader><h2 className="text-sm font-bold text-bb-white">Footer</h2></CardHeader>
         <CardBody className="space-y-4">

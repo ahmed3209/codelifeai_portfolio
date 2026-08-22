@@ -590,25 +590,27 @@ router.get('/process', async (req, res) => {
 })
 
 router.post('/process', async (req, res) => {
-  const { number, title, icon, description, sort_order } = req.body
+  const { number, title, timeline, icon, description, summary, deliverables, tools, client_checkpoint, sort_order } = req.body
   const db = getDb()
   const max = await db.execute('SELECT MAX(sort_order) as m FROM process_steps')
   const nextOrder = sort_order || (Number(max.rows[0].m) || 0) + 1
   const num = number || String(nextOrder).padStart(2, '0')
   const ins = await db.execute({
-    sql: 'INSERT INTO process_steps (number,title,icon,description,sort_order) VALUES (?,?,?,?,?)',
-    args: [num, title, icon || '', description || '', nextOrder],
+    sql: `INSERT INTO process_steps (number, title, timeline, icon, description, summary, deliverables, tools, client_checkpoint, sort_order)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    args: [num, title, timeline || '', icon || '', description || '', summary || '', deliverables || '[]', tools || '[]', client_checkpoint || '', nextOrder],
   })
   const { rows } = await db.execute({ sql: 'SELECT * FROM process_steps WHERE id = ?', args: [Number(ins.lastInsertRowid)] })
   res.json(rows[0])
 })
 
 router.put('/process/:id', async (req, res) => {
-  const { number, title, icon, description, sort_order } = req.body
+  const { number, title, timeline, icon, description, summary, deliverables, tools, client_checkpoint, sort_order } = req.body
   const db = getDb()
   await db.execute({
-    sql: 'UPDATE process_steps SET number=?,title=?,icon=?,description=?,sort_order=? WHERE id=?',
-    args: [number, title, icon, description, sort_order, req.params.id],
+    sql: `UPDATE process_steps SET number=?, title=?, timeline=?, icon=?, description=?, summary=?, deliverables=?, tools=?, client_checkpoint=?, sort_order=?
+          WHERE id=?`,
+    args: [number, title, timeline || '', icon || '', description || '', summary || '', deliverables || '[]', tools || '[]', client_checkpoint || '', sort_order, req.params.id],
   })
   const { rows } = await db.execute({ sql: 'SELECT * FROM process_steps WHERE id = ?', args: [req.params.id] })
   res.json(rows[0])

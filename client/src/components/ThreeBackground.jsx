@@ -2,11 +2,10 @@ import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 
 /**
- * High-Impact, Vibrant 3D WebGL Cyber-Core Background:
- * - Glowing Futuristic Polyhedron with neon vertex highlights & inner energy core
- * - Dual rotating orbital gimbal rings with pulsing signal nodes
- * - Smooth interactive cursor parallax physics & 60/120 FPS performance auto-pause
- * - High-contrast backdrop ensuring 100% crisp typography readability
+ * Ultra-Smooth, High-Impact 3D Cyber-Core:
+ * - Positioned in the Hero zone
+ * - Smoothly fades out as user scrolls past hero so service cards remain 100% clean & legible
+ * - Auto-pauses WebGL render loop when scrolled off-screen or tab hidden (120 FPS buttery smooth)
  */
 export default function ThreeBackground() {
   const containerRef = useRef(null)
@@ -41,7 +40,7 @@ export default function ThreeBackground() {
     // ── 2. Scene & Camera ──────────────────────────────────────────
     const scene = new THREE.Scene()
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100)
-    camera.position.set(0, 0, 6.5)
+    camera.position.set(0, 0, 6.2)
 
     const clock = new THREE.Clock()
     const targetMouse = { x: 0, y: 0 }
@@ -56,7 +55,13 @@ export default function ThreeBackground() {
 
     const onScroll = () => {
       scrollOffset = window.scrollY
-      if (scrollOffset > window.innerHeight * 1.5) {
+      if (containerRef.current) {
+        // Fade out smoothly within first 600px of scroll
+        const opacity = Math.max(0, Math.min(0.75, 0.75 - (scrollOffset / 500) * 0.75))
+        containerRef.current.style.opacity = String(opacity)
+      }
+
+      if (scrollOffset > window.innerHeight * 1.2) {
         isRenderingActive = false
       } else if (!document.hidden) {
         isRenderingActive = true
@@ -64,7 +69,7 @@ export default function ThreeBackground() {
     }
 
     const onVisibilityChange = () => {
-      isRenderingActive = !document.hidden && scrollOffset <= window.innerHeight * 1.5
+      isRenderingActive = !document.hidden && scrollOffset <= window.innerHeight * 1.2
     }
 
     const onResize = () => {
@@ -82,7 +87,7 @@ export default function ThreeBackground() {
     const mainGroup = new THREE.Group()
     scene.add(mainGroup)
 
-    // A. Inner Glowing Energy Crystal (Glossy Dark Obsidian with Neon Facets)
+    // A. Inner Glowing Energy Crystal
     const coreGeo = track(new THREE.IcosahedronGeometry(1.25, 0))
     const coreMat = track(new THREE.MeshStandardMaterial({
       color: 0x051329,
@@ -141,7 +146,7 @@ export default function ThreeBackground() {
     ring2.rotation.y = -Math.PI / 7
     mainGroup.add(ring2)
 
-    // E. Orbiting Signal Beacons (Cyan & Violet)
+    // E. Orbiting Signal Beacons
     const beaconGeo = track(new THREE.OctahedronGeometry(0.09, 0))
     const beaconMatCyan = track(new THREE.MeshBasicMaterial({ color: 0x00d4f5 }))
     const beaconMatViolet = track(new THREE.MeshBasicMaterial({ color: 0xc084fc }))
@@ -157,7 +162,7 @@ export default function ThreeBackground() {
     }
 
     // ── 5. Starfield & Micro-Constellations ─────────────────────────
-    const PARTICLE_COUNT = 150
+    const PARTICLE_COUNT = 140
     const partPositions = new Float32Array(PARTICLE_COUNT * 3)
     const partColors = new Float32Array(PARTICLE_COUNT * 3)
 
@@ -182,10 +187,10 @@ export default function ThreeBackground() {
     partGeo.setAttribute('color', new THREE.BufferAttribute(partColors, 3))
 
     const partMat = track(new THREE.PointsMaterial({
-      size: 0.042,
+      size: 0.04,
       vertexColors: true,
       transparent: true,
-      opacity: 0.55,
+      opacity: 0.5,
       sizeAttenuation: true,
     }))
     const particleField = new THREE.Points(partGeo, partMat)
@@ -227,7 +232,7 @@ export default function ThreeBackground() {
 
       // Main model positioning with cursor follow
       mainGroup.position.x = curMouse.x * 0.32
-      mainGroup.position.y = curMouse.y * 0.24 - (scrollOffset / window.innerHeight) * 0.3
+      mainGroup.position.y = curMouse.y * 0.24
       mainGroup.rotation.y = curMouse.x * 0.28
       mainGroup.rotation.x = -curMouse.y * 0.2
 
@@ -265,17 +270,21 @@ export default function ThreeBackground() {
   }, [])
 
   return (
-    <div ref={containerRef} className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+    <div
+      ref={containerRef}
+      className="fixed top-0 left-0 right-0 h-screen pointer-events-none z-0 overflow-hidden transition-opacity duration-300"
+      style={{ opacity: 0.75 }}
+    >
       <canvas
         ref={canvasRef}
         aria-hidden="true"
-        className="w-full h-full opacity-75 will-change-transform"
+        className="w-full h-full will-change-transform"
       />
       {/* High-Contrast Soft Vignette Mask */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: 'radial-gradient(ellipse 75% 65% at 50% 30%, transparent 25%, #06060f 92%)',
+          background: 'radial-gradient(ellipse 75% 65% at 50% 35%, transparent 25%, #06060f 95%)',
         }}
       />
     </div>

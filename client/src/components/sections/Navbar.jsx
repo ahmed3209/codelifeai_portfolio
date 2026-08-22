@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useQuery } from '@tanstack/react-query'
+import { publicApi } from '../../lib/api'
 
 const NAV_LINKS = [
   { to: '/',        label: 'Home'     },
@@ -17,6 +19,13 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [progress, setProgress] = useState(0)
   const { pathname } = useLocation()
+
+  const { data: siteData } = useQuery({
+    queryKey: ['site-data'],
+    queryFn: () => publicApi.getSiteData().then(r => r.data),
+    staleTime: 1000 * 60 * 5,
+  })
+  const logoUrl = siteData?.content?.site_logo_url || '/logo.svg'
 
   useEffect(() => {
     const onScroll = () => {
@@ -39,14 +48,12 @@ export default function Navbar() {
           className="h-full transition-all duration-75"
           style={{
             width: `${progress}%`,
-            background: 'linear-gradient(90deg, #00d4f5, #7c3aed, #00d4f5)',
-            backgroundSize: '200% 100%',
-            animation: progress > 0 ? 'gradientShift 3s linear infinite' : 'none',
+            background: 'linear-gradient(90deg, #00d4f5, #7c3aed)',
           }}
         />
       </div>
 
-      {/* Main nav */}
+      {/* Main navigation bar */}
       <motion.nav
         initial={{ y: -72, opacity: 0 }}
         animate={{ y: 0,   opacity: 1 }}
@@ -56,7 +63,14 @@ export default function Navbar() {
       >
         {/* Logo */}
         <Link to="/" className="flex items-center no-underline" aria-label="CodeLifeAI — Home">
-          <img src="/logo.svg" alt="CodeLifeAI" width="408" height="110" className="h-6 sm:h-8 w-auto" />
+          <img
+            src={logoUrl}
+            alt="CodeLifeAI"
+            width="408"
+            height="110"
+            className="h-6 sm:h-8 w-auto object-contain"
+            onError={(e) => { e.target.src = '/logo.svg' }}
+          />
         </Link>
 
         {/* Desktop links */}
@@ -89,79 +103,41 @@ export default function Navbar() {
           </Link>
         </div>
 
-        {/* Hamburger */}
+        {/* Mobile menu trigger */}
         <button
-          onClick={() => setMenuOpen(v => !v)}
-          className="md:hidden flex flex-col items-center justify-center gap-[5px] w-10 h-10 rounded-xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] transition-colors"
-          aria-label="Toggle menu"
+          onClick={() => setMenuOpen(o => !o)}
+          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          className="md:hidden flex flex-col justify-center items-center w-10 h-10 rounded-xl bg-white/[0.04] border border-white/[0.07] text-bb-white cursor-pointer"
         >
-          <motion.span animate={{ rotate: menuOpen ? 45 : 0, y: menuOpen ? 6.5 : 0 }}
-            className="block h-[1.5px] w-5 bg-bb-white rounded-full origin-center" />
-          <motion.span animate={{ opacity: menuOpen ? 0 : 1, scaleX: menuOpen ? 0 : 1 }}
-            className="block h-[1.5px] w-5 bg-bb-white rounded-full" />
-          <motion.span animate={{ rotate: menuOpen ? -45 : 0, y: menuOpen ? -6.5 : 0 }}
-            className="block h-[1.5px] w-5 bg-bb-white rounded-full origin-center" />
+          <span className={`block w-4 h-0.5 bg-current transition-transform duration-250 ${menuOpen ? 'rotate-45 translate-y-1' : '-translate-y-1'}`} />
+          <span className={`block w-4 h-0.5 bg-current transition-opacity duration-250 ${menuOpen ? 'opacity-0' : 'opacity-100'}`} />
+          <span className={`block w-4 h-0.5 bg-current transition-transform duration-250 ${menuOpen ? '-rotate-45 -translate-y-1' : 'translate-y-1'}`} />
         </button>
       </motion.nav>
 
-      {/* Mobile Menu Backdrop */}
-      {menuOpen && (
-        <div
-          className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[197] md:hidden"
-          onClick={() => setMenuOpen(false)}
-        />
-      )}
-
-      {/* Mobile menu */}
+      {/* Mobile drawer */}
       <AnimatePresence>
         {menuOpen && (
           <motion.div
-            key="mobile-menu"
-            initial={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, y: -16 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed top-[58px] left-0 right-0 z-[198] bg-[#0c0c1e]/95 backdrop-blur-2xl border-b border-white/[0.08] overflow-hidden shadow-2xl"
+            exit={{    opacity: 0, y: -16 }}
+            transition={{ duration: 0.22 }}
+            className="fixed inset-x-0 top-[60px] z-[190] glass border-b border-white/[0.08] px-6 py-8 flex flex-col gap-5 md:hidden"
           >
-            <div className="px-5 py-5 flex flex-col gap-1">
-              {NAV_LINKS.map((l, i) => {
-                const isActive = pathname === l.to
-                return (
-                  <motion.div
-                    key={l.to}
-                    initial={{ opacity: 0, x: -16 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.045, duration: 0.25 }}
-                  >
-                    <Link
-                      to={l.to}
-                      onClick={() => setMenuOpen(false)}
-                      className={`flex items-center justify-between text-sm font-semibold transition-colors no-underline px-4 py-3 rounded-xl border ${
-                        isActive
-                          ? 'text-[#00d4f5] bg-[#00d4f5]/10 border-[#00d4f5]/25'
-                          : 'text-bb-muted hover:text-bb-white hover:bg-white/[0.04] border-transparent'
-                      }`}
-                    >
-                      <span>{l.label}</span>
-                      {isActive && <span className="w-1.5 h-1.5 rounded-full bg-[#00d4f5]" />}
-                    </Link>
-                  </motion.div>
-                )
-              })}
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: NAV_LINKS.length * 0.045 }}
-                className="pt-2"
+            {NAV_LINKS.map(l => (
+              <Link
+                key={l.to}
+                to={l.to}
+                className="text-base font-semibold text-bb-white hover:text-bb-accent transition-colors no-underline"
               >
-                <Link
-                  to="/contact"
-                  onClick={() => setMenuOpen(false)}
-                  className="btn-primary text-sm text-center w-full py-3"
-                >
-                  Let's Talk →
-                </Link>
-              </motion.div>
+                {l.label}
+              </Link>
+            ))}
+            <div className="pt-4 border-t border-white/[0.08]">
+              <Link to="/contact" className="btn-primary text-sm w-full justify-center">
+                Let's Talk →
+              </Link>
             </div>
           </motion.div>
         )}
