@@ -1,11 +1,12 @@
-import { useEffect } from 'react'
+import { useEffect, lazy, Suspense } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { publicApi } from '../../lib/api'
 import Navbar from '../sections/Navbar'
 import { Footer } from '../sections/ContactFooter'
-import ChatBot from '../chatbot/ChatBot'
-import InteractiveDotGrid from '../InteractiveDotGrid'
+
+const ChatBot = lazy(() => import('../chatbot/ChatBot'))
+const InteractiveDotGrid = lazy(() => import('../InteractiveDotGrid'))
 
 export default function PublicLayout() {
   const { pathname } = useLocation()
@@ -28,13 +29,19 @@ export default function PublicLayout() {
 
   return (
     <div className="relative min-h-screen">
-      {showDotGrid && <InteractiveDotGrid />}
+      {showDotGrid && (
+        <Suspense fallback={null}>
+          <InteractiveDotGrid />
+        </Suspense>
+      )}
       <Navbar />
       <main>
         <Outlet />
       </main>
       <Footer content={content} />
-      <ChatBot />
+      <Suspense fallback={null}>
+        <ChatBot />
+      </Suspense>
     </div>
   )
 }

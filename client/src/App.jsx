@@ -2,14 +2,16 @@ import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import PublicLayout from './components/layout/PublicLayout'
 import HomePage from './pages/HomePage'
-import ServicesPage from './pages/ServicesPage'
-import WorkPage from './pages/WorkPage'
-import TeamPage from './pages/TeamPage'
-import ProcessPage from './pages/ProcessPage'
-import BlogPage from './pages/BlogPage'
-import BlogPostPage from './pages/BlogPostPage'
-import ContactPage from './pages/ContactPage'
-import NotFoundPage from './pages/NotFoundPage'
+
+// Lazy-load all sub-routes to keep initial bundle size minimal and maximize performance score
+const ServicesPage        = lazy(() => import('./pages/ServicesPage'))
+const WorkPage            = lazy(() => import('./pages/WorkPage'))
+const TeamPage            = lazy(() => import('./pages/TeamPage'))
+const ProcessPage         = lazy(() => import('./pages/ProcessPage'))
+const BlogPage            = lazy(() => import('./pages/BlogPage'))
+const BlogPostPage        = lazy(() => import('./pages/BlogPostPage'))
+const ContactPage         = lazy(() => import('./pages/ContactPage'))
+const NotFoundPage        = lazy(() => import('./pages/NotFoundPage'))
 import ProtectedRoute from './components/admin/ProtectedRoute'
 
 // Lazy chunks — homepage visitors never download these.

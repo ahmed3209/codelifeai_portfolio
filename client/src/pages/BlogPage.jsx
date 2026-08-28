@@ -14,14 +14,31 @@ const CATEGORIES = [
   'Cloud & DevOps',
 ]
 
+import { DEFAULT_BLOGS } from '../data/defaultBlogs'
+
 export default function BlogPage() {
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [search, setSearch] = useState('')
 
-  const { data: blogs = [], isLoading } = useQuery({
+  const { data: serverBlogs = [] } = useQuery({
     queryKey: ['public-blogs', selectedCategory],
     queryFn: () => publicApi.getBlogs({ category: selectedCategory }).then(r => r.data),
+    staleTime: 60000,
   })
+
+  // Merge server blogs with default blogs so that all 8 articles are always available
+  const blogs = useMemo(() => {
+    const defaultFiltered = selectedCategory === 'All'
+      ? DEFAULT_BLOGS
+      : DEFAULT_BLOGS.filter(b => b.category === selectedCategory)
+
+    if (!serverBlogs || serverBlogs.length === 0) return defaultFiltered
+
+    // Combine server blogs with any default blogs not yet in server list
+    const serverSlugs = new Set(serverBlogs.map(b => b.slug))
+    const missing = defaultFiltered.filter(b => !serverSlugs.has(b.slug))
+    return [...serverBlogs, ...missing].sort((a, b) => (a.sort_order || 99) - (b.sort_order || 99))
+  }, [serverBlogs, selectedCategory])
 
   const filteredBlogs = useMemo(() => {
     if (!search.trim()) return blogs

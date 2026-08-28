@@ -85,15 +85,28 @@ function FormattedContent({ content }) {
   )
 }
 
+import { DEFAULT_BLOGS } from '../data/defaultBlogs'
+
 export default function BlogPostPage() {
   const { slug } = useParams()
   const [scrollProgress, setScrollProgress] = useState(0)
   const [copied, setCopied] = useState(false)
 
-  const { data: blog, isLoading, isError } = useQuery({
+  const defaultArticle = DEFAULT_BLOGS.find(b => b.slug === slug)
+
+  const { data: serverBlog } = useQuery({
     queryKey: ['public-blog', slug],
     queryFn: () => publicApi.getBlogBySlug(slug).then(r => r.data),
+    staleTime: 60000,
   })
+
+  const blog = serverBlog || defaultArticle ? {
+    ...(defaultArticle || {}),
+    ...(serverBlog || {}),
+    related: serverBlog?.related?.length
+      ? serverBlog.related
+      : DEFAULT_BLOGS.filter(b => b.slug !== slug).slice(0, 3)
+  } : null
 
   // Scroll progress listener
   useEffect(() => {

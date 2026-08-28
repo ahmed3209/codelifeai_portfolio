@@ -83,44 +83,7 @@ const DEFAULT_FOUNDERS = [
   },
 ]
 
-const DEFAULT_BLOGS = [
-  {
-    id: 1,
-    title: 'Building Production-Grade Autonomous AI Agents with LangChain & Claude',
-    slug: 'building-production-ai-agents-langchain-claude',
-    excerpt: 'A comprehensive engineering guide on designing multi-step autonomous AI workflows with self-correcting validation and vector search.',
-    category: 'AI & Machine Learning',
-    author_name: 'Anas Waheed',
-    author_role: 'Co-Founder & CTO',
-    read_time: '6 min read',
-    cover_image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200&auto=format&fit=crop',
-    published_at: '2026-08-20',
-  },
-  {
-    id: 2,
-    title: 'Modular Monolith vs Microservices: Engineering for Scale Without Complexity',
-    slug: 'modular-monolith-vs-microservices-guide',
-    excerpt: 'Why high-growth startups should start with cleanly decoupled modular monoliths before splitting into microservice clusters.',
-    category: 'Architecture',
-    author_name: 'Muhammad Ahmed',
-    author_role: 'Co-Founder & CEO',
-    read_time: '5 min read',
-    cover_image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1200&auto=format&fit=crop',
-    published_at: '2026-08-18',
-  },
-  {
-    id: 3,
-    title: 'Achieving 120 FPS in Flutter 3: Advanced Rendering & Memory Management',
-    slug: 'flutter-3-performance-120fps-rendering-guide',
-    excerpt: 'Proven techniques for profiling widget rebuilds, isolate offloading, and shader pre-compilation on iOS and Android.',
-    category: 'Mobile Engineering',
-    author_name: 'CodeLifeAI Mobile Lab',
-    author_role: 'Senior Engineering Team',
-    read_time: '7 min read',
-    cover_image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1200&auto=format&fit=crop',
-    published_at: '2026-08-15',
-  },
-]
+import { DEFAULT_BLOGS } from '../data/defaultBlogs'
 
 const DEFAULT_TESTIMONIALS = [
   { name: 'Ahmed Al-Rashid', role: 'Founder, FinTrack', avatar: 'AR', bg: 'linear-gradient(135deg, #00d4f5, #0099bb)', rating: 5, quote: "CodeLifeAI delivered our banking dashboard in record time — clean code, beautiful UI, and zero post-launch issues. They didn't just build what we asked; they made it better than we imagined." },
