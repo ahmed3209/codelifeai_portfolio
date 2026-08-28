@@ -2,7 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { HelmetProvider } from 'react-helmet-async'
-import { ErrorBoundary } from './components/ErrorBoundary'
+import { Toaster } from 'react-hot-toast'
 import App from './App'
 import './index.css'
 
@@ -20,23 +20,21 @@ const queryClient = new QueryClient({
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <ErrorBoundary>
-      <HelmetProvider>
-        <QueryClientProvider client={queryClient}>
-          <App />
-          <Toaster
-            position="bottom-right"
-            toastOptions={{
-              style: {
-                background: '#0f0f1a',
-                color: '#f0efe9',
-                border: '1px solid rgba(255,255,255,0.08)',
-                borderRadius: '12px',
-              }
-            }}
-          />
-        </QueryClientProvider>
-      </HelmetProvider>
-    </ErrorBoundary>
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
+        <App />
+        <Toaster
+          position="bottom-right"
+          toastOptions={{
+            style: {
+              background: '#0f0f1a',
+              color: '#f0efe9',
+              border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: '12px',
+            }
+          }}
+        />
+      </QueryClientProvider>
+    </HelmetProvider>
   </React.StrictMode>
 )
