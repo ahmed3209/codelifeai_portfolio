@@ -5,6 +5,7 @@ import { publicApi } from '../lib/api'
 import PageMeta from '../components/PageMeta'
 import { Search, BookOpen, Clock, ArrowRight, Sparkles, User, Tag } from 'lucide-react'
 import CTABanner from '../components/sections/CTABanner'
+import { DEFAULT_BLOGS } from '../data/defaultBlogs'
 
 const CATEGORIES = [
   'All',
@@ -13,8 +14,6 @@ const CATEGORIES = [
   'Mobile Engineering',
   'Cloud & DevOps',
 ]
-
-import { DEFAULT_BLOGS } from '../data/defaultBlogs'
 
 export default function BlogPage() {
   const [selectedCategory, setSelectedCategory] = useState('All')

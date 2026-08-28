@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import CTABanner from '../components/sections/CTABanner'
+import { DEFAULT_BLOGS } from '../data/defaultBlogs'
 
 /**
  * Clean markdown-like formatter for code blocks, headers, bold, and lists
@@ -84,8 +85,6 @@ function FormattedContent({ content }) {
     </div>
   )
 }
-
-import { DEFAULT_BLOGS } from '../data/defaultBlogs'
 
 export default function BlogPostPage() {
   const { slug } = useParams()
