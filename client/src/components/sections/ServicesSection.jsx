@@ -1,7 +1,6 @@
-import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
-import { X, ArrowUpRight, Check, Sparkles } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { ArrowUpRight, ArrowRight, Sparkles } from 'lucide-react'
 
 export const DEFAULT_SERVICE_IMAGES = {
   web: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1200&auto=format&fit=crop',
@@ -37,7 +36,9 @@ function parseJsonArray(val) {
 }
 
 export default function ServicesSection({ services = [] }) {
-  const [active, setActive] = useState(null)
+  // Only display Head Services (parent_id is null) on the main overview grids
+  const displayServices = services.filter(s => !s.parent_id && (s.show_on_home !== 0 || !s.show_on_home))
+  const list = displayServices.length > 0 ? displayServices : services
 
   return (
     <section id="services" className="relative z-10 py-20 sm:py-32 px-4 sm:px-6 lg:px-14">
@@ -68,203 +69,102 @@ export default function ServicesSection({ services = [] }) {
         </motion.div>
 
         {/* Services Grid with Visual Assets */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {services.map((svc, i) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7">
+          {list.map((svc, i) => (
             <motion.div
               key={svc.id}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.08 }}
               transition={{ delay: i * 0.05, duration: 0.45 }}
+              className="h-full"
             >
-              <ServiceCard svc={svc} index={i} onClick={() => setActive(svc)} />
+              <ServiceCard svc={svc} index={i} allServices={services} />
             </motion.div>
           ))}
         </div>
-
-        {/* Modal */}
-        <AnimatePresence>
-          {active && <ServiceModal svc={active} onClose={() => setActive(null)} />}
-        </AnimatePresence>
       </div>
     </section>
   )
 }
 
-function ServiceCard({ svc, index, onClick }) {
+function ServiceCard({ svc, index, allServices = [] }) {
   const imageUrl = getServiceImage(svc)
   const stack = parseJsonArray(svc.stack)
+  const childCount = allServices.filter(s => s.parent_id === svc.id).length
 
   return (
-    <div
-      onClick={onClick}
-      className="group relative bg-[#091527]/90 border border-[#00cced]/20 hover:border-[#00cced]/60 rounded-3xl overflow-hidden h-full flex flex-col cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-[#00cced]/15"
+    <Link
+      to={`/services/${svc.slug || svc.id}`}
+      className="group relative bg-gradient-to-b from-[#0d1c33] via-[#091629] to-[#050c18] border border-[#00cced]/35 hover:border-[#00f0ff] rounded-3xl overflow-hidden h-full flex flex-col no-underline transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(0,204,237,0.25)]"
     >
+      {/* Top Accent Laser Line on Hover */}
+      <div className="absolute top-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-transparent via-[#00f0ff] to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-20" />
+
       {/* Visual Asset Banner */}
-      <div className="relative h-44 sm:h-48 overflow-hidden bg-[#060c18]">
+      <div className="relative h-48 sm:h-52 overflow-hidden bg-[#060c18]">
         <img
           src={imageUrl}
           alt={svc.title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 brightness-95 group-hover:brightness-105"
           loading="lazy"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#091527] via-[#091527]/50 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0d1c33] via-[#0d1c33]/30 to-black/20 pointer-events-none" />
 
-        {/* Floating Icon Badge */}
-        <div className="absolute top-3.5 left-3.5 w-11 h-11 rounded-2xl bg-black/80 border border-white/20 backdrop-blur-md flex items-center justify-center text-xl shadow-lg">
-          {svc.icon || '⚡'}
-        </div>
-
-        {/* Number Badge */}
-        <div className="absolute top-3.5 right-3.5 px-2.5 py-0.5 rounded-full bg-black/70 border border-white/15 text-[0.65rem] font-mono font-bold text-white/60">
-          0{index + 1}
+        {/* Top Badges */}
+        <div className="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between pointer-events-none">
+          {childCount > 0 ? (
+            <span className="px-2.5 py-1 rounded-full bg-[#00cced]/20 border border-[#00cced]/50 text-[0.68rem] font-mono font-bold text-[#00f0ff] backdrop-blur-md">
+              {childCount} Sub-Services
+            </span>
+          ) : <span />}
+          <div className="px-3 py-1 rounded-full bg-black/80 border border-[#00cced]/35 text-[0.7rem] font-mono font-bold text-[#00f0ff] shadow-md">
+            0{index + 1}
+          </div>
         </div>
       </div>
 
       {/* Card Content */}
-      <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
-        <div>
-          <h3 className="text-lg font-bold text-white group-hover:text-[#00d4f5] transition-colors leading-snug flex items-center justify-between">
+      <div className="p-6 sm:p-7 flex-1 flex flex-col justify-between space-y-4">
+        <div className="space-y-2.5">
+          <h3 className="text-xl sm:text-2xl font-black text-white group-hover:text-[#00f0ff] transition-colors leading-snug tracking-tight flex items-center justify-between">
             <span>{svc.title}</span>
-            <ArrowUpRight size={16} className="opacity-0 group-hover:opacity-100 text-[#00d4f5] transition-opacity flex-shrink-0" />
+            <ArrowUpRight size={18} className="text-[#00cced] group-hover:text-[#00f0ff] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all flex-shrink-0" />
           </h3>
-          <p className="text-xs text-slate-300 mt-2 leading-relaxed line-clamp-2">
+          <p className="text-sm text-slate-100 leading-relaxed font-normal line-clamp-3">
             {svc.short_desc}
           </p>
         </div>
 
         {/* Tech Stack Chips */}
-        {stack.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 pt-2 border-t border-white/[0.06]">
-            {stack.slice(0, 3).map((s, idx) => (
-              <span
-                key={idx}
-                className="text-[0.68rem] font-medium px-2.5 py-0.5 rounded-lg bg-white/[0.04] border border-white/[0.08] text-slate-200"
-              >
-                {s}
-              </span>
-            ))}
-            {stack.length > 3 && (
-              <span className="text-[0.65rem] font-mono text-slate-400 px-1 py-0.5">
-                +{stack.length - 3}
-              </span>
-            )}
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
-
-function ServiceModal({ svc, onClose }) {
-  const imageUrl = getServiceImage(svc)
-  const features = parseJsonArray(svc.features)
-  const stack = parseJsonArray(svc.stack)
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md"
-      onClick={e => { if (e.target === e.currentTarget) onClose() }}
-    >
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="w-full max-w-[620px] max-h-[88vh] flex flex-col overflow-hidden rounded-3xl border border-white/[0.14] shadow-2xl bg-[#0c0c20]"
-      >
-        {/* Modal Banner Graphic */}
-        <div className="relative h-48 sm:h-56 overflow-hidden flex-shrink-0 bg-black">
-          <img src={imageUrl} alt={svc.title} className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c20] via-[#0c0c20]/60 to-transparent" />
-
-          {/* Close button */}
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 w-8 h-8 rounded-full bg-black/75 border border-white/20 flex items-center justify-center text-white/80 hover:text-white hover:scale-105 transition-all shadow-lg backdrop-blur-md"
-          >
-            <X size={14} />
-          </button>
-
-          {/* Service Title */}
-          <div className="absolute bottom-4 left-6 right-6 flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-black/85 border border-white/20 backdrop-blur-md flex items-center justify-center text-2xl shadow-xl flex-shrink-0">
-              {svc.icon || '⚡'}
-            </div>
-            <div>
-              <h2 className="text-xl font-bold text-white">{svc.title}</h2>
-              <p className="text-xs text-[#00d4f5] font-semibold">Specialized Engineering Track</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Modal Body */}
-        <div className="flex-1 overflow-y-auto p-6 sm:p-7 space-y-5">
-          <p className="text-sm text-slate-200 leading-relaxed">
-            {svc.long_desc || svc.short_desc}
-          </p>
-
-          {features.length > 0 && (
-            <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-[#00d4f5] mb-3">
-                Key Deliverables &amp; Features
-              </h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                {features.map((f, i) => (
-                  <div
-                    key={i}
-                    className="flex items-start gap-2.5 bg-white/[0.03] border border-white/[0.07] rounded-xl p-3"
-                  >
-                    <div className="w-4 h-4 rounded-full bg-[#00d4f5]/15 flex items-center justify-center text-[#00d4f5] flex-shrink-0 mt-0.5">
-                      <Check size={10} strokeWidth={3} />
-                    </div>
-                    <span className="text-xs text-slate-200 leading-snug">{f}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
+        <div className="space-y-3 pt-3 border-t border-white/[0.08]">
           {stack.length > 0 && (
-            <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2.5">
-                Technologies &amp; Frameworks
-              </h4>
-              <div className="flex flex-wrap gap-2">
-                {stack.map((s, i) => (
-                  <span
-                    key={i}
-                    className="text-xs font-medium text-slate-200 bg-white/[0.05] border border-white/[0.09] px-3 py-1 rounded-xl"
-                  >
-                    {s}
-                  </span>
-                ))}
-              </div>
+            <div className="flex flex-wrap gap-1.5">
+              {stack.slice(0, 3).map((s, idx) => (
+                <span
+                  key={idx}
+                  className="inline-flex items-center gap-1.5 text-[0.72rem] font-mono font-semibold px-2.5 py-1 rounded-lg bg-[#00cced]/10 border border-[#00cced]/35 text-slate-100 group-hover:border-[#00f0ff]/60 transition-colors"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#00f0ff]" />
+                  {s}
+                </span>
+              ))}
+              {stack.length > 3 && (
+                <span className="text-[0.7rem] font-mono font-bold text-[#00f0ff] px-2 py-1 rounded-lg bg-[#00cced]/10 border border-[#00cced]/25">
+                  +{stack.length - 3} more
+                </span>
+              )}
             </div>
           )}
 
-          {/* CTA Footer */}
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/[0.08]">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-xs font-semibold text-slate-400 hover:text-white transition-colors"
-            >
-              Close
-            </button>
-            <Link
-              to="/contact"
-              onClick={onClose}
-              className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-[#00d4f5] hover:bg-[#00b8e6] text-black font-bold text-xs transition-colors"
-            >
-              <span>Scope Your Project</span>
-              <ArrowUpRight size={13} />
-            </Link>
+          {/* Action Callout */}
+          <div className="flex items-center justify-between text-xs font-bold text-[#00f0ff] group-hover:text-white transition-colors pt-2 border-t border-white/[0.05]">
+            <span>{childCount > 0 ? `Explore Overview & ${childCount} Capabilities` : 'Explore Detailed Service Page'}</span>
+            <ArrowRight size={14} className="group-hover:translate-x-1.5 transition-transform text-[#00f0ff]" />
           </div>
         </div>
-      </motion.div>
-    </motion.div>
+      </div>
+    </Link>
   )
 }
+

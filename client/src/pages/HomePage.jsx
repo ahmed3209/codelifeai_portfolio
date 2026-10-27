@@ -5,7 +5,7 @@ import PageMeta             from '../components/PageMeta'
 import HeroSection          from '../components/sections/HeroSection'
 import TrustMarquee         from '../components/sections/TrustMarquee'
 import ServicesSection      from '../components/sections/ServicesSection'
-import PromoTeaser          from '../components/sections/PromoTeaser'
+import DeliveryProcessSlider from '../components/sections/DeliveryProcessSlider'
 import BlogPreviewSection   from '../components/sections/BlogPreviewSection'
 import FoundersSection      from '../components/sections/FoundersSection'
 import TestimonialsSection  from '../components/sections/TestimonialsSection'
@@ -200,10 +200,8 @@ export default function HomePage() {
       {/* 3. Core Services Preview */}
       {showServices && <ServicesSection services={services} />}
 
-      {/* 4. Active Promo / Launch Teaser */}
-      {showPromo && (
-        <PromoTeaser promo={activePromo} promos={siteData?.activePromos || (activePromo ? [activePromo] : [])} />
-      )}
+      {/* 4. Delivery Process Results Framework Slider (Replacing Promo Teaser) */}
+      <DeliveryProcessSlider />
 
       {/* 5. Latest Engineering Insights & Blog Articles */}
       {showBlogs && <BlogPreviewSection blogs={blogs} />}

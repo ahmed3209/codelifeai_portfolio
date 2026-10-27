@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import bcrypt from 'bcryptjs'
 import multer from 'multer'
-import { getDb } from '../db/database.js'
+import { getDb, seedIndustries } from '../db/database.js'
 import { authMiddleware, signToken, ADMIN_COOKIE } from '../middleware/auth.js'
 import { cookieOptions } from '../middleware/session.js'
 import { sendReplyEmail, sendTestEmail } from '../services/email.js'
@@ -116,19 +116,36 @@ router.get('/stats', async (req, res) => {
 // ── SERVICES ──────────────────────────────────────────────────
 
 router.get('/services', async (req, res) => {
-  const { rows } = await getDb().execute('SELECT * FROM services ORDER BY sort_order ASC')
+  const { rows } = await getDb().execute('SELECT * FROM services ORDER BY parent_id ASC NULLS FIRST, sort_order ASC, id ASC')
   res.json(rows)
 })
 
 router.post('/services', async (req, res) => {
-  const { title, icon, short_desc, long_desc, features, stack, image_url, show_on_home, sort_order } = req.body
+  const { title, icon, short_desc, long_desc, features, stack, image_url, show_on_home, sort_order, parent_id, slug } = req.body
   const db = getDb()
   const max = await db.execute('SELECT MAX(sort_order) as m FROM services')
-  const nextOrder = sort_order || (Number(max.rows[0].m) || 0) + 1
+  const nextOrder = sort_order || (Number(max.rows[0]?.m) || 0) + 1
+  const cleanParentId = parent_id ? parseInt(parent_id, 10) : null
+  const cleanSlug = (slug || title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
+
   const ins = await db.execute({
-    sql: 'INSERT INTO services (title,icon,short_desc,long_desc,features,stack,image_url,show_on_home,sort_order) VALUES (?,?,?,?,?,?,?,?,?)',
-    args: [title, icon || '⚡', short_desc, long_desc, features || '[]', stack || '[]', image_url || '', show_on_home !== 0 ? 1 : 0, nextOrder],
+    sql: `INSERT INTO services (title, icon, short_desc, long_desc, features, stack, image_url, show_on_home, sort_order, parent_id, slug)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    args: [
+      title,
+      icon || '⚡',
+      short_desc || '',
+      long_desc || '',
+      typeof features === 'string' ? features : JSON.stringify(features || []),
+      typeof stack === 'string' ? stack : JSON.stringify(stack || []),
+      image_url || '',
+      show_on_home !== 0 ? 1 : 0,
+      nextOrder,
+      cleanParentId,
+      cleanSlug,
+    ],
   })
+  clearSiteDataCache()
   const { rows } = await db.execute({
     sql: 'SELECT * FROM services WHERE id = ?',
     args: [Number(ins.lastInsertRowid)],
@@ -146,17 +163,35 @@ router.put('/services/reorder', async (req, res) => {
     })),
     'write'
   )
+  clearSiteDataCache()
   res.json({ ok: true })
 })
 
 router.put('/services/:id', async (req, res) => {
-  const { title, icon, short_desc, long_desc, features, stack, image_url, show_on_home, sort_order } = req.body
+  const { title, icon, short_desc, long_desc, features, stack, image_url, show_on_home, sort_order, parent_id, slug } = req.body
   const db = getDb()
+  const cleanParentId = parent_id ? parseInt(parent_id, 10) : null
+  const cleanSlug = (slug || title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
+
   await db.execute({
-    sql: `UPDATE services SET title=?,icon=?,short_desc=?,long_desc=?,features=?,stack=?,image_url=?,show_on_home=?,sort_order=?,
-          updated_at=datetime('now') WHERE id=?`,
-    args: [title, icon, short_desc, long_desc, features, stack, image_url || '', show_on_home !== 0 ? 1 : 0, sort_order, req.params.id],
+    sql: `UPDATE services SET title=?, icon=?, short_desc=?, long_desc=?, features=?, stack=?, image_url=?,
+          show_on_home=?, sort_order=?, parent_id=?, slug=?, updated_at=datetime('now') WHERE id=?`,
+    args: [
+      title,
+      icon || '⚡',
+      short_desc || '',
+      long_desc || '',
+      typeof features === 'string' ? features : JSON.stringify(features || []),
+      typeof stack === 'string' ? stack : JSON.stringify(stack || []),
+      image_url || '',
+      show_on_home !== 0 ? 1 : 0,
+      sort_order,
+      cleanParentId,
+      cleanSlug,
+      req.params.id,
+    ],
   })
+  clearSiteDataCache()
   const { rows } = await db.execute({
     sql: 'SELECT * FROM services WHERE id = ?',
     args: [req.params.id],
@@ -172,6 +207,7 @@ router.put('/services/:id/toggle-home', async (req, res) => {
       sql: "UPDATE services SET show_on_home = ?, updated_at = datetime('now') WHERE id = ?",
       args: [show_on_home ? 1 : 0, req.params.id],
     })
+    clearSiteDataCache()
     const { rows } = await db.execute({ sql: 'SELECT * FROM services WHERE id = ?', args: [req.params.id] })
     res.json(rows[0])
   } catch (err) {
@@ -180,10 +216,127 @@ router.put('/services/:id/toggle-home', async (req, res) => {
 })
 
 router.delete('/services/:id', async (req, res) => {
+  const id = req.params.id
+  // Delete the service itself and cascade delete any child services
   await getDb().execute({
-    sql: 'DELETE FROM services WHERE id = ?',
+    sql: 'DELETE FROM services WHERE id = ? OR parent_id = ?',
+    args: [id, id],
+  })
+  clearSiteDataCache()
+  res.json({ ok: true })
+})
+
+// ── INDUSTRIES ────────────────────────────────────────────────
+
+router.get('/industries', async (req, res) => {
+  const { rows } = await getDb().execute('SELECT * FROM industries ORDER BY sort_order ASC, id ASC')
+  res.json(rows)
+})
+
+// POST /api/admin/industries/seed — seed or backfill 8 default industry verticals
+router.post('/industries/seed', async (req, res) => {
+  try {
+    const db = getDb()
+    await seedIndustries(db)
+    clearSiteDataCache()
+    const { rows } = await db.execute('SELECT * FROM industries ORDER BY sort_order ASC, id ASC')
+    res.json({ ok: true, message: 'Default industry verticals loaded successfully', count: rows.length, industries: rows })
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+router.post('/industries', async (req, res) => {
+  const { title, slug, icon, badge, short_desc, long_desc, challenges, solutions, features, stack, metrics, image_url, show_on_home, sort_order } = req.body
+  const db = getDb()
+  const max = await db.execute('SELECT MAX(sort_order) as m FROM industries')
+  const nextOrder = sort_order || (Number(max.rows[0]?.m) || 0) + 1
+  const cleanSlug = (slug || title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
+
+  const ins = await db.execute({
+    sql: `INSERT INTO industries (title, slug, icon, badge, short_desc, long_desc, challenges, solutions, features, stack, metrics, image_url, show_on_home, sort_order)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    args: [
+      title,
+      cleanSlug,
+      icon || 'Building2',
+      badge || 'ENTERPRISE VERTICAL',
+      short_desc || '',
+      long_desc || '',
+      typeof challenges === 'string' ? challenges : JSON.stringify(challenges || []),
+      typeof solutions === 'string' ? solutions : JSON.stringify(solutions || []),
+      typeof features === 'string' ? features : JSON.stringify(features || []),
+      typeof stack === 'string' ? stack : JSON.stringify(stack || []),
+      typeof metrics === 'string' ? metrics : JSON.stringify(metrics || []),
+      image_url || '',
+      show_on_home !== 0 ? 1 : 0,
+      nextOrder,
+    ],
+  })
+  clearSiteDataCache()
+  const { rows } = await db.execute({
+    sql: 'SELECT * FROM industries WHERE id = ?',
+    args: [Number(ins.lastInsertRowid)],
+  })
+  res.json(rows[0])
+})
+
+router.put('/industries/:id', async (req, res) => {
+  const { title, slug, icon, badge, short_desc, long_desc, challenges, solutions, features, stack, metrics, image_url, show_on_home, sort_order } = req.body
+  const db = getDb()
+  const cleanSlug = (slug || title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
+
+  await db.execute({
+    sql: `UPDATE industries SET title=?, slug=?, icon=?, badge=?, short_desc=?, long_desc=?, challenges=?,
+          solutions=?, features=?, stack=?, metrics=?, image_url=?, show_on_home=?, sort_order=?, updated_at=datetime('now') WHERE id=?`,
+    args: [
+      title,
+      cleanSlug,
+      icon || 'Building2',
+      badge || 'ENTERPRISE VERTICAL',
+      short_desc || '',
+      long_desc || '',
+      typeof challenges === 'string' ? challenges : JSON.stringify(challenges || []),
+      typeof solutions === 'string' ? solutions : JSON.stringify(solutions || []),
+      typeof features === 'string' ? features : JSON.stringify(features || []),
+      typeof stack === 'string' ? stack : JSON.stringify(stack || []),
+      typeof metrics === 'string' ? metrics : JSON.stringify(metrics || []),
+      image_url || '',
+      show_on_home !== 0 ? 1 : 0,
+      sort_order,
+      req.params.id,
+    ],
+  })
+  clearSiteDataCache()
+  const { rows } = await db.execute({
+    sql: 'SELECT * FROM industries WHERE id = ?',
     args: [req.params.id],
   })
+  res.json(rows[0])
+})
+
+router.put('/industries/:id/toggle-home', async (req, res) => {
+  try {
+    const { show_on_home } = req.body
+    const db = getDb()
+    await db.execute({
+      sql: "UPDATE industries SET show_on_home = ?, updated_at = datetime('now') WHERE id = ?",
+      args: [show_on_home ? 1 : 0, req.params.id],
+    })
+    clearSiteDataCache()
+    const { rows } = await db.execute({ sql: 'SELECT * FROM industries WHERE id = ?', args: [req.params.id] })
+    res.json(rows[0])
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+router.delete('/industries/:id', async (req, res) => {
+  await getDb().execute({
+    sql: 'DELETE FROM industries WHERE id = ?',
+    args: [req.params.id],
+  })
+  clearSiteDataCache()
   res.json({ ok: true })
 })
 

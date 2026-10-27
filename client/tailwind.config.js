@@ -4,8 +4,11 @@ export default {
   theme: {
     extend: {
       fontFamily: {
+        sans: ['"Outfit"', '"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['"Outfit"', 'sans-serif'],
+        outfit: ['"Outfit"', 'sans-serif'],
         jakarta: ['"Plus Jakarta Sans"', 'sans-serif'],
-        fraunces: ['Fraunces', 'serif'],
+        mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
       },
       colors: {
         bb: {

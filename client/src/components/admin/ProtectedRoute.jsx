@@ -28,9 +28,16 @@ export default function ProtectedRoute({ children }) {
   // While we don't know the answer yet, keep the previous cached user
   // (if any) and render the children to avoid a flash. If there's no
   // cached user, render nothing until we get a response.
-  if (isLoading && !user) return null
+  if (isLoading && !user) {
+    return (
+      <div className="min-h-screen bg-[#060b14] flex flex-col items-center justify-center gap-3 text-white">
+        <div className="w-9 h-9 rounded-full border-2 border-[#00f0ff]/20 border-t-[#00f0ff] animate-spin" />
+        <span className="text-xs font-mono text-slate-400">Verifying admin session…</span>
+      </div>
+    )
+  }
 
-  if (isError) {
+  if (isError || (!isLoading && !user && !data?.user)) {
     return <Navigate to="/admin/login" replace state={{ from: location.pathname }} />
   }
 

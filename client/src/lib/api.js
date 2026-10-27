@@ -50,6 +50,9 @@ export const publicApi = {
   getSiteData:        () => api.get('/site-data'),
   getLiveProducts:    () => api.get('/live-products'),
   getServices:        () => api.get('/services'),
+  getServiceById:     (id) => api.get(`/services/${id}`),
+  getIndustries:      () => api.get('/industries'),
+  getIndustryById:    (id) => api.get(`/industries/${id}`),
   getFounders:        () => api.get('/founders'),
   getActivePromo:     () => api.get('/promos/active'),
   getPromoBySlug:     (slug) => api.get(`/promos/${slug}`),
@@ -76,6 +79,14 @@ export const adminApi = {
   toggleServiceHome: (id, show_on_home) => api.put(`/admin/services/${id}/toggle-home`, { show_on_home }),
   deleteService:  (id) => api.delete(`/admin/services/${id}`),
   reorderServices:(order) => api.put('/admin/services/reorder', { order }),
+
+  // Industries
+  getIndustries:      () => api.get('/admin/industries'),
+  createIndustry:     (d) => api.post('/admin/industries', d),
+  updateIndustry:     (id, d) => api.put(`/admin/industries/${id}`, d),
+  toggleIndustryHome: (id, show_on_home) => api.put(`/admin/industries/${id}/toggle-home`, { show_on_home }),
+  deleteIndustry:     (id) => api.delete(`/admin/industries/${id}`),
+  seedIndustries:     () => api.post('/admin/industries/seed'),
 
   // Founders
   getFounders:   () => api.get('/admin/founders'),

@@ -3,6 +3,9 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import PublicLayout from './components/layout/PublicLayout'
 import HomePage from './pages/HomePage'
 import ServicesPage from './pages/ServicesPage'
+import ServiceDetailPage from './pages/ServiceDetailPage'
+import IndustriesPage from './pages/IndustriesPage'
+import IndustryDetailPage from './pages/IndustryDetailPage'
 import WorkPage from './pages/WorkPage'
 import TeamPage from './pages/TeamPage'
 import ProcessPage from './pages/ProcessPage'
@@ -18,6 +21,7 @@ const AdminLogin          = lazy(() => import('./pages/admin/Login'))
 const AdminLayout         = lazy(() => import('./components/layout/AdminLayout'))
 const AdminDashboard      = lazy(() => import('./pages/admin/Dashboard'))
 const AdminServices       = lazy(() => import('./pages/admin/Services'))
+const AdminIndustries     = lazy(() => import('./pages/admin/Industries'))
 const AdminFounders       = lazy(() => import('./pages/admin/Founders'))
 const AdminContent        = lazy(() => import('./pages/admin/Content'))
 const AdminChatbot        = lazy(() => import('./pages/admin/Chatbot'))
@@ -33,17 +37,22 @@ const AdminLiveProducts   = lazy(() => import('./pages/admin/LiveProducts'))
 const AdminFAQs           = lazy(() => import('./pages/admin/FAQs'))
 
 import ScrollToTop from './components/ScrollToTop'
+import ErrorBoundary from './components/ErrorBoundary'
 
 export default function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
-      <Suspense fallback={null}>
-        <Routes>
+      <ErrorBoundary>
+        <Suspense fallback={null}>
+          <Routes>
           {/* Public site */}
           <Route element={<PublicLayout />}>
             <Route path="/"            element={<HomePage />} />
-            <Route path="/services"    element={<ServicesPage />} />
+            <Route path="/services"        element={<ServicesPage />} />
+            <Route path="/services/:id"    element={<ServiceDetailPage />} />
+            <Route path="/industries"      element={<IndustriesPage />} />
+            <Route path="/industries/:id"  element={<IndustryDetailPage />} />
             <Route path="/work"        element={<WorkPage />} />
             <Route path="/team"        element={<TeamPage />} />
             <Route path="/process"     element={<ProcessPage />} />
@@ -65,6 +74,7 @@ export default function App() {
             <Route index element={<AdminDashboard />} />
             <Route path="live-products" element={<AdminLiveProducts />} />
             <Route path="services" element={<AdminServices />} />
+            <Route path="industries" element={<AdminIndustries />} />
             <Route path="projects" element={<AdminProjects />} />
             <Route path="founders" element={<AdminFounders />} />
             <Route path="testimonials" element={<AdminTestimonials />} />
@@ -80,7 +90,8 @@ export default function App() {
             <Route path="settings" element={<AdminSettings />} />
           </Route>
         </Routes>
-      </Suspense>
+        </Suspense>
+      </ErrorBoundary>
     </BrowserRouter>
   )
 }

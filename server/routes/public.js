@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { getDb } from '../db/database.js'
+import { getDb, seedIndustries } from '../db/database.js'
 
 const router = Router()
 
@@ -22,8 +22,8 @@ router.get('/site-data', async (req, res) => {
 
   const db = getDb()
 
-  const [services, founders, projects, testimonials, process, rawContent, activePromos, liveProducts, faqs, blogs] = await Promise.all([
-    db.execute('SELECT * FROM services WHERE show_on_home = 1 OR show_on_home IS NULL ORDER BY sort_order ASC'),
+  const [services, founders, projects, testimonials, process, rawContent, activePromos, liveProducts, faqs, blogs, industriesRes] = await Promise.all([
+    db.execute('SELECT * FROM services ORDER BY parent_id ASC NULLS FIRST, sort_order ASC, id ASC'),
     db.execute('SELECT id, name, role, bio, initials, photo_url, avatar_bg, tags, linkedin_url, show_on_home, sort_order, created_at FROM founders WHERE show_on_home = 1 OR show_on_home IS NULL ORDER BY sort_order ASC'),
     db.execute('SELECT * FROM projects ORDER BY sort_order ASC'),
     db.execute('SELECT * FROM testimonials WHERE show_on_home = 1 OR show_on_home IS NULL ORDER BY sort_order ASC'),
@@ -33,7 +33,19 @@ router.get('/site-data', async (req, res) => {
     db.execute('SELECT * FROM live_products WHERE is_active = 1 ORDER BY sort_order ASC, id ASC'),
     db.execute('SELECT * FROM faqs ORDER BY sort_order ASC, id ASC'),
     db.execute('SELECT id, title, slug, excerpt, category, author_name, author_role, read_time, cover_image, published_at FROM blogs WHERE is_published = 1 ORDER BY sort_order ASC, published_at DESC LIMIT 3'),
+    db.execute('SELECT * FROM industries ORDER BY sort_order ASC, id ASC'),
   ])
+
+  let industries = industriesRes.rows || []
+  if (industries.length === 0) {
+    try {
+      await seedIndustries(db)
+      const ref = await db.execute('SELECT * FROM industries ORDER BY sort_order ASC, id ASC')
+      industries = ref.rows || []
+    } catch (e) {
+      console.error('Auto-seed industries failed:', e)
+    }
+  }
 
   const content = rawContent.rows.reduce((acc, { key, value }) => ({ ...acc, [key]: value }), {})
 
@@ -49,6 +61,7 @@ router.get('/site-data', async (req, res) => {
     liveProducts: liveProducts.rows || [],
     faqs: faqs.rows || [],
     blogs: blogs.rows || [],
+    industries,
   }
   siteDataCacheTime = now
 
@@ -130,14 +143,121 @@ router.get('/promos/:slug', async (req, res) => {
 
 // GET /api/services
 router.get('/services', async (req, res) => {
-  const { rows } = await getDb().execute('SELECT * FROM services ORDER BY sort_order ASC')
+  const { rows } = await getDb().execute('SELECT * FROM services ORDER BY parent_id ASC NULLS FIRST, sort_order ASC, id ASC')
   res.json(rows)
+})
+
+// GET /api/services/:id
+router.get('/services/:id', async (req, res) => {
+  try {
+    const db = getDb()
+    const param = req.params.id
+    let service = null
+
+    if (/^\d+$/.test(param)) {
+      const { rows } = await db.execute({
+        sql: 'SELECT * FROM services WHERE id = ?',
+        args: [parseInt(param, 10)],
+      })
+      service = rows[0]
+    }
+
+    if (!service) {
+      // Try slug or clean title match
+      const { rows: allRows } = await db.execute('SELECT * FROM services')
+      service = allRows.find(s => {
+        const slug = (s.slug || s.title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
+        return slug === param.toLowerCase() || String(s.id) === param
+      })
+    }
+
+    if (!service) return res.status(404).json({ error: 'Service not found' })
+
+    // If Head Service (no parent_id), load its child services
+    if (!service.parent_id) {
+      const { rows: children } = await db.execute({
+        sql: 'SELECT * FROM services WHERE parent_id = ? ORDER BY sort_order ASC, id ASC',
+        args: [service.id],
+      })
+      return res.json({ ...service, children: children || [] })
+    }
+
+    // If Child Service, load parent and siblings
+    const [parentRes, siblingsRes] = await Promise.all([
+      db.execute({
+        sql: 'SELECT * FROM services WHERE id = ?',
+        args: [service.parent_id],
+      }),
+      db.execute({
+        sql: 'SELECT * FROM services WHERE parent_id = ? AND id != ? ORDER BY sort_order ASC, id ASC',
+        args: [service.parent_id, service.id],
+      }),
+    ])
+
+    return res.json({
+      ...service,
+      parent: parentRes.rows[0] || null,
+      siblings: siblingsRes.rows || [],
+    })
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
 })
 
 // GET /api/founders
 router.get('/founders', async (req, res) => {
   const { rows } = await getDb().execute('SELECT id, name, role, bio, initials, photo_url, avatar_bg, tags, linkedin_url, show_on_home, sort_order, created_at FROM founders ORDER BY sort_order ASC')
   res.json(rows)
+})
+
+// GET /api/industries — public list of all industry verticals
+router.get('/industries', async (req, res) => {
+  const db = getDb()
+  let { rows } = await db.execute('SELECT * FROM industries ORDER BY sort_order ASC, id ASC')
+  if (rows.length === 0) {
+    try {
+      await seedIndustries(db)
+      const ref = await db.execute('SELECT * FROM industries ORDER BY sort_order ASC, id ASC')
+      rows = ref.rows || []
+    } catch {}
+  }
+  res.json(rows)
+})
+
+// GET /api/industries/:id — fetch single industry by id or slug
+router.get('/industries/:id', async (req, res) => {
+  try {
+    const db = getDb()
+    const param = req.params.id
+    let industry = null
+
+    const countCheck = await db.execute('SELECT COUNT(*) as c FROM industries')
+    if (Number(countCheck.rows[0]?.c || 0) === 0) {
+      try { await seedIndustries(db) } catch {}
+    }
+
+    if (/^\d+$/.test(param)) {
+      const { rows } = await db.execute({
+        sql: 'SELECT * FROM industries WHERE id = ?',
+        args: [parseInt(param, 10)],
+      })
+      industry = rows[0]
+    }
+
+    if (!industry) {
+      const { rows: allRows } = await db.execute('SELECT * FROM industries')
+      industry = allRows.find(ind => {
+        const slug = (ind.slug || ind.title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
+        return slug === param.toLowerCase() || String(ind.id) === param
+      })
+    }
+
+    if (!industry) return res.status(404).json({ error: 'Industry not found' })
+
+    res.json(industry)
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
 })
 
 // GET /api/founders/:id/photo — serves the stored photo bytes.

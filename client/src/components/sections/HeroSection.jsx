@@ -154,7 +154,7 @@ export default function HeroSection({ content = {}, promo = null, liveProducts =
           transition={{ duration: 0.85, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
           className="lg:col-span-5 flex flex-col items-center justify-center relative w-full"
         >
-          <HeroProjectsSlider liveProducts={liveProducts} projects={projects} />
+          <HeroProjectsSlider liveProducts={liveProducts} />
         </motion.div>
       </div>
 
