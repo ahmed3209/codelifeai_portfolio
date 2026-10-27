@@ -13,7 +13,7 @@ const BADGES = [
 
 export default function TrustMarquee() {
   return (
-    <section className="relative z-10 py-6 overflow-hidden border-y border-white/[0.06] bg-[#050512]/60 backdrop-blur-md">
+    <section className="relative z-10 py-6 overflow-hidden border-y border-[#00cced]/15 bg-[#060c18]/80 backdrop-blur-xl">
       <div className="flex items-center gap-6 animate-marquee whitespace-nowrap will-change-transform">
         {[...BADGES, ...BADGES].map((b, i) => {
           const Icon = b.icon

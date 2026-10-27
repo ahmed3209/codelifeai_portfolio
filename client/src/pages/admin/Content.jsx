@@ -131,7 +131,78 @@ export default function AdminContent() {
         </CardBody>
       </Card>
 
-      {/* 3. Hero Section */}
+      {/* 3. Header Top Utility Bar Manager */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Sparkles size={16} className="text-[#00d4f5]" />
+              <h2 className="text-sm font-bold text-bb-white">Header Top Utility Bar (Above Navbar)</h2>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-bb-muted">Status:</span>
+              <button
+                type="button"
+                onClick={() => toggleSection('header_topbar_enabled')}
+                className={`w-11 h-6 rounded-full transition-colors relative p-0.5 flex-shrink-0 ${
+                  form.header_topbar_enabled !== '0' ? 'bg-[#00d4f5]' : 'bg-white/10'
+                }`}
+              >
+                <div
+                  className={`w-5 h-5 rounded-full bg-black transition-transform ${
+                    form.header_topbar_enabled !== '0' ? 'translate-x-5' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>
+          </div>
+          <p className="text-xs text-bb-muted mt-0.5">
+            Configure the prominent utility bar displayed above the navbar with your phone, email, and "Request a Quote" CTA.
+          </p>
+        </CardHeader>
+        <CardBody className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              label="Top Bar Phone Number"
+              value={form.header_phone ?? '+923168435767'}
+              onChange={set('header_phone')}
+              placeholder="+923168435767"
+            />
+            <Input
+              label="Top Bar Email Address"
+              value={form.header_email ?? 'contact@codelifeai.com'}
+              onChange={set('header_email')}
+              placeholder="contact@codelifeai.com"
+            />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="sm:col-span-2">
+              <Input
+                label="Center Studio Announcement / Status"
+                value={form.header_announcement ?? '⚡ Open for Q1/Q2 Projects · High-Velocity Delivery'}
+                onChange={set('header_announcement')}
+                placeholder="⚡ Open for Q1/Q2 Projects · High-Velocity Delivery"
+              />
+            </div>
+            <div>
+              <Input
+                label="CTA Button Label"
+                value={form.header_cta_text ?? 'Request a Quote'}
+                onChange={set('header_cta_text')}
+                placeholder="Request a Quote"
+              />
+            </div>
+          </div>
+          <Input
+            label="CTA Button Destination Link"
+            value={form.header_cta_link ?? '/contact'}
+            onChange={set('header_cta_link')}
+            placeholder="/contact"
+          />
+        </CardBody>
+      </Card>
+
+      {/* 4. Hero Section */}
       <Card>
         <CardHeader><h2 className="text-sm font-bold text-bb-white">Hero Section</h2></CardHeader>
         <CardBody className="space-y-4">
@@ -143,13 +214,13 @@ export default function AdminContent() {
         </CardBody>
       </Card>
 
-      {/* 4. Contact & Social */}
+      {/* 5. Contact & Social */}
       <Card>
         <CardHeader><h2 className="text-sm font-bold text-bb-white">Contact &amp; Social Links</h2></CardHeader>
         <CardBody className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input label="Contact email" value={form.contact_email || ''} onChange={set('contact_email')} placeholder="contact@codelifeai.com" />
-            <Input label="Contact phone" value={form.contact_phone || ''} onChange={set('contact_phone')} placeholder="+92 300 1234567" />
+            <Input label="Contact phone" value={form.contact_phone || ''} onChange={set('contact_phone')} placeholder="+923168435767" />
           </div>
           <Textarea label="Contact section subtitle" value={form.contact_subtitle || ''} onChange={set('contact_subtitle')} rows={2} placeholder="Have a project in mind?…" />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -158,16 +229,58 @@ export default function AdminContent() {
             <Input label="Instagram URL"    value={form.social_instagram || ''} onChange={set('social_instagram')} placeholder="https://instagram.com/…" />
             <Input label="X / Twitter URL"  value={form.social_twitter   || ''} onChange={set('social_twitter')}   placeholder="https://x.com/…" />
             <Input label="GitHub URL"       value={form.social_github    || ''} onChange={set('social_github')}    placeholder="https://github.com/…" />
-            <Input label="WhatsApp URL"     value={form.social_whatsapp  || ''} onChange={set('social_whatsapp')}  placeholder="https://wa.me/…" />
+            <Input label="WhatsApp URL / Phone" value={form.social_whatsapp  || ''} onChange={set('social_whatsapp')}  placeholder="+923168435767" />
           </div>
         </CardBody>
       </Card>
 
-      {/* 5. Footer */}
+      {/* 6. Comprehensive Footer & Legal Manager */}
       <Card>
-        <CardHeader><h2 className="text-sm font-bold text-bb-white">Footer</h2></CardHeader>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Globe size={16} className="text-[#00d4f5]" />
+            <h2 className="text-sm font-bold text-bb-white">Website Footer Management</h2>
+          </div>
+          <p className="text-xs text-bb-muted mt-0.5">
+            Full dynamic CMS control over footer branding, about paragraph, office location, services list, and copyright.
+          </p>
+        </CardHeader>
         <CardBody className="space-y-4">
-          <Textarea label="Footer tagline (italic serif)" value={form.footer_tagline || ''} onChange={set('footer_tagline')} rows={2} placeholder="We build digital products that are fast, modern, and memorable." />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              label="Footer Tagline (Quote style)"
+              value={form.footer_tagline ?? 'We build digital products that are fast, modern, and built to scale.'}
+              onChange={set('footer_tagline')}
+              placeholder="We build digital products that are fast, modern, and built to scale."
+            />
+            <Input
+              label="Studio Office / Location"
+              value={form.footer_address ?? 'Karachi, Pakistan · Global Remote Delivery'}
+              onChange={set('footer_address')}
+              placeholder="Karachi, Pakistan · Global Remote Delivery"
+            />
+          </div>
+          <Textarea
+            label="Footer About Paragraph (Company description)"
+            value={form.footer_about ?? 'Next-generation software engineering studio creating high-velocity web applications, fluid mobile apps, and autonomous AI agents for ambitious teams worldwide.'}
+            onChange={set('footer_about')}
+            rows={2}
+            placeholder="Next-generation software engineering studio..."
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              label="Copyright Notice (use {year} for dynamic current year)"
+              value={form.footer_copyright ?? '© {year} CodeLifeAI. All rights reserved.'}
+              onChange={set('footer_copyright')}
+              placeholder="© {year} CodeLifeAI. All rights reserved."
+            />
+            <Input
+              label="Services List Override (comma-separated)"
+              value={form.footer_services ?? 'Web Development, Mobile Apps, AI & Custom Agents, Cloud & DevOps, UI/UX Architecture'}
+              onChange={set('footer_services')}
+              placeholder="Web Development, Mobile Apps, AI & Custom Agents..."
+            />
+          </div>
         </CardBody>
       </Card>
 

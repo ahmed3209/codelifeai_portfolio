@@ -52,12 +52,12 @@ export default function ServicesSection({ services = [] }) {
           className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-12 sm:mb-16"
         >
           <div>
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#00d4f5]/10 border border-[#00d4f5]/25 text-[0.68rem] font-bold uppercase tracking-widest text-[#00d4f5] mb-3">
-              <Sparkles size={12} /> Engineering Capabilities
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#00cced]/10 border border-[#00cced]/30 text-[0.68rem] font-bold uppercase tracking-widest text-[#00f0ff] mb-3 shadow-[0_0_15px_rgba(0,204,237,0.15)]">
+              <Sparkles size={12} className="text-[#00f0ff]" /> Engineering Capabilities
             </div>
             <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
               Specialized Services We <br />
-              <span className="bg-gradient-to-r from-[#00d4f5] via-[#38bdf8] to-[#a855f7] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[#00f0ff] via-[#00cced] to-[#1cb1f3] bg-clip-text text-transparent">
                 Design, Build &amp; Scale
               </span>
             </h2>
@@ -98,17 +98,17 @@ function ServiceCard({ svc, index, onClick }) {
   return (
     <div
       onClick={onClick}
-      className="group relative bg-[#090918]/90 border border-white/[0.1] hover:border-[#00d4f5]/50 rounded-3xl overflow-hidden h-full flex flex-col cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-[#00d4f5]/5"
+      className="group relative bg-[#091527]/90 border border-[#00cced]/20 hover:border-[#00cced]/60 rounded-3xl overflow-hidden h-full flex flex-col cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-[#00cced]/15"
     >
       {/* Visual Asset Banner */}
-      <div className="relative h-44 sm:h-48 overflow-hidden bg-black">
+      <div className="relative h-44 sm:h-48 overflow-hidden bg-[#060c18]">
         <img
           src={imageUrl}
           alt={svc.title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           loading="lazy"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#090918] via-[#090918]/50 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#091527] via-[#091527]/50 to-transparent pointer-events-none" />
 
         {/* Floating Icon Badge */}
         <div className="absolute top-3.5 left-3.5 w-11 h-11 rounded-2xl bg-black/80 border border-white/20 backdrop-blur-md flex items-center justify-center text-xl shadow-lg">

@@ -23,12 +23,12 @@ export default function FoundersSection({ founders = [] }) {
     <section
       id="founders"
       className="relative z-10 py-20 sm:py-32 px-4 sm:px-6 lg:px-14 overflow-hidden"
-      style={{ background: 'linear-gradient(180deg, transparent, rgba(124,58,237,0.03), transparent)' }}
+      style={{ background: 'linear-gradient(180deg, transparent, rgba(0,204,237,0.03), transparent)' }}
     >
       {/* Bg radial */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/2 left-1/2 w-[900px] h-[900px] rounded-full -translate-x-1/2 -translate-y-1/2"
-          style={{ background: 'radial-gradient(circle, rgba(124,58,237,0.04) 0%, transparent 58%)' }} />
+          style={{ background: 'radial-gradient(circle, rgba(0,204,237,0.06) 0%, transparent 58%)' }} />
       </div>
 
       <div className="max-w-[1100px] mx-auto">
@@ -42,10 +42,10 @@ export default function FoundersSection({ founders = [] }) {
         >
           <p className="section-number mb-1 block">03 / Team</p>
           <div className="section-label inline-flex">The People</div>
-          <h2 className="font-extrabold tracking-tight mt-1" style={{ fontSize: 'clamp(2rem, 4vw, 3.2rem)' }}>
-            Meet the <em className="font-fraunces font-light not-italic text-white/35">Founders</em>
+          <h2 className="font-extrabold tracking-tight mt-1 text-white" style={{ fontSize: 'clamp(2rem, 4vw, 3.2rem)' }}>
+            Meet the <span className="text-gradient">Founders</span>
           </h2>
-          <p className="text-bb-muted text-sm mt-3 max-w-sm mx-auto leading-relaxed">
+          <p className="text-slate-300 text-sm mt-3 max-w-sm mx-auto leading-relaxed">
             Two builders on a mission to ship software that actually matters.
           </p>
         </motion.div>
@@ -58,7 +58,7 @@ export default function FoundersSection({ founders = [] }) {
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.12 }}
-              transition={{ delay: i * 0.14, duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ delay: i * 0.1, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
             >
               <FounderCard founder={f} />
             </motion.div>
@@ -78,21 +78,21 @@ function FounderCard({ founder }) {
       onMouseMove={onMouseMove}
       onMouseLeave={onMouseLeave}
       style={{ rotateX: rotX, rotateY: rotY, scale, transformStyle: 'preserve-3d', perspective: 1000 }}
-      className="group card-base p-6 sm:p-8"
+      className="group card-base p-6 sm:p-8 bg-[#091527]/90 border border-[#00cced]/20 hover:border-[#00cced]/50 shadow-xl shadow-black/40"
     >
       {/* Top bar */}
       <div className="absolute top-0 left-0 right-0 h-[2px] scale-x-0 group-hover:scale-x-100 transition-transform duration-400 origin-left"
-        style={{ background: 'linear-gradient(90deg, #00d4f5, #7c3aed)' }} />
+        style={{ background: 'linear-gradient(90deg, #00f0ff, #1cb1f3)' }} />
       {/* Ambient glow */}
       <div className="absolute -top-16 -right-16 w-52 h-52 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-        style={{ background: 'radial-gradient(circle, rgba(0,212,245,0.07) 0%, transparent 65%)' }} />
+        style={{ background: 'radial-gradient(circle, rgba(0,204,237,0.12) 0%, transparent 65%)' }} />
 
       {/* Avatar + info */}
       <div className="flex items-start gap-4 mb-5">
         <div className="relative flex-shrink-0">
           <div
-            className="w-[72px] h-[72px] rounded-2xl overflow-hidden border border-white/[0.1]"
-            style={{ background: founder.avatar_bg || 'linear-gradient(135deg, #7c3aed, #00d4f5)' }}
+            className="w-[72px] h-[72px] rounded-2xl overflow-hidden border border-[#00cced]/25"
+            style={{ background: founder.avatar_bg || 'linear-gradient(135deg, #00cced, #1cb1f3)' }}
           >
             {founder.photo_url
               ? <img src={resolveApiUrl(founder.photo_url)} alt={founder.name} className="w-full h-full object-cover" />

@@ -9,14 +9,16 @@ export default {
       },
       colors: {
         bb: {
-          black:   '#06060f',
-          card:    '#0d0d1c',
-          card2:   '#111122',
-          white:   '#f0efe9',
-          accent:  '#00d4f5',
-          purple:  '#7c3aed',
-          muted:   '#5a5a74',
-          border:  'rgba(255,255,255,0.06)',
+          black:   '#060b14',
+          card:    '#0b1322',
+          card2:   '#0f1a2e',
+          white:   '#ffffff',
+          accent:  '#00cced',
+          teal:    '#00f0ff',
+          sky:     '#1cb1f3',
+          purple:  '#0ea5e9',
+          muted:   '#94a3b8',
+          border:  'rgba(0, 204, 237, 0.12)',
         }
       },
       animation: {

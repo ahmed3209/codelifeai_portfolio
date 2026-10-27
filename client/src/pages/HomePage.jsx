@@ -11,7 +11,7 @@ import FoundersSection      from '../components/sections/FoundersSection'
 import TestimonialsSection  from '../components/sections/TestimonialsSection'
 import CTABanner            from '../components/sections/CTABanner'
 
-const ThreeBackground = lazy(() => import('../components/ThreeBackground'))
+import ParticleNetwork from '../components/ParticleNetwork'
 
 const DEFAULT_SERVICES = [
   {
@@ -188,13 +188,11 @@ export default function HomePage() {
         keywords="codelifeai, software studio, software development company, web development, mobile app development, ui ux design, ai integration, cloud devops, react, nextjs, flutter, full stack development"
       />
 
-      {/* Subtle, High-Contrast 3D WebGL background */}
-      <Suspense fallback={null}>
-        <ThreeBackground />
-      </Suspense>
+      {/* Connected Dots & Constellation Background */}
+      <ParticleNetwork />
 
       {/* 1. Hero Section */}
-      <HeroSection content={content} promo={activePromo} liveProducts={liveProducts} />
+      <HeroSection content={content} promo={activePromo} liveProducts={liveProducts} projects={siteData?.projects || []} />
 
       {/* 2. Trust & Engineering Metrics Ticker */}
       {showMarquee && <TrustMarquee />}

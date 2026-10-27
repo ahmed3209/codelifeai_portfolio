@@ -477,32 +477,66 @@ export function ContactSection({ content = {} }) {
 
 /* ── Footer ──────────────────────────────────── */
 export function Footer({ content = {} }) {
-  const services = ['Web Development', 'Mobile Apps', 'UI/UX Design', 'AI Integration', 'Cloud & DevOps']
+  const customServices = content.footer_services
+    ? content.footer_services.split(',').map(s => s.trim()).filter(Boolean)
+    : null
+
+  const services = customServices || [
+    'Web Development',
+    'Mobile Apps',
+    'AI & Custom Agents',
+    'Cloud & DevOps',
+    'UI/UX Architecture'
+  ]
+
+  const logoUrl = content.site_logo_url || '/logo.svg'
+  const email = content.contact_email || 'contact@codelifeai.com'
+  const phone = content.contact_phone || '+923168435767'
+  const address = content.footer_address || 'Karachi, Pakistan · Global Remote Delivery'
+  const tagline = content.footer_tagline || 'We build digital products that are fast, modern, and built to scale.'
+  const about = content.footer_about || 'Next-generation software engineering studio creating high-velocity web applications, fluid mobile apps, and autonomous AI agents for ambitious teams worldwide.'
+  
+  const currentYear = new Date().getFullYear()
+  const copyright = (content.footer_copyright || '© {year} CodeLifeAI. All rights reserved.').replace('{year}', currentYear)
 
   const socialIcons = [
     { Icon: Linkedin,  href: content.social_linkedin,  label: 'LinkedIn'  },
     { Icon: Facebook,  href: content.social_facebook,  label: 'Facebook'  },
     { Icon: Instagram, href: content.social_instagram, label: 'Instagram' },
     { Icon: Twitter,   href: content.social_twitter,   label: 'X (Twitter)' },
-    { Icon: Mail,      href: content.contact_email ? `mailto:${content.contact_email}` : '', label: 'Email' },
-    { Icon: Phone,     href: content.contact_phone ? `tel:${String(content.contact_phone).replace(/\s+/g, '')}` : '', label: 'Phone' },
+    { Icon: Globe,     href: content.social_github,    label: 'GitHub'    },
+    { Icon: Phone,     href: content.social_whatsapp ? `https://wa.me/${String(content.social_whatsapp).replace(/\D/g, '')}` : '', label: 'WhatsApp' },
+    { Icon: Mail,      href: email ? `mailto:${email}` : '', label: 'Email' },
+    { Icon: Phone,     href: phone ? `tel:${String(phone).replace(/\s+/g, '')}` : '', label: 'Phone' },
   ].filter(s => s.href)
 
   return (
     <footer
-      className="relative z-10 border-t border-white/[0.05] px-4 sm:px-6 lg:px-14 pt-14 sm:pt-20 pb-8 sm:pb-10"
-      style={{ background: 'rgba(255,255,255,0.03)' }}
+      className="relative z-10 border-t border-[#00cced]/20 px-4 sm:px-6 lg:px-14 pt-14 sm:pt-20 pb-8 sm:pb-10"
+      style={{ background: 'linear-gradient(180deg, rgba(6,11,20,0.85) 0%, rgba(4,8,16,0.98) 100%)' }}
     >
       <div className="max-w-[1200px] mx-auto">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12 pb-10 sm:pb-16 border-b border-white/[0.05]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12 pb-10 sm:pb-16 border-b border-white/[0.07]">
 
-          {/* Brand */}
-          <div>
-            <img src="/logo.svg" alt="CodeLifeAI" width="408" height="110" className="h-7 w-auto mb-4" />
-            <p className="font-fraunces italic font-light text-[0.9rem] text-white/40 leading-relaxed max-w-[210px] mb-5">
-              {content.footer_tagline || 'We build digital products that are fast, beautiful, and built to last.'}
+          {/* Brand & Mission */}
+          <div className="space-y-4">
+            <Link to="/" className="inline-block no-underline">
+              <img
+                src={logoUrl}
+                alt="CodeLifeAI"
+                width="408"
+                height="110"
+                className="h-8 w-auto object-contain drop-shadow-[0_2px_12px_rgba(0,204,237,0.25)]"
+                onError={(e) => { e.target.src = '/logo.svg' }}
+              />
+            </Link>
+            <p className="font-fraunces italic font-light text-[0.88rem] text-slate-300/80 leading-relaxed max-w-[280px]">
+              "{tagline}"
             </p>
-            <div className="flex flex-wrap gap-2">
+            <p className="text-[0.8rem] text-slate-400 leading-relaxed max-w-[280px]">
+              {about}
+            </p>
+            <div className="flex flex-wrap gap-2 pt-2">
               {socialIcons.map(({ Icon, href, label }) => {
                 const isExternal = href.startsWith('http')
                 return (
@@ -512,7 +546,7 @@ export function Footer({ content = {} }) {
                     {...(isExternal ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                     aria-label={label}
                     title={label}
-                    className="w-9 h-9 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-slate-400 hover:text-[#00d4f5] hover:border-[#00d4f5]/30 hover:bg-[#00d4f5]/[0.06] transition-all no-underline"
+                    className="w-9 h-9 rounded-xl bg-white/[0.04] border border-[#00cced]/25 flex items-center justify-center text-slate-300 hover:text-[#00f0ff] hover:border-[#00f0ff]/60 hover:bg-[#00cced]/10 hover:shadow-[0_0_12px_rgba(0,240,255,0.25)] transition-all no-underline"
                   >
                     <Icon size={14} />
                   </a>
@@ -523,11 +557,13 @@ export function Footer({ content = {} }) {
 
           {/* Services */}
           <div>
-            <h4 className="text-[0.67rem] font-bold tracking-[0.12em] uppercase text-white/30 mb-5">Services</h4>
+            <h4 className="text-[0.72rem] font-bold tracking-[0.14em] uppercase text-[#00f0ff] mb-5">
+              Services
+            </h4>
             <ul className="space-y-2.5 list-none p-0 m-0">
               {services.map(s => (
                 <li key={s}>
-                  <Link to="/services" className="text-[0.84rem] text-slate-400 hover:text-white transition-colors no-underline hover:translate-x-0.5 inline-block">
+                  <Link to="/services" className="text-[0.86rem] text-slate-300 hover:text-[#00f0ff] transition-colors no-underline hover:translate-x-1 inline-block">
                     {s}
                   </Link>
                 </li>
@@ -537,37 +573,75 @@ export function Footer({ content = {} }) {
 
           {/* Company */}
           <div>
-            <h4 className="text-[0.67rem] font-bold tracking-[0.12em] uppercase text-white/30 mb-5">Company</h4>
+            <h4 className="text-[0.72rem] font-bold tracking-[0.14em] uppercase text-[#00f0ff] mb-5">
+              Company
+            </h4>
             <ul className="space-y-2.5 list-none p-0 m-0">
-              {[['About Us', '/team'], ['Our Process', '/process'], ['Tech Blog', '/blog'], ['Why CodeLifeAI', '/team'], ['Contact', '/contact']].map(([l, h]) => (
+              {[
+                ['About Our Team', '/team'],
+                ['Engineering Process', '/process'],
+                ['Portfolio & Projects', '/work'],
+                ['Technical Blog', '/blog'],
+                ['Contact & Consultation', '/contact']
+              ].map(([l, h]) => (
                 <li key={l}>
-                  <Link to={h} className="text-[0.84rem] text-slate-400 hover:text-white transition-colors no-underline">{l}</Link>
+                  <Link to={h} className="text-[0.86rem] text-slate-300 hover:text-[#00f0ff] transition-colors no-underline hover:translate-x-1 inline-block">
+                    {l}
+                  </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Contact */}
+          {/* Contact Details */}
           <div>
-            <h4 className="text-[0.67rem] font-bold tracking-[0.12em] uppercase text-white/30 mb-5">Contact</h4>
-            <ul className="space-y-2.5 list-none p-0 m-0">
+            <h4 className="text-[0.72rem] font-bold tracking-[0.14em] uppercase text-[#00f0ff] mb-5">
+              Direct Contact
+            </h4>
+            <ul className="space-y-3 list-none p-0 m-0">
               <li>
-                <a href={`mailto:${content.contact_email || 'contact@codelifeai.com'}`}
-                  className="text-[0.84rem] text-slate-400 hover:text-white transition-colors no-underline">
-                  {content.contact_email || 'contact@codelifeai.com'}
+                <a
+                  href={`mailto:${email}`}
+                  className="inline-flex items-center gap-2 text-[0.86rem] text-slate-300 hover:text-[#00f0ff] transition-colors no-underline"
+                >
+                  <Mail size={14} className="text-[#00cced] flex-shrink-0" />
+                  <span className="truncate">{email}</span>
                 </a>
               </li>
-              <li><Link to="/contact" className="text-[0.84rem] text-slate-400 hover:text-white transition-colors no-underline">Schedule a Call</Link></li>
-              <li><Link to="/contact" className="text-[0.84rem] text-slate-400 hover:text-white transition-colors no-underline">Project Brief</Link></li>
+              <li>
+                <a
+                  href={`tel:${String(phone).replace(/\s+/g, '')}`}
+                  className="inline-flex items-center gap-2 text-[0.86rem] text-slate-300 hover:text-[#00f0ff] transition-colors no-underline"
+                >
+                  <Phone size={14} className="text-[#00cced] flex-shrink-0" />
+                  <span>{phone}</span>
+                </a>
+              </li>
+              <li>
+                <div className="flex items-start gap-2 text-[0.84rem] text-slate-400 mt-2">
+                  <MapPin size={15} className="text-[#00cced] flex-shrink-0 mt-0.5" />
+                  <span>{address}</span>
+                </div>
+              </li>
+              <li className="pt-2">
+                <Link
+                  to="/contact"
+                  className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold text-black bg-gradient-to-r from-[#00f0ff] to-[#00cced] hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all no-underline"
+                >
+                  <span>Request a Free Quote</span>
+                  <ArrowUpRight size={13} />
+                </Link>
+              </li>
             </ul>
           </div>
         </div>
 
         {/* Bottom bar */}
-        <div className="flex items-center justify-between pt-8 flex-wrap gap-3">
-          <span className="text-[0.77rem] text-slate-500">© {new Date().getFullYear()} CodeLifeAI. All rights reserved.</span>
-          <span className="inline-flex items-center gap-1.5 text-[0.71rem] text-white/25 border border-white/[0.05] px-3 py-1 rounded-full tracking-wider">
-            Crafted with precision · <MapPin size={10} /> Pakistan
+        <div className="flex items-center justify-between pt-8 flex-wrap gap-4">
+          <span className="text-[0.78rem] text-slate-400">{copyright}</span>
+          <span className="inline-flex items-center gap-1.5 text-[0.74rem] text-slate-400 border border-[#00cced]/20 bg-[#00cced]/[0.03] px-3.5 py-1.5 rounded-full tracking-wider">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#00f0ff] animate-ping" />
+            <MapPin size={11} className="text-[#00f0ff]" /> {address}
           </span>
         </div>
       </div>

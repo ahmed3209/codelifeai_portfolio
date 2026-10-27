@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Zap, Star } from 'lucide-react'
-import LiveProductWidget from './LiveProductWidget'
+import { Zap, Star, ArrowRight } from 'lucide-react'
+import HeroProjectsSlider from './HeroProjectsSlider'
 
 const WORDS = ['Software.', 'Products.', 'Experiences.', 'The Future.', 'What Matters.']
 
@@ -14,23 +14,23 @@ const STATS = [
 ]
 
 const TECH_STACK = [
-  { label: 'React',      color: '#61DAFB' },
+  { label: 'React',      color: '#00cced' },
   { label: 'Next.js',    color: '#ffffff' },
-  { label: 'Node.js',    color: '#84CC16' },
-  { label: 'TypeScript', color: '#3B82F6' },
-  { label: 'Flutter',    color: '#38BDF8' },
-  { label: 'Python',     color: '#F59E0B' },
-  { label: 'AWS',        color: '#F97316' },
-  { label: 'PostgreSQL', color: '#A78BFA' },
+  { label: 'Node.js',    color: '#22c55e' },
+  { label: 'TypeScript', color: '#38bdf8' },
+  { label: 'Flutter',    color: '#00f0ff' },
+  { label: 'Python',     color: '#f59e0b' },
+  { label: 'AWS',        color: '#fb923c' },
+  { label: 'PostgreSQL', color: '#818cf8' },
 ]
 
-const FU = (delay = 0, y = 24) => ({
+const FU = (delay = 0, y = 20) => ({
   initial:    { opacity: 0, y },
   animate:    { opacity: 1, y: 0 },
-  transition: { delay, duration: 0.7, ease: [0.16, 1, 0.3, 1] },
+  transition: { delay, duration: 0.65, ease: [0.16, 1, 0.3, 1] },
 })
 
-export default function HeroSection({ content = {}, promo = null, liveProducts = [] }) {
+export default function HeroSection({ content = {}, promo = null, liveProducts = [], projects = [] }) {
   const [wordIndex,   setWordIndex]   = useState(0)
   const [charIndex,   setCharIndex]   = useState(0)
   const [deleting,    setDeleting]    = useState(false)
@@ -45,147 +45,145 @@ export default function HeroSection({ content = {}, promo = null, liveProducts =
     let t
     if (!deleting) {
       t = charIndex < word.length
-        ? setTimeout(() => { setDisplayText(word.slice(0, charIndex + 1)); setCharIndex(c => c + 1) }, 86)
+        ? setTimeout(() => { setDisplayText(word.slice(0, charIndex + 1)); setCharIndex(c => c + 1) }, 85)
         : setTimeout(() => setDeleting(true), 2400)
     } else {
       t = charIndex > 0
-        ? setTimeout(() => { setDisplayText(word.slice(0, charIndex - 1)); setCharIndex(c => c - 1) }, 42)
+        ? setTimeout(() => { setDisplayText(word.slice(0, charIndex - 1)); setCharIndex(c => c - 1) }, 40)
         : (() => { setDeleting(false); setWordIndex(i => (i + 1) % cyclingWords.length) })()
     }
     return () => clearTimeout(t)
   }, [charIndex, deleting, wordIndex, cyclingWords])
 
-  const marqueeItems = content.marquee_items
-    ? content.marquee_items.split(',').map(s => s.trim())
-    : ['Web Development', 'Mobile Apps', 'UI/UX Design', 'AI Integration', 'Cloud & DevOps', 'Tech Consulting']
-  const marqueeDouble = [...marqueeItems, ...marqueeItems]
-
   return (
-    <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-4 sm:px-6 pt-24 sm:pt-32 pb-20 sm:pb-28 overflow-hidden">
-
-      {/* ── Top-Right Animated "Product is LIVE" Multi-Product Slider ── */}
-      <LiveProductWidget liveProducts={liveProducts} promo={promo} />
-
-      {/* ── High-Performance Ambient Glow (Zero CPU/GPU blur overhead) ── */}
+    <section className="relative min-h-[92vh] flex flex-col justify-center px-4 sm:px-6 lg:px-12 pt-32 sm:pt-40 pb-16 sm:pb-24 overflow-hidden">
+      
+      {/* ── High-Tech Luminous Ambient Aura (Teal / Cyan Brand Colors) ── */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden contain-paint">
         <div
           className="absolute rounded-full"
           style={{
-            width: '650px', height: '650px',
-            top: '5%', left: '-8%',
-            background: 'radial-gradient(circle, rgba(0,212,245,0.07) 0%, rgba(0,212,245,0.02) 45%, transparent 70%)',
+            width: '720px', height: '720px',
+            top: '-10%', left: '-5%',
+            background: 'radial-gradient(circle, rgba(0,204,237,0.12) 0%, rgba(0,204,237,0.03) 45%, transparent 70%)',
+            filter: 'blur(40px)',
           }}
         />
         <div
           className="absolute rounded-full"
           style={{
-            width: '550px', height: '550px',
-            bottom: '0%', right: '-5%',
-            background: 'radial-gradient(circle, rgba(124,58,237,0.06) 0%, rgba(124,58,237,0.015) 45%, transparent 70%)',
+            width: '680px', height: '680px',
+            top: '20%', right: '-8%',
+            background: 'radial-gradient(circle, rgba(28,177,243,0.1) 0%, rgba(0,240,255,0.025) 45%, transparent 70%)',
+            filter: 'blur(40px)',
           }}
         />
       </div>
 
-      {/* ── Content ───────────────────────────────────────── */}
-      <div className="relative z-10 flex flex-col items-center w-full max-w-[980px] mx-auto">
-
-        {/* Section tag */}
-        <motion.div {...FU(0)} className="flex items-center gap-3 mb-5 sm:mb-7">
-          <div className="section-label">
-            <Zap size={11} fill="currentColor" />
-            {content.hero_badge || "We build what's next"}
-          </div>
-        </motion.div>
-
-        {/* Big headline */}
-        <motion.h1
-          {...FU(0.06)}
-          className="font-extrabold tracking-[-0.045em] leading-[0.92] sm:leading-[0.88] mb-2 text-bb-white"
-          style={{ fontSize: 'clamp(2.4rem, 8.5vw, 8rem)' }}
-        >
-          {content.hero_title || 'We Create'}
-        </motion.h1>
-
-        {/* Animated typewriter word */}
-        <motion.div
-          {...FU(0.12)}
-          className="font-fraunces italic font-light leading-[0.95] sm:leading-[0.9] tracking-[-0.03em] mb-6 sm:mb-8 min-h-[1.1em]"
-          style={{ fontSize: 'clamp(2.4rem, 8.5vw, 8rem)' }}
-        >
-          <span className="text-gradient">{displayText}</span>
-          <span className="inline-block w-[3px] h-[0.82em] bg-bb-accent ml-2 align-middle rounded-sm cursor-blink" />
-        </motion.div>
-
-        {/* Subtitle */}
-        <motion.p {...FU(0.2)} className="text-bb-muted text-[0.95rem] sm:text-[1.05rem] leading-[1.75] max-w-[560px] mb-8 sm:mb-10 px-2">
-          {content.hero_subtitle || 'CodeLifeAI is a software startup crafting elegant digital products — from sleek web apps to powerful mobile experiences.'}
-        </motion.p>
-
-        {/* CTAs */}
-        <motion.div {...FU(0.28)} className="flex gap-4 justify-center flex-wrap mb-16">
-          <Link to="/contact" className="btn-primary text-sm">
-            Start a Project
-            <motion.span animate={{ x: [0, 4, 0] }} transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}>→</motion.span>
-          </Link>
-          <Link to="/work" className="btn-ghost text-sm">View Our Work</Link>
-        </motion.div>
-
-        {/* Stats row */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.42, duration: 0.7 }}
-          className="w-full max-w-[700px] grid grid-cols-2 sm:grid-cols-4 rounded-2xl overflow-hidden border border-white/[0.07]"
-          style={{ background: 'rgba(255,255,255,0.025)' }}
-        >
-          {STATS.map((s, i) => (
-            <div key={i} className="flex flex-col items-center justify-center py-5 px-3 border-r border-white/[0.06] last:border-r-0 [&:nth-child(2n)]:border-r-0 sm:[&:nth-child(2n)]:border-r sm:[&:nth-child(n+3)]:border-b-0 border-b border-white/[0.06]">
-              <span className="inline-flex items-center gap-1 text-[1.65rem] font-extrabold leading-none text-gradient mb-1">
-                {s.value}
-                {s.showStar && <Star size={18} fill="currentColor" strokeWidth={0} className="text-amber-400" />}
-              </span>
-              <span className="text-[0.63rem] font-semibold text-bb-muted uppercase tracking-wider text-center">{s.label}</span>
+      {/* ── Main Content Grid: Left Column Copy, Right Column Smooth Interactive Projects Slider ── */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
+        
+        {/* Left Column: Headline, Typewriter, Subtitle, CTAs, Stats */}
+        <div className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left">
+          
+          {/* Section Label Badge */}
+          <motion.div {...FU(0)} className="flex items-center gap-3 mb-5 sm:mb-6">
+            <div className="section-label">
+              <Zap size={12} className="text-[#00f0ff] fill-[#00f0ff]" />
+              {content.hero_badge || "We build what's next"}
             </div>
-          ))}
+          </motion.div>
+
+          {/* Big Headline */}
+          <motion.h1
+            {...FU(0.08)}
+            className="font-black tracking-[-0.04em] leading-[0.98] sm:leading-[0.94] mb-3 text-white text-4xl sm:text-6xl lg:text-[4.6rem] xl:text-[5.2rem]"
+          >
+            {content.hero_title || 'We Create'}
+            <span className="block mt-1 sm:mt-2 text-gradient min-h-[1.15em]">
+              {displayText}
+              <span className="inline-block w-[3.5px] h-[0.78em] bg-[#00f0ff] ml-2 align-middle rounded-sm cursor-blink shadow-[0_0_12px_#00f0ff]" />
+            </span>
+          </motion.h1>
+
+          {/* Subtitle with High-Contrast Readability */}
+          <motion.p
+            {...FU(0.18)}
+            className="text-slate-300 text-[1rem] sm:text-[1.12rem] leading-[1.75] max-w-xl mb-8 sm:mb-9 font-normal"
+          >
+            {content.hero_subtitle || 'CodeLifeAI is a software studio crafting next-generation digital products — from scalable web apps and mobile experiences to custom autonomous AI agents.'}
+          </motion.p>
+
+          {/* Call to Action Buttons */}
+          <motion.div {...FU(0.26)} className="flex gap-4 items-center justify-center lg:justify-start flex-wrap mb-10 sm:mb-12 w-full sm:w-auto">
+            <Link to="/contact" className="btn-primary text-sm shadow-[0_6px_28px_rgba(0,204,237,0.45)]">
+              <span>Start a Project</span>
+              <ArrowRight size={16} />
+            </Link>
+            <Link to="/work" className="btn-ghost text-sm">
+              <span>View Our Work</span>
+            </Link>
+          </motion.div>
+
+          {/* Trust Metrics Bar */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.38, duration: 0.7 }}
+            className="w-full max-w-[620px] grid grid-cols-2 sm:grid-cols-4 rounded-2xl overflow-hidden border border-[#00cced]/20 bg-[#081322]/75 backdrop-blur-xl shadow-xl shadow-black/40"
+          >
+            {STATS.map((s, i) => (
+              <div
+                key={i}
+                className="flex flex-col items-center justify-center py-4 px-3 border-r border-[#00cced]/15 last:border-r-0 [&:nth-child(2n)]:border-r-0 sm:[&:nth-child(2n)]:border-r sm:[&:nth-child(n+3)]:border-b-0 border-b border-[#00cced]/15"
+              >
+                <span className="inline-flex items-center gap-1 text-[1.5rem] font-extrabold leading-none text-gradient mb-1">
+                  {s.value}
+                  {s.showStar && <Star size={16} fill="currentColor" strokeWidth={0} className="text-amber-400" />}
+                </span>
+                <span className="text-[0.65rem] font-semibold text-slate-300 uppercase tracking-wider text-center">{s.label}</span>
+              </div>
+            ))}
+          </motion.div>
+        </div>
+
+        {/* Right Column: Smooth Interactive Projects Slider */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.94 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.85, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+          className="lg:col-span-5 flex flex-col items-center justify-center relative w-full"
+        >
+          <HeroProjectsSlider liveProducts={liveProducts} projects={projects} />
         </motion.div>
       </div>
 
-      {/* ── Tech ticker strip ───────────────────────────────── */}
+      {/* ── Modern Tech Stack Ticker Strip ── */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.7, duration: 0.8 }}
-        className="absolute bottom-12 left-0 right-0 overflow-hidden pointer-events-none"
+        transition={{ delay: 0.6, duration: 0.8 }}
+        className="w-full max-w-7xl mx-auto mt-14 sm:mt-18 pt-6 border-t border-white/[0.07]"
       >
-        <p className="text-center text-[0.62rem] font-bold uppercase tracking-[0.2em] text-white/18 mb-4">
-          Powered by modern tech
+        <p className="text-center text-[0.65rem] font-bold uppercase tracking-[0.22em] text-slate-400 mb-4">
+          Engineered with modern production technologies
         </p>
-        <div className="flex whitespace-nowrap" style={{ animation: 'tickerMove 20s linear infinite' }}>
-          {[...TECH_STACK, ...TECH_STACK, ...TECH_STACK].map((t, i) => (
-            <span key={i} className="inline-flex items-center gap-2 mx-6 text-[0.75rem] font-semibold"
-              style={{ color: t.color, opacity: 0.6 }}>
-              <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background: t.color }} />
-              {t.label}
-            </span>
-          ))}
+        <div className="overflow-hidden relative py-1">
+          <div className="flex whitespace-nowrap" style={{ animation: 'tickerMove 22s linear infinite' }}>
+            {[...TECH_STACK, ...TECH_STACK, ...TECH_STACK].map((t, i) => (
+              <span
+                key={i}
+                className="inline-flex items-center gap-2 mx-6 text-[0.78rem] font-semibold px-3 py-1 rounded-full bg-white/[0.03] border border-white/[0.06] hover:border-[#00cced]/40 transition-colors"
+                style={{ color: t.color }}
+              >
+                <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background: t.color }} />
+                {t.label}
+              </span>
+            ))}
+          </div>
         </div>
       </motion.div>
 
-      {/* ── Scroll indicator ────────────────────────────────── */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.1, duration: 0.8 }}
-        className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1.5"
-      >
-        <div className="w-[18px] h-7 rounded-full border border-white/[0.14] flex items-start justify-center pt-1.5">
-          <motion.div
-            animate={{ y: [0, 10, 0] }}
-            transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-            className="w-1 h-[6px] rounded-full bg-bb-accent"
-          />
-        </div>
-      </motion.div>
     </section>
   )
 }

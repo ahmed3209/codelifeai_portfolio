@@ -56,12 +56,12 @@ export default function WorkSection({ projects = [] }) {
           className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10 sm:mb-12"
         >
           <div>
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#00d4f5]/10 border border-[#00d4f5]/25 text-[0.68rem] font-bold uppercase tracking-widest text-[#00d4f5] mb-3">
-              <Layers size={12} /> Portfolio &amp; Case Studies
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#00cced]/10 border border-[#00cced]/30 text-[0.68rem] font-bold uppercase tracking-widest text-[#00f0ff] mb-3 shadow-[0_0_15px_rgba(0,204,237,0.15)]">
+              <Layers size={12} className="text-[#00f0ff]" /> Portfolio &amp; Case Studies
             </div>
-            <h2 className="text-3xl sm:text-5xl font-black text-bb-white tracking-tight leading-tight">
+            <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
               Selected Products We've <br />
-              <span className="bg-gradient-to-r from-[#00d4f5] via-[#38bdf8] to-[#a855f7] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[#00f0ff] via-[#00cced] to-[#1cb1f3] bg-clip-text text-transparent">
                 Engineered &amp; Shipped
               </span>
             </h2>

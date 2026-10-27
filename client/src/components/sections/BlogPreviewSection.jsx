@@ -11,12 +11,12 @@ export default function BlogPreviewSection({ blogs = [] }) {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div>
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#00d4f5]/10 border border-[#00d4f5]/25 text-[0.68rem] font-bold uppercase tracking-widest text-[#00d4f5] mb-4">
-            <BookOpen size={12} /> Tech Radar &amp; Insights
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#00cced]/10 border border-[#00cced]/30 text-[0.68rem] font-bold uppercase tracking-widest text-[#00f0ff] mb-4 shadow-[0_0_15px_rgba(0,204,237,0.15)]">
+            <BookOpen size={12} className="text-[#00f0ff]" /> Tech Radar &amp; Insights
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-bb-white tracking-tight leading-tight">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
             Latest From Our <br />
-            <span className="bg-gradient-to-r from-[#00d4f5] via-[#38bdf8] to-[#a855f7] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#00f0ff] via-[#00cced] to-[#1cb1f3] bg-clip-text text-transparent">
               Engineering Team
             </span>
           </h2>
@@ -37,11 +37,11 @@ export default function BlogPreviewSection({ blogs = [] }) {
           <Link
             key={b.id}
             to={`/blog/${b.slug}`}
-            className="group flex flex-col justify-between bg-[#090918]/80 border border-white/[0.06] hover:border-white/[0.18] rounded-3xl p-6 sm:p-7 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/50"
+            className="group flex flex-col justify-between bg-[#091527]/85 border border-[#00cced]/15 hover:border-[#00cced]/45 rounded-3xl p-6 sm:p-7 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-[#00cced]/10"
           >
             <div>
               <div className="flex items-center justify-between gap-2 mb-3.5">
-                <span className="text-[0.65rem] font-bold uppercase tracking-wider text-[#00d4f5] bg-[#00d4f5]/10 border border-[#00d4f5]/20 px-2.5 py-0.5 rounded-full">
+                <span className="text-[0.65rem] font-bold uppercase tracking-wider text-[#00f0ff] bg-[#00cced]/10 border border-[#00cced]/25 px-2.5 py-0.5 rounded-full">
                   {b.category || 'Engineering'}
                 </span>
                 <span className="text-[0.68rem] text-bb-muted flex items-center gap-1 font-mono">

@@ -5,6 +5,7 @@ import { getDb } from '../db/database.js'
 import { authMiddleware, signToken, ADMIN_COOKIE } from '../middleware/auth.js'
 import { cookieOptions } from '../middleware/session.js'
 import { sendReplyEmail, sendTestEmail } from '../services/email.js'
+import { clearSiteDataCache } from './public.js'
 
 const SESSION_MS = 60 * 60 * 1000 // 1 hour, matches JWT expiry
 
@@ -313,6 +314,7 @@ router.put('/content', async (req, res) => {
     })),
     'write'
   )
+  clearSiteDataCache()
   res.json({ ok: true })
 })
 

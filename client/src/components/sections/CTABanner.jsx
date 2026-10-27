@@ -18,34 +18,34 @@ export default function CTABanner() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.25 }}
           transition={{ duration: 0.78, ease: [0.16, 1, 0.3, 1] }}
-          className="relative rounded-3xl overflow-hidden border border-white/[0.09] px-6 py-12 sm:px-10 sm:py-16 text-center"
+          className="relative rounded-3xl overflow-hidden border border-[#00cced]/25 px-6 py-12 sm:px-10 sm:py-16 text-center shadow-2xl shadow-black/50 backdrop-blur-xl"
           style={{
-            background: 'linear-gradient(145deg, rgba(0,212,245,0.07) 0%, rgba(6,6,15,1) 40%, rgba(124,58,237,0.08) 100%)',
+            background: 'linear-gradient(145deg, rgba(0,204,237,0.1) 0%, rgba(9,21,39,0.95) 45%, rgba(28,177,243,0.1) 100%)',
           }}
         >
           {/* Orb left */}
           <div className="absolute top-1/2 -left-16 w-64 h-64 rounded-full -translate-y-1/2 pointer-events-none"
-            style={{ background: 'radial-gradient(circle, rgba(0,212,245,0.14) 0%, transparent 65%)' }} />
+            style={{ background: 'radial-gradient(circle, rgba(0,204,237,0.18) 0%, transparent 65%)' }} />
           {/* Orb right */}
           <div className="absolute top-1/2 -right-16 w-64 h-64 rounded-full -translate-y-1/2 pointer-events-none"
-            style={{ background: 'radial-gradient(circle, rgba(124,58,237,0.14) 0%, transparent 65%)' }} />
+            style={{ background: 'radial-gradient(circle, rgba(28,177,243,0.16) 0%, transparent 65%)' }} />
           {/* Top border glow */}
-          <div className="absolute top-0 left-1/4 right-1/4 h-[1px]"
-            style={{ background: 'linear-gradient(90deg, transparent, rgba(0,212,245,0.6), rgba(124,58,237,0.6), transparent)' }} />
+          <div className="absolute top-0 left-1/4 right-1/4 h-[1.5px]"
+            style={{ background: 'linear-gradient(90deg, transparent, rgba(0,240,255,0.8), rgba(0,204,237,0.8), transparent)' }} />
 
           {/* Content */}
           <div className="relative z-10">
             <div className="section-label inline-flex mb-6">Let's Work Together</div>
 
             <h2
-              className="font-extrabold tracking-tight leading-[1.04] mb-5 text-bb-white"
+              className="font-extrabold tracking-tight leading-[1.04] mb-5 text-white"
               style={{ fontSize: 'clamp(2.2rem, 5vw, 4rem)' }}
             >
               Ready to build something<br />
-              <em className="font-fraunces font-light not-italic text-gradient">extraordinary?</em>
+              <span className="text-gradient">extraordinary?</span>
             </h2>
 
-            <p className="text-bb-muted text-[1.01rem] leading-relaxed max-w-md mx-auto mb-10">
+            <p className="text-slate-300 text-[1.01rem] leading-relaxed max-w-md mx-auto mb-10">
               Tell us about your project. We'll respond within 24 hours with a free consultation and a tailored proposal.
             </p>
 

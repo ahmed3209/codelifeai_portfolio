@@ -91,21 +91,21 @@ export default function PromoTeaser({ promo = null, promos = [] }) {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="relative rounded-3xl border border-white/[0.09] overflow-hidden px-6 py-8 sm:px-12 sm:py-12 shadow-2xl"
-          style={{ background: 'linear-gradient(135deg, rgba(0,212,245,0.09) 0%, rgba(6,6,15,0.7) 45%, rgba(124,58,237,0.1) 100%)' }}
+          className="relative rounded-3xl border border-[#00cced]/25 overflow-hidden px-6 py-8 sm:px-12 sm:py-12 shadow-2xl backdrop-blur-xl"
+          style={{ background: 'linear-gradient(135deg, rgba(0,204,237,0.12) 0%, rgba(9,21,39,0.92) 45%, rgba(28,177,243,0.1) 100%)' }}
         >
           {/* Ambient glow accents */}
           <div
             className="absolute -top-20 -left-16 w-72 h-72 rounded-full pointer-events-none"
-            style={{ background: 'radial-gradient(circle, rgba(0,212,245,0.16) 0%, transparent 65%)' }}
+            style={{ background: 'radial-gradient(circle, rgba(0,204,237,0.2) 0%, transparent 65%)' }}
           />
           <div
             className="absolute -bottom-24 -right-16 w-80 h-80 rounded-full pointer-events-none"
-            style={{ background: 'radial-gradient(circle, rgba(124,58,237,0.16) 0%, transparent 65%)' }}
+            style={{ background: 'radial-gradient(circle, rgba(28,177,243,0.18) 0%, transparent 65%)' }}
           />
           <div
             className="absolute top-0 left-1/4 right-1/4 h-px"
-            style={{ background: 'linear-gradient(90deg, transparent, rgba(0,212,245,0.6), rgba(124,58,237,0.6), transparent)' }}
+            style={{ background: 'linear-gradient(90deg, transparent, rgba(0,240,255,0.8), rgba(0,204,237,0.8), transparent)' }}
           />
 
           {/* Top header row with Badge & Next/Prev Controls */}

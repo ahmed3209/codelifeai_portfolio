@@ -47,7 +47,7 @@ export default function TestimonialsSection({ testimonials = [] }) {
       {/* Background radial */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full"
-          style={{ background: 'radial-gradient(circle, rgba(124,58,237,0.04) 0%, transparent 55%)' }} />
+          style={{ background: 'radial-gradient(circle, rgba(0,204,237,0.08) 0%, transparent 55%)' }} />
       </div>
 
       <div className="max-w-[1100px] mx-auto">
@@ -61,24 +61,23 @@ export default function TestimonialsSection({ testimonials = [] }) {
         >
           <p className="section-number mb-1 text-center block">04 / Testimonials</p>
           <div className="section-label inline-flex">Client Stories</div>
-          <h2 className="font-extrabold tracking-tight mt-1" style={{ fontSize: 'clamp(2rem, 4vw, 3.2rem)' }}>
-            What Clients <em className="font-fraunces font-light not-italic text-white/35">Say</em>
+          <h2 className="font-extrabold tracking-tight mt-1 text-white" style={{ fontSize: 'clamp(2rem, 4vw, 3.2rem)' }}>
+            What Clients <span className="text-gradient">Say</span>
           </h2>
 
           {/* Overall rating */}
           <div className="flex items-center justify-center gap-2.5 mt-4">
             <Stars count={5} />
-            <span className="text-[0.85rem] font-bold text-amber-400">4.9</span>
-            <span className="text-[0.78rem] text-bb-muted">· {total} verified review{total !== 1 ? 's' : ''}</span>
+            <span className="text-[0.88rem] font-bold text-amber-400">4.9 / 5.0</span>
+            <span className="text-[0.8rem] text-slate-300">· {total} verified review{total !== 1 ? 's' : ''}</span>
           </div>
         </motion.div>
 
         {/* Testimonial card */}
         <div className="relative max-w-[780px] mx-auto">
-          <div className="relative overflow-hidden rounded-2xl border border-white/[0.08] min-h-[240px] sm:min-h-[260px] flex items-center"
-            style={{ background: 'linear-gradient(145deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.015) 100%)' }}>
+          <div className="relative overflow-hidden rounded-3xl border border-[#00cced]/25 min-h-[240px] sm:min-h-[260px] flex items-center bg-[#091527]/90 shadow-2xl shadow-black/50 backdrop-blur-xl">
             {/* Quote mark */}
-            <div className="absolute top-4 left-5 sm:top-6 sm:left-8 text-[4rem] sm:text-[5rem] leading-none font-serif text-white/[0.04] select-none pointer-events-none">
+            <div className="absolute top-4 left-5 sm:top-6 sm:left-8 text-[4rem] sm:text-[5rem] leading-none font-serif text-[#00cced]/10 select-none pointer-events-none">
               "
             </div>
 
