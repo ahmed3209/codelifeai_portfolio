@@ -38,11 +38,7 @@
   RewriteRule ^launch/https-screensnap-codelifeai-com/?$ /launch/screensnap [L,R=301]
   RewriteRule ^launch/screensnap-app/?$ /launch/screensnap [L,R=301]
 
-  # ── 7. Native Hostinger PHP API Routing ─────────────────────────────────────
-  # Pass all /api requests directly to api/index.php
-  RewriteRule ^api(/.*)?$ api/index.php [QSA,L]
-
-  # ── 8. SPA Routing: Serve index.html for non-file routes ────────────────────
+  # ── 7. SPA Routing: Serve index.html for non-file routes ────────────────────
   RewriteRule ^index\.html$ - [L]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
