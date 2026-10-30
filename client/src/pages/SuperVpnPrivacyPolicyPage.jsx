@@ -319,3 +319,4 @@ export default function SuperVpnPrivacyPolicyPage() {
     </div>
   )
 }
+
