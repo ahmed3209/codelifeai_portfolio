@@ -254,6 +254,26 @@ async function ensureExtras(db) {
     }
   }
 
+  // Normalize any founder linkedin_urls missing https://
+  try {
+    const { rows: fRows } = await db.execute("SELECT id, name, linkedin_url FROM founders")
+    for (const f of fRows) {
+      let url = (f.linkedin_url || '').trim()
+      if (url && !/^(https?:\/\/)/i.test(url)) {
+        await db.execute({
+          sql: 'UPDATE founders SET linkedin_url = ? WHERE id = ?',
+          args: [`https://${url.replace(/^\/+/, '')}`, f.id],
+        })
+      }
+      if (f.name === 'Anas Waheed' && (!url || url.includes('anas-waheed'))) {
+        await db.execute({
+          sql: 'UPDATE founders SET linkedin_url = ? WHERE id = ?',
+          args: ['https://www.linkedin.com/in/anas-waheed-68b355267', f.id],
+        })
+      }
+    }
+  } catch {}
+
   // Deduplicate any repeated project titles
   try {
     await db.execute(`
@@ -596,6 +616,26 @@ async function ensureExtras(db) {
       "DELETE FROM content WHERE key IN ('zyra_enabled','zyra_name','zyra_tagline','zyra_launch_at')"
     )
   }
+
+  // Ensure default promo products exist (Alarmify & ScreenSnap)
+  try {
+    const pRows = await db.execute("SELECT slug FROM promos")
+    const pSlugs = new Set(pRows.rows.map(r => r.slug))
+    if (!pSlugs.has('alarmify')) {
+      await db.execute({
+        sql: `INSERT INTO promos (slug, name, tagline, launch_at, cta_label, live_url, badge, is_active, sort_order)
+              VALUES (?, ?, ?, ?, ?, ?, ?, 1, 2)`,
+        args: ['alarmify', 'Alarmify', 'AI sleep partner and smart wake-up alarm system.', '2026-11-15T08:00:00+05:00', 'Request Early Access', 'https://alarmify.app', 'WEB APP']
+      })
+    }
+    if (!pSlugs.has('screensnap')) {
+      await db.execute({
+        sql: `INSERT INTO promos (slug, name, tagline, launch_at, cta_label, live_url, badge, is_active, sort_order)
+              VALUES (?, ?, ?, ?, ?, ?, ?, 1, 3)`,
+        args: ['screensnap', 'Screen Snap', 'Instant screen recording, smart annotations & AI capture workflow.', '2026-11-01T12:00:00+05:00', 'Request Early Access', 'https://screensnap.app', 'LIVE NOW']
+      })
+    }
+  } catch {}
 
   // Chatbot: seed Gemini default on existing DBs (idempotent). API key stays
   // unset until the admin adds one from the Settings page.

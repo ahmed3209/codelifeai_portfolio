@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { adminApi } from '../../lib/api'
+import { formatExternalUrl } from '../../lib/url'
 import Card, { CardHeader, CardBody } from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import { Input, Textarea } from '../../components/ui/Input'
@@ -45,6 +46,18 @@ export default function AdminContent() {
     })
   }
 
+  function handleSave() {
+    const cleaned = {
+      ...form,
+      social_linkedin: formatExternalUrl(form.social_linkedin),
+      social_facebook: formatExternalUrl(form.social_facebook),
+      social_instagram: formatExternalUrl(form.social_instagram),
+      social_twitter: formatExternalUrl(form.social_twitter),
+      social_github: formatExternalUrl(form.social_github),
+    }
+    updateMut.mutate(cleaned)
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
@@ -55,7 +68,7 @@ export default function AdminContent() {
           </p>
         </div>
         <Button
-          onClick={() => updateMut.mutate(form)}
+          onClick={handleSave}
           loading={updateMut.isPending}
           size="lg"
         >

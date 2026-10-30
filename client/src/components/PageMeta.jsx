@@ -21,8 +21,9 @@ const SITE_URL = 'https://codelifeai.com'
  * - ogImage  : optional absolute URL for social previews. Falls back to none.
  * - path     : route path (e.g. "/services") used to build the absolute canonical
  *              URL + og:url. Pass "/" for the homepage. Omit on noindex pages.
+ * - noindex  : boolean. When true, emits "noindex, follow" to prevent indexing.
  */
-export default function PageMeta({ title, description, keywords, ogImage, path }) {
+export default function PageMeta({ title, description, keywords, ogImage, path, noindex = false }) {
   const fullTitle = title ? `${title} — ${SITE_NAME}` : DEFAULT_TITLE
   // Normalise: strip a trailing slash so "/services/" and "/services" don't
   // produce two canonicals. The root path stays as the bare origin.
@@ -33,16 +34,21 @@ export default function PageMeta({ title, description, keywords, ogImage, path }
   return (
     <Helmet>
       <title>{fullTitle}</title>
+      {noindex ? (
+        <meta name="robots" content="noindex, follow" />
+      ) : (
+        <meta name="robots" content="index, follow" />
+      )}
       {description && <meta name="description" content={description} />}
       {keywords && <meta name="keywords" content={keywords} />}
-      {canonical && <link rel="canonical" href={canonical} />}
+      {canonical && !noindex && <link rel="canonical" href={canonical} />}
 
       {/* Open Graph */}
       <meta property="og:type" content="website" />
       <meta property="og:site_name" content={SITE_NAME} />
       <meta property="og:title" content={fullTitle} />
       {description && <meta property="og:description" content={description} />}
-      {canonical && <meta property="og:url" content={canonical} />}
+      {canonical && !noindex && <meta property="og:url" content={canonical} />}
       {ogImage && <meta property="og:image" content={ogImage} />}
 
       {/* Twitter */}

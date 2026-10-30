@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, Navigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { publicApi } from '../lib/api'
 import PageMeta from '../components/PageMeta'
@@ -85,8 +85,18 @@ function FormattedContent({ content }) {
   )
 }
 
+const BLOG_SLUG_REDIRECTS = {
+  'flutter-3-performance-120fps-rendering-guide': 'flutter-3-cross-platform-60fps-blueprint',
+  'building-production-ai-agents-langchain-claude': 'building-production-ai-agents-gemini-nextjs',
+}
+
 export default function BlogPostPage() {
   const { slug } = useParams()
+
+  if (slug && BLOG_SLUG_REDIRECTS[slug]) {
+    return <Navigate to={`/blog/${BLOG_SLUG_REDIRECTS[slug]}`} replace />
+  }
+
   const [scrollProgress, setScrollProgress] = useState(0)
   const [copied, setCopied] = useState(false)
 
@@ -136,6 +146,11 @@ export default function BlogPostPage() {
   if (isError || !blog) {
     return (
       <div className="pt-36 pb-20 max-w-xl mx-auto px-4 text-center min-h-screen">
+        <PageMeta
+          title="Article Not Found"
+          description="The article you are looking for might have been moved or deleted."
+          noindex={true}
+        />
         <div className="p-8 rounded-3xl bg-white/[0.02] border border-white/[0.08]">
           <h1 className="text-2xl font-bold text-bb-white">Article Not Found</h1>
           <p className="text-sm text-bb-muted mt-2">
@@ -150,6 +165,10 @@ export default function BlogPostPage() {
         </div>
       </div>
     )
+  }
+
+  if (blog.canonical_slug && blog.canonical_slug !== slug) {
+    return <Navigate to={`/blog/${blog.canonical_slug}`} replace />
   }
 
   return (

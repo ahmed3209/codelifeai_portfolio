@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, Navigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useQuery } from '@tanstack/react-query'
 import { publicApi } from '../lib/api'
@@ -156,6 +156,7 @@ function EmptyState({ message }) {
       <PageMeta
         title={message}
         description="No upcoming product launches at the moment. Head back to the homepage to see what we're building."
+        noindex={true}
       />
       <Link to="/"
         className="absolute top-6 left-6 flex items-center gap-2 text-[0.8rem] text-bb-muted hover:text-bb-white transition-colors no-underline">
@@ -175,6 +176,11 @@ function EmptyState({ message }) {
 
 export default function LaunchPage() {
   const { slug } = useParams()
+
+  // 301 redirect malformed slug reported in SEO audit
+  if (slug === 'https-screensnap-codelifeai-com') {
+    return <Navigate to="/launch/screensnap" replace />
+  }
 
   // When :slug is in the URL, fetch that specific promo. Otherwise use the active one from site-data.
   const slugQuery = useQuery({

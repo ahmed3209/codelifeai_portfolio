@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { publicApi } from '../../lib/api'
+import { formatExternalUrl } from '../../lib/url'
 import toast from 'react-hot-toast'
 import {
   Send, Mail, ArrowUpRight, MapPin,
@@ -500,11 +501,11 @@ export function Footer({ content = {} }) {
   const copyright = (content.footer_copyright || '© {year} CodeLifeAI. All rights reserved.').replace('{year}', currentYear)
 
   const socialIcons = [
-    { Icon: Linkedin,  href: content.social_linkedin,  label: 'LinkedIn'  },
-    { Icon: Facebook,  href: content.social_facebook,  label: 'Facebook'  },
-    { Icon: Instagram, href: content.social_instagram, label: 'Instagram' },
-    { Icon: Twitter,   href: content.social_twitter,   label: 'X (Twitter)' },
-    { Icon: Globe,     href: content.social_github,    label: 'GitHub'    },
+    { Icon: Linkedin,  href: formatExternalUrl(content.social_linkedin),  label: 'LinkedIn'  },
+    { Icon: Facebook,  href: formatExternalUrl(content.social_facebook),  label: 'Facebook'  },
+    { Icon: Instagram, href: formatExternalUrl(content.social_instagram), label: 'Instagram' },
+    { Icon: Twitter,   href: formatExternalUrl(content.social_twitter),   label: 'X (Twitter)' },
+    { Icon: Globe,     href: formatExternalUrl(content.social_github),    label: 'GitHub'    },
     { Icon: Phone,     href: content.social_whatsapp ? `https://wa.me/${String(content.social_whatsapp).replace(/\D/g, '')}` : '', label: 'WhatsApp' },
     { Icon: Mail,      href: email ? `mailto:${email}` : '', label: 'Email' },
     { Icon: Phone,     href: phone ? `tel:${String(phone).replace(/\s+/g, '')}` : '', label: 'Phone' },

@@ -1,6 +1,7 @@
 import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion'
 import { ExternalLink, Github, Linkedin, MapPin } from 'lucide-react'
 import { resolveApiUrl } from '../../lib/api'
+import { formatExternalUrl } from '../../lib/url'
 
 function useTilt(strength = 9) {
   const rawX  = useMotionValue(0)
@@ -117,14 +118,14 @@ function FounderCard({ founder }) {
         {/* Social icons */}
         <div className="flex gap-1.5 flex-shrink-0">
           {founder.linkedin_url && (
-            <a href={founder.linkedin_url} target="_blank" rel="noopener noreferrer"
+            <a href={formatExternalUrl(founder.linkedin_url)} target="_blank" rel="noopener noreferrer"
               onClick={e => e.stopPropagation()}
               className="w-8 h-8 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-bb-muted hover:text-bb-accent hover:border-bb-accent/30 transition-all">
               <Linkedin size={12} />
             </a>
           )}
           {founder.github_url && (
-            <a href={founder.github_url} target="_blank" rel="noopener noreferrer"
+            <a href={formatExternalUrl(founder.github_url)} target="_blank" rel="noopener noreferrer"
               onClick={e => e.stopPropagation()}
               className="w-8 h-8 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-bb-muted hover:text-bb-white hover:border-white/[0.2] transition-all">
               <Github size={12} />

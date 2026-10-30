@@ -88,13 +88,24 @@ router.get('/blogs', async (req, res) => {
   }
 })
 
+const BLOG_SLUG_ALIASES = {
+  'flutter-3-performance-120fps-rendering-guide': 'flutter-3-cross-platform-60fps-blueprint',
+  'building-production-ai-agents-langchain-claude': 'building-production-ai-agents-gemini-nextjs',
+}
+
+const PROMO_SLUG_ALIASES = {
+  'https-screensnap-codelifeai-com': 'screensnap',
+  'screensnap-app': 'screensnap',
+}
+
 // GET /api/blogs/:slug — single published article with view increment
 router.get('/blogs/:slug', async (req, res) => {
   try {
     const db = getDb()
+    const targetSlug = BLOG_SLUG_ALIASES[req.params.slug] || req.params.slug
     const { rows } = await db.execute({
       sql: 'SELECT * FROM blogs WHERE slug = ? AND is_published = 1',
-      args: [req.params.slug],
+      args: [targetSlug],
     })
     if (!rows[0]) return res.status(404).json({ error: 'Article not found' })
 
@@ -107,7 +118,7 @@ router.get('/blogs/:slug', async (req, res) => {
       args: [rows[0].id],
     })
 
-    res.json({ ...rows[0], related: related.rows || [] })
+    res.json({ ...rows[0], canonical_slug: rows[0].slug, related: related.rows || [] })
   } catch (err) {
     res.status(500).json({ error: err.message })
   }
@@ -133,12 +144,41 @@ router.get('/promos/active', async (req, res) => {
 
 // GET /api/promos/:slug — a specific promo by slug (for direct-linked /launch/:slug)
 router.get('/promos/:slug', async (req, res) => {
-  const { rows } = await getDb().execute({
-    sql: 'SELECT * FROM promos WHERE slug = ? LIMIT 1',
-    args: [req.params.slug],
-  })
-  if (!rows[0]) return res.status(404).json({ error: 'Promo not found' })
-  res.json(rows[0])
+  try {
+    const db = getDb()
+    const targetSlug = PROMO_SLUG_ALIASES[req.params.slug] || req.params.slug
+    let { rows } = await db.execute({
+      sql: 'SELECT * FROM promos WHERE slug = ? LIMIT 1',
+      args: [targetSlug],
+    })
+
+    if (!rows[0]) {
+      // Fallback: check live_products for matching name/slug
+      const lp = await db.execute('SELECT * FROM live_products')
+      const match = lp.rows.find(p => {
+        const slug = (p.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
+        return slug === targetSlug.toLowerCase() || p.name.toLowerCase() === targetSlug.toLowerCase()
+      })
+      if (match) {
+        rows = [{
+          id: match.id,
+          slug: targetSlug,
+          name: match.name,
+          tagline: match.tagline,
+          launch_at: match.created_at || '2026-11-01T12:00:00+05:00',
+          cta_label: match.cta_label || 'Request Early Access',
+          live_url: match.url || '',
+          badge: match.badge || 'LIVE NOW',
+          is_active: 1,
+        }]
+      }
+    }
+
+    if (!rows[0]) return res.status(404).json({ error: 'Promo not found' })
+    res.json(rows[0])
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
 })
 
 // GET /api/services

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { adminApi, resolveApiUrl } from '../../lib/api'
+import { formatExternalUrl } from '../../lib/url'
 import Card, { CardBody } from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Modal from '../../components/ui/Modal'
@@ -124,6 +125,8 @@ export default function AdminFounders() {
 
     const payload = {
       ...form,
+      linkedin_url: formatExternalUrl(form.linkedin_url),
+      github_url: formatExternalUrl(form.github_url),
       show_on_home: form.show_on_home ? 1 : 0,
       sort_order: Number(form.sort_order) || 0,
       tags: (() => {

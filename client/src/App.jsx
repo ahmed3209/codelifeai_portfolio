@@ -1,5 +1,5 @@
-import { lazy, Suspense } from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { lazy, Suspense, useEffect } from 'react'
+import { BrowserRouter, Routes, Route, Navigate, useParams, useLocation } from 'react-router-dom'
 import PublicLayout from './components/layout/PublicLayout'
 import HomePage from './pages/HomePage'
 import ServicesPage from './pages/ServicesPage'
@@ -39,6 +39,20 @@ const AdminFAQs           = lazy(() => import('./pages/admin/FAQs'))
 import ScrollToTop from './components/ScrollToTop'
 import ErrorBoundary from './components/ErrorBoundary'
 
+function LinkedInRedirect() {
+  const location = useLocation()
+  useEffect(() => {
+    const raw = location.pathname.replace(/^\/+/, '')
+    window.location.replace(`https://${raw}`)
+  }, [location])
+  return null
+}
+
+function BlogSubpathRedirect() {
+  const { slug } = useParams()
+  return <Navigate to={`/blog/${slug}`} replace />
+}
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -58,7 +72,10 @@ export default function App() {
             <Route path="/process"     element={<ProcessPage />} />
             <Route path="/blog"        element={<BlogPage />} />
             <Route path="/blog/:slug"  element={<BlogPostPage />} />
+            <Route path="/blogs"       element={<Navigate to="/blog" replace />} />
+            <Route path="/blogs/:slug" element={<BlogSubpathRedirect />} />
             <Route path="/contact"     element={<ContactPage />} />
+            <Route path="/www.linkedin.com/*" element={<LinkedInRedirect />} />
             <Route path="*"            element={<NotFoundPage />} />
           </Route>
 

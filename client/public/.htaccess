@@ -1,35 +1,71 @@
-# Hostinger / Apache config for the built React SPA.
-# Vite copies the contents of `public/` to the build output, so this file
-# ends up at the root of `dist/` and (after upload) at the root of public_html/.
+# ==============================================================================
+# CodeLifeAI — Production Apache / Hostinger Configuration
+# High-Performance SPA Routing, 301 Canonicalization & Google Search Console Fixes
+# ==============================================================================
 
-# ── Force HTTPS ─────────────────────────────────────────────────────────────
-<IfModule mod_rewrite.c>
-  RewriteEngine On
-  RewriteCond %{HTTPS} !=on
-  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-</IfModule>
-
-# ── SPA fallback: serve index.html for any non-file route ───────────────────
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
+
+  # ── 1. Force HTTPS & Canonical Non-WWW in a Single 301 Hop ──────────────────
+  # Redirects any http:// or www. URL directly to https://codelifeai.com/...
+  RewriteCond %{HTTPS} off [OR]
+  RewriteCond %{HTTP_HOST} ^www\. [NC]
+  RewriteRule ^(.*)$ https://codelifeai.com/$1 [L,R=301]
+
+  # ── 2. Subdomain 301 Redirects: blogs.codelifeai.com -> codelifeai.com/blog ──
+  RewriteCond %{HTTP_HOST} ^blogs\.codelifeai\.com$ [NC]
+  RewriteRule ^(.*)$ https://codelifeai.com/blog/$1 [L,R=301]
+
+  # ── 3. Subdomain Protection: auth.codelifeai.com ────────────────────────────
+  # Stray routes such as /blog on auth subdomain return 404
+  RewriteCond %{HTTP_HOST} ^auth\.codelifeai\.com$ [NC]
+  RewriteCond %{REQUEST_URI} ^/blog(/.*)?$ [NC]
+  RewriteRule ^ - [R=404,L]
+
+  # ── 4. Fix Broken / Relative LinkedIn Links ─────────────────────────────────
+  # Solves /www.linkedin.com/in/... relative URL bug
+  RewriteRule ^www\.linkedin\.com/(.*)$ https://www.linkedin.com/$1 [L,R=301]
+
+  # ── 5. Blog 301 Redirects for Legacy / Modified Slugs ───────────────────────
+  RewriteRule ^blog/flutter-3-performance-120fps-rendering-guide/?$ /blog/flutter-3-cross-platform-60fps-blueprint [L,R=301]
+  RewriteRule ^blog/building-production-ai-agents-langchain-claude/?$ /blog/building-production-ai-agents-gemini-nextjs [L,R=301]
+  RewriteRule ^blogs/?$ /blog [L,R=301]
+  RewriteRule ^blogs/(.*)$ /blog/$1 [L,R=301]
+
+  # ── 6. Promo / Launch Slug Fixes ────────────────────────────────────────────
+  # Redirect malformed slug to clean canonical /launch/screensnap
+  RewriteRule ^launch/https-screensnap-codelifeai-com/?$ /launch/screensnap [L,R=301]
+  RewriteRule ^launch/screensnap-app/?$ /launch/screensnap [L,R=301]
+
+  # ── 7. SPA Routing: Serve index.html for non-file routes ────────────────────
   RewriteRule ^index\.html$ - [L]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule . /index.html [L]
 </IfModule>
 
-# ── Cache hashed assets aggressively, keep index.html fresh ─────────────────
+# Custom 404 error handler serves index.html with real 404 HTTP status
+ErrorDocument 404 /index.html
+
+# ── Security & Header Directives ──────────────────────────────────────────────
 <IfModule mod_headers.c>
+  # Auth Subdomain Noindex
+  SetEnvIfNoCase Host ^auth\.codelifeai\.com$ IS_AUTH_SUBDOMAIN
+  Header set X-Robots-Tag "noindex, nofollow" env=IS_AUTH_SUBDOMAIN
+
+  # Cache hashed static assets aggressively
   <FilesMatch "\.(js|css|woff2?|ttf|otf|eot|png|jpe?g|gif|webp|svg|ico)$">
     Header set Cache-Control "public, max-age=31536000, immutable"
   </FilesMatch>
-  <FilesMatch "index\.html$">
+
+  # Keep HTML, sitemap and robots fresh
+  <FilesMatch "(index\.html|sitemap\.xml|robots\.txt)$">
     Header set Cache-Control "no-cache, no-store, must-revalidate"
   </FilesMatch>
 </IfModule>
 
-# ── Gzip / Brotli compression ───────────────────────────────────────────────
+# ── Compression ───────────────────────────────────────────────────────────────
 <IfModule mod_deflate.c>
-  AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/json image/svg+xml
+  AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/json image/svg+xml text/xml application/xml
 </IfModule>
