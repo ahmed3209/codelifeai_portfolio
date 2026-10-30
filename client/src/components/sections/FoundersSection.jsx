@@ -4,15 +4,15 @@ import { resolveApiUrl } from '../../lib/api'
 import { formatExternalUrl } from '../../lib/url'
 
 function useTilt(strength = 6) {
-  const rawX  = useMotionValue(0)
-  const rawY  = useMotionValue(0)
-  const rotX  = useSpring(useTransform(rawY, [-1, 1], [ strength, -strength]), { stiffness: 220, damping: 22 })
-  const rotY  = useSpring(useTransform(rawX, [-1, 1], [-strength,  strength]), { stiffness: 220, damping: 22 })
+  const rawX = useMotionValue(0)
+  const rawY = useMotionValue(0)
+  const rotX = useSpring(useTransform(rawY, [-1, 1], [strength, -strength]), { stiffness: 220, damping: 22 })
+  const rotY = useSpring(useTransform(rawX, [-1, 1], [-strength, strength]), { stiffness: 220, damping: 22 })
   const scale = useSpring(1, { stiffness: 220, damping: 22 })
   function onMouseMove(e) {
     const r = e.currentTarget.getBoundingClientRect()
-    rawX.set(((e.clientX - r.left) / r.width  - 0.5) * 2)
-    rawY.set(((e.clientY - r.top)  / r.height - 0.5) * 2)
+    rawX.set(((e.clientX - r.left) / r.width - 0.5) * 2)
+    rawY.set(((e.clientY - r.top) / r.height - 0.5) * 2)
     scale.set(1.012)
   }
   function onMouseLeave() { rawX.set(0); rawY.set(0); scale.set(1) }
