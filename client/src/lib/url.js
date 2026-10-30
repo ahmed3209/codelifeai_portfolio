@@ -18,3 +18,4 @@ export function formatExternalUrl(url) {
   // Otherwise prepend https://
   return `https://${trimmed}`
 }
+
