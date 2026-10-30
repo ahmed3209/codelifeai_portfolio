@@ -205,7 +205,7 @@ export default function LaunchPage() {
 
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 1000)
-    publicApi.trackView({ path: window.location.pathname, referrer: document.referrer || '' }).catch(() => {})
+    publicApi.trackView({ path: window.location.pathname, referrer: document.referrer || '' }).catch(() => { })
     return () => clearInterval(t)
   }, [slug])
 
@@ -229,7 +229,7 @@ export default function LaunchPage() {
   }
 
   const toolName = promo.name || 'Coming Soon'
-  const tagline  = promo.tagline || ''
+  const tagline = promo.tagline || ''
   const ctaLabel = promo.cta_label || 'Request Early Access'
 
   const metaDescription = tagline
