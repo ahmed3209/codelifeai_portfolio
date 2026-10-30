@@ -1,0 +1,10 @@
+# Deny all direct web access to database files
+<FilesMatch "\.(db|sqlite|sqlite3)$">
+  Order allow,deny
+  Deny from all
+</FilesMatch>
+
+# Apache 2.4+ alternative
+<IfModule mod_authz_core.c>
+  Require all denied
+</IfModule>
