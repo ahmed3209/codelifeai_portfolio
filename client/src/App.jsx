@@ -17,6 +17,7 @@ import ProtectedRoute from './components/admin/ProtectedRoute'
 
 // Lazy chunks — homepage visitors never download these.
 const LaunchPage          = lazy(() => import('./pages/LaunchPage'))
+const SuperVpnPrivacyPolicyPage = lazy(() => import('./pages/SuperVpnPrivacyPolicyPage'))
 const AdminLogin          = lazy(() => import('./pages/admin/Login'))
 const AdminLayout         = lazy(() => import('./components/layout/AdminLayout'))
 const AdminDashboard      = lazy(() => import('./pages/admin/Dashboard'))
@@ -75,6 +76,12 @@ export default function App() {
             <Route path="/blogs"       element={<Navigate to="/blog" replace />} />
             <Route path="/blogs/:slug" element={<BlogSubpathRedirect />} />
             <Route path="/contact"     element={<ContactPage />} />
+            {/* Unlisted standalone legal / privacy policy pages (not linked in navigation) */}
+            <Route path="/upervpn-privacy-pilocy"       element={<SuperVpnPrivacyPolicyPage />} />
+            <Route path="/upervpn-privacy-pilocy.html"  element={<SuperVpnPrivacyPolicyPage />} />
+            <Route path="/supervpn-privacy-policy"      element={<SuperVpnPrivacyPolicyPage />} />
+            <Route path="/supervpn-privacy-policy.html" element={<SuperVpnPrivacyPolicyPage />} />
+            <Route path="/super-vpn-privacy-policy"     element={<SuperVpnPrivacyPolicyPage />} />
             <Route path="/www.linkedin.com/*" element={<LinkedInRedirect />} />
             <Route path="*"            element={<NotFoundPage />} />
           </Route>
