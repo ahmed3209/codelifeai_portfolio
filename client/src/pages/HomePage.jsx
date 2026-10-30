@@ -164,7 +164,8 @@ export default function HomePage() {
 
   const content      = siteData?.content && Object.keys(siteData.content).length > 0 ? siteData.content : DEFAULT_CONTENT
   const services     = siteData?.services && siteData.services.length > 0 ? siteData.services : DEFAULT_SERVICES
-  const founders     = siteData?.founders && siteData.founders.length > 0 ? siteData.founders : DEFAULT_FOUNDERS
+  const rawFounders  = siteData?.founders && siteData.founders.length > 0 ? siteData.founders : DEFAULT_FOUNDERS
+  const founders     = rawFounders.filter(f => Number(f.show_on_home) === 1 || f.show_on_home === true || f.show_on_home === '1')
   const blogs        = siteData?.blogs && siteData.blogs.length > 0 ? siteData.blogs : DEFAULT_BLOGS
   const testimonials = siteData?.testimonials && siteData.testimonials.length > 0 ? siteData.testimonials : DEFAULT_TESTIMONIALS
   const activePromo  = siteData?.activePromo || null

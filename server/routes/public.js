@@ -22,9 +22,10 @@ router.get('/site-data', async (req, res) => {
 
   const db = getDb()
 
-  const [services, founders, projects, testimonials, process, rawContent, activePromos, liveProducts, faqs, blogs, industriesRes] = await Promise.all([
+  const [services, homeFounders, allFounders, projects, testimonials, process, rawContent, activePromos, liveProducts, faqs, blogs, industriesRes] = await Promise.all([
     db.execute('SELECT * FROM services ORDER BY parent_id ASC NULLS FIRST, sort_order ASC, id ASC'),
-    db.execute('SELECT id, name, role, bio, initials, photo_url, avatar_bg, tags, linkedin_url, show_on_home, sort_order, created_at FROM founders WHERE show_on_home = 1 OR show_on_home IS NULL ORDER BY sort_order ASC'),
+    db.execute('SELECT id, name, role, bio, initials, photo_url, avatar_bg, tags, linkedin_url, show_on_home, sort_order, created_at FROM founders WHERE show_on_home = 1 ORDER BY sort_order ASC'),
+    db.execute('SELECT id, name, role, bio, initials, photo_url, avatar_bg, tags, linkedin_url, show_on_home, sort_order, created_at FROM founders ORDER BY sort_order ASC'),
     db.execute('SELECT * FROM projects ORDER BY sort_order ASC'),
     db.execute('SELECT * FROM testimonials WHERE show_on_home = 1 OR show_on_home IS NULL ORDER BY sort_order ASC'),
     db.execute('SELECT * FROM process_steps ORDER BY sort_order ASC'),
@@ -51,7 +52,8 @@ router.get('/site-data', async (req, res) => {
 
   siteDataCache = {
     services: services.rows,
-    founders: founders.rows,
+    founders: homeFounders.rows,
+    allFounders: allFounders.rows,
     projects: projects.rows,
     testimonials: testimonials.rows,
     process: process.rows,

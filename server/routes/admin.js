@@ -350,6 +350,11 @@ function formatExternalUrl(url) {
   return `https://${trimmed}`
 }
 
+function parseShowOnHome(val) {
+  if (val === 0 || val === '0' || val === false || val === 'false') return 0
+  return 1
+}
+
 router.get('/founders', async (req, res) => {
   const { rows } = await getDb().execute('SELECT id, name, role, bio, initials, photo_url, avatar_bg, tags, linkedin_url, show_on_home, sort_order, created_at FROM founders ORDER BY sort_order ASC')
   res.json(rows)
@@ -361,9 +366,10 @@ router.post('/founders', async (req, res) => {
   const max = await db.execute('SELECT MAX(sort_order) as m FROM founders')
   const nextOrder = sort_order || (Number(max.rows[0].m) || 0) + 1
   const cleanLinkedIn = formatExternalUrl(linkedin_url)
+  const isHome = parseShowOnHome(show_on_home)
   const ins = await db.execute({
     sql: 'INSERT INTO founders (name,role,bio,initials,photo_url,avatar_bg,tags,linkedin_url,show_on_home,sort_order) VALUES (?,?,?,?,?,?,?,?,?,?)',
-    args: [name, role, bio, initials, photo_url || '', avatar_bg || 'linear-gradient(135deg,#7c3aed,#00d4f5)', tags || '[]', cleanLinkedIn, show_on_home !== 0 ? 1 : 0, nextOrder],
+    args: [name, role, bio, initials, photo_url || '', avatar_bg || 'linear-gradient(135deg,#7c3aed,#00d4f5)', tags || '[]', cleanLinkedIn, isHome, nextOrder],
   })
   const { rows } = await db.execute({
     sql: 'SELECT id, name, role, bio, initials, photo_url, avatar_bg, tags, linkedin_url, show_on_home, sort_order, created_at FROM founders WHERE id = ?',
@@ -376,9 +382,10 @@ router.put('/founders/:id', async (req, res) => {
   const { name, role, bio, initials, photo_url, avatar_bg, tags, linkedin_url, show_on_home, sort_order } = req.body
   const db = getDb()
   const cleanLinkedIn = formatExternalUrl(linkedin_url)
+  const isHome = parseShowOnHome(show_on_home)
   await db.execute({
     sql: 'UPDATE founders SET name=?,role=?,bio=?,initials=?,photo_url=?,avatar_bg=?,tags=?,linkedin_url=?,show_on_home=?,sort_order=? WHERE id=?',
-    args: [name, role, bio, initials, photo_url, avatar_bg, tags, cleanLinkedIn, show_on_home !== 0 ? 1 : 0, sort_order, req.params.id],
+    args: [name, role, bio, initials, photo_url, avatar_bg, tags, cleanLinkedIn, isHome, sort_order, req.params.id],
   })
   const { rows } = await db.execute({
     sql: 'SELECT id, name, role, bio, initials, photo_url, avatar_bg, tags, linkedin_url, show_on_home, sort_order, created_at FROM founders WHERE id = ?',
@@ -390,10 +397,11 @@ router.put('/founders/:id', async (req, res) => {
 router.put('/founders/:id/toggle-home', async (req, res) => {
   try {
     const { show_on_home } = req.body
+    const isHome = parseShowOnHome(show_on_home)
     const db = getDb()
     await db.execute({
       sql: 'UPDATE founders SET show_on_home = ? WHERE id = ?',
-      args: [show_on_home ? 1 : 0, req.params.id],
+      args: [isHome, req.params.id],
     })
     const { rows } = await db.execute({
       sql: 'SELECT id, name, role, bio, initials, photo_url, avatar_bg, tags, linkedin_url, show_on_home, sort_order, created_at FROM founders WHERE id = ?',
